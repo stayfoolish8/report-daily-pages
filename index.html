@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; base-uri 'none'">
+  <title>Report Daily · 精编</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <a href="./index.html" class="wordmark"><span class="brand-dot">●</span> AGENT <strong>DAILY</strong></a>
+    <span class="nav-caption">AI 工程的每日阅读清单</span>
+    <button id="archive-button" class="quiet-button" aria-expanded="false" aria-controls="archive">历史日报 ↓</button>
+  </header>
+  <main class="layout">
+    <aside class="rail">
+      <div class="issue-number"><span>READ LESS.<br>KNOW WHAT MATTERS.</span><b id="day-number">05</b><p id="date">正在载入</p></div>
+      <div class="rail-divider"></div>
+      <p class="eyebrow">本期阅读路线</p>
+      <nav id="contents" aria-label="本期目录"></nav>
+      <p class="rail-note">先扫总览，再按类型深入。<br>原始证据始终可追溯。</p>
+    </aside>
+    <div class="reading">
+      <section id="archive" aria-label="历史日报" hidden>
+        <div class="archive-heading"><div><span class="eyebrow">THE DAILY ARCHIVE</span><h2>历史日报</h2></div><button id="archive-close" class="quiet-button">关闭 ×</button></div>
+        <p id="archive-note">按日期查看往期内容，同日修订版也会保留。</p>
+        <div class="archive-controls"><label for="archive-date">选择日期</label><input id="archive-date" type="date"><button id="archive-clear" class="quiet-button">全部日期</button></div>
+        <p id="archive-empty" role="status" hidden>这个日期暂无日报。</p>
+        <ol id="archive-list"></ol>
+      </section>
+      <nav class="issue-navigation" aria-label="期刊翻页"><button id="issue-prev" disabled>← 上一期</button><button id="issue-latest" disabled>返回最新</button><button id="issue-next" disabled>下一期 →</button></nav>
+      <p id="issue-position" class="issue-position"></p>
+      <p id="archive-status" role="status" hidden></p>
+      <section class="hero">
+        <div class="hero-kicker"><span id="edition-label">每日精编</span><span id="read-time">15 分钟阅读预算</span></div>
+        <h1 id="headline">正在整理值得读的变化</h1>
+        <p id="takeaway" class="takeaway"></p>
+        <div class="actions" id="actions" hidden><span class="eyebrow">读完可以做什么</span><ul id="action-list"></ul></div>
+        <details id="review-status" class="review-status" hidden>
+          <summary id="review-summary"></summary>
+          <div id="review-details" class="review-details"></div>
+        </details>
+      </section>
+      <section id="run-report" class="run-report" aria-label="运行报告" hidden></section>
+      <section class="brief-list" aria-label="精选资讯">
+        <div class="section-heading"><div><span class="eyebrow">READ BY CATEGORY</span><h2>按类型深入阅读</h2></div><span id="item-count"></span></div>
+        <div id="filters" class="filters" role="group" aria-label="按类型筛选"></div>
+        <div id="stories"></div>
+      </section>
+      <details class="selection-note"><summary>为什么是这些内容？<span>查看筛选说明 ＋</span></summary><div id="selection-detail"></div></details>
+      <footer><span>REPORT DAILY</span><p>观点用于帮助判断；事实链接到原始来源。</p></footer>
+    </div>
+  </main>
+  <!-- EMBEDDED_ISSUE -->
+  <script defer src="./app.js"></script>
+</body>
+</html>
