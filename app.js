@@ -55,6 +55,12 @@
   function render(issue) {
     activeIssue=issue;
     if(issue.schema_version!=="1.0") throw Error("不支持的日报格式");
+    const generationModels=Array.isArray(issue.source_stats?.generation_models)
+      ?issue.source_stats.generation_models.filter(name=>typeof name==="string"&&name.trim())
+      :[];
+    const modelCaption=generationModels.length?"生成模型："+[...new Set(generationModels)].join(" · "):"生成模型未记录";
+    $("generation-models").textContent=modelCaption;
+    $("generation-models").title=modelCaption;
     const briefing=issue.briefing||{};
     $("date").textContent=issue.issue_date.replaceAll("-"," / ");
     $("day-number").textContent=issue.issue_date.slice(-2);
