@@ -1,0 +1,2306 @@
+{
+  "schema_version": "1.0",
+  "issue_date": "2026-11-01",
+  "revision": 1,
+  "generated_at": "2026-10-31T22:17:23.719011Z",
+  "run_id": "87df7b84-27f3-4ee8-9e3c-2ffde4fc0b3a",
+  "window": {
+    "start": "2026-10-30T22:00:00Z",
+    "end": "2026-10-31T22:00:00Z"
+  },
+  "snapshot": {
+    "candidate_count": 14,
+    "frozen": true
+  },
+  "snapshot_summary": "公共候选池经确定性去重、评分、正文补全后生成。",
+  "sections": [
+    {
+      "type": "ai_practice",
+      "item_ids": [
+        "item-41c199fd40de5e03958f82e58c70d199",
+        "item-ae3f91e9746b5edeb5cb445f946af20c",
+        "item-7089a6df47655fb5a791f948c82811fe",
+        "item-d803b7f3db795916bc468eec02c22dfe",
+        "item-e082855c0f9555ccab1b4cf2fe072c41"
+      ]
+    },
+    {
+      "type": "paper",
+      "item_ids": [
+        "item-b7fc19ae33c05a968fcc28dd06e683d9",
+        "item-832c2037644e592981b8c07a4a7a9066"
+      ]
+    },
+    {
+      "type": "news",
+      "item_ids": [
+        "item-b4c5ecea46d3567fb7665dd7b44b0d4c",
+        "item-c108a9711f7c52c3b98fabe4258ec4af",
+        "item-09bf8875701f55f3a3032a75e35d4e3d",
+        "item-6c24627fa4bc53259ff0b977bc318d1e",
+        "item-0bf72f7026735054ac84ae599b7e32ec",
+        "item-0b3cec231f7c599a8c5eba1b490c3a5a"
+      ]
+    },
+    {
+      "type": "blog",
+      "item_ids": [
+        "item-4eae3b33c561586b82df0a97f1208273"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "item_id": "item-41c199fd40de5e03958f82e58c70d199",
+      "event_id": "a12fc9a3-6fa3-5871-b7cc-5b8940f2efa3",
+      "type": "blog",
+      "title": "SQLite 本地持久化 Agent Memory 是否够用",
+      "source": "wavect.io",
+      "published_at": null,
+      "canonical_url": "https://wavect.io/blog/tencentdb-agent-memory-sqlite-review",
+      "summary": "Wavect（作者 Kevin Riedl）2026-10-30 发布对 TencentDB Agent Memory 的文档级评审，覆盖两个固定修订版：plugin（main, a3c2d860）与 team Memory Hub（feat/server_team, ecc01a54）。结论：本地 SQLite 可持久化 Agent Memory，托管向量服务在受限部署中变为可选；当前独立 MemoryCore 默认 BM25 检索、远端 embeddings 关闭，但记忆抽取仍需配置 LLM。评审方明确未做部署实测，也未独立复现任何 benchmark。",
+      "why_it_matters": "给 Agent 或 coding agent 加持久 Memory 时，'是否必须另建向量库'是真实的架构决策；本文给出判据与验收清单，并把 61% 省 token 等宣传数字还原为特定 workload 的上游结果。",
+      "key_facts": [
+        {
+          "fact": "评审称 TencentDB Agent Memory 可用本地 SQLite 持久化 Agent Memory，使独立托管向量服务在受限部署中变为可选；记忆抽取仍需配置语言模型，向量检索仍受支持。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "fact": "评审覆盖两个实现：plugin（OpenClaw 集成、可选短期 offloading 与原 token 表，main, a3c2d860）与 team Memory Hub（Memory Core、Hub、proxy，共享 Chat Memory、Skills、Wiki、CodeGraph，feat/server_team, ecc01a54）。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "fact": "上游 benchmark 数字：WideSearch token 221.31M→85.64M（约省 61%，按表计算 61.30%，README 印 61.38%）；PersonaMem 准确率 48%→76%。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "fact": "plugin 配置列出 SQLite（sqlite-vec）与 Tencent Cloud VectorDB 两种后端；当前独立 MemoryCore 默认 BM25 关键词检索且远端 embeddings 关闭。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        }
+      ],
+      "technical_analysis": "核心技术点有三。其一，L0-L3 分层把对话抽取为 atom、scenario 与 persona，但上层是派生解读，必须能回溯 L0 原文，否则周三的更正会被周一的旧结论覆盖。其二，plugin 把原始工具输出写入文件、步骤摘要存 JSONL，上下文保留紧凑的 Mermaid 任务画布，node_id 经 result_ref 指向更深证据——省 token 的代价是诊断时需二次取证。其三，SQLite 单写者边界适合单节点独占持久层，多节点协调写入需另选服务。所谓'完全离线'还需逐条核查 MEMORY_LLM_* 与 PROXY_UPSTREAM_* 两条模型链路。",
+      "deep_dive": [
+        {
+          "heading": "L0-L3 记忆金字塔与溯源测试",
+          "content": "四层结构：L0 保留原始对话，L1 是抽取出的 atom（如'周五部署已不再被批准'），L2 是项目 scenario 上下文，L3 是更持久的 persona 或核心画像。文章给出一个合成测试场景：周一批准 Atlas 周五部署、周三撤销，周四询问时必须同时取回周三更正及其来源，仅检索到两条消息但不解析先后顺序即不合格。上层产物格式混杂——部分是 Markdown、部分是数据库记录或 JSONL；保留原文只保证可查验，不保证摘要准确或检索无损。此为建议验证，非实测结果。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "heading": "Mermaid 画布与 node_id 证据链",
+          "content": "早期 plugin 设计将原始工具输出写入文件，步骤摘要存 JSONL，上下文只保留紧凑的 Mermaid 任务画布；node_id 通过 result_ref 指向更深证据，Agent 无须反复读取全部日志即可按需取证。画布上'构建失败'的标签只用于导航，真正诊断必须取回失败命令的原始输出，并确认是否存在更新一次的运行。启用可选的短期 offloading 需要 OpenClaw 额外配置；作者建议验证重启后引用仍能解析到源文件。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "heading": "'完全离线'的五条核查边界",
+          "content": "部署模板把离线拆成五条边界：存储层看 SQLite 与本地文件的持久卷、权限与恢复流程；抽取层核查 MEMORY_LLM_* 端点确在本机完成抽取与聚合；推理层确认 PROXY_UPSTREAM_*（含 fallback 路径）只转发到本地模型；检索层验证默认 BM25 可用、任何启用的 embedding 端点不出网；最后审计工具链与启动依赖的网络行为。作者建议验证：配置完成后封锁出站流量并抓取外联尝试，再重启、召回被修改的指令并取回证据——仅健康检查通过不算数。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "heading": "benchmark 数字与成本口径",
+          "content": "61% 来自 WideSearch token 表（221.31M→85.64M），按表计算为 61.30%，README 印 61.38%，因此作者只保留'约 61%'与原始输入而非暗示更高精度。PersonaMem 的 48%→76% 评测的是基于演进用户画像的个性化回答，不是数据库正确性、溯源或租户隔离的度量，也不应被当作完整当前 Hub 栈的 benchmark。文章明确要求成本比较计入每次模型调用：记忆抽取、聚合、Agent 推理、重试、深挖证据读取及 embedding 与基础设施开销，并按'每成功完成任务'结算。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "heading": "上线前五步验收（均为建议验证）",
+          "content": "作者提出五步：1) 更正与作用域——加入另一个仍允许周五部署的项目，要求每个项目取回正确指令与来源；2) 证据恢复——重启后追问卸载日志中的细节，记录来源 ID 是否存在且答案一致；3) 不可信内容——注入要求 Agent 无视用户的工具日志，确认被检索文本始终只是证据、不能隐式授权动作；4) 隔离与删除——跨用户或团队查询同一事实，删除测试记录后检查派生记忆与文件，'搜不到'不等于删干净；5) 故障与成本——中断抽取或端点观察恢复，量测总模型用量、任务成功率与 p95 延迟。",
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 Wavect 博客全文（2026-10-30，作者 Kevin Riedl），性质为固定修订版的文档与配置评审，其自身声明不含 Wavect 部署测量或独立复现 benchmark。未获得：TencentDB Agent Memory 上游仓库与 MemoryCore runtime 文档原文、PersonaMem 论文、WideSearch 原始评测数据，以及任何第三方独立验证。",
+      "application": "单节点可控且能自担备份恢复时，先用 SQLite 跑一个 workflow：验证更正跨 session 存活、证据可取回；出现实测写入争用或检索不达标再引入新服务。",
+      "caveats": "固定修订版文档评审，无部署实测或独立复现；61%/76% 为上游特定 workload 结果，不能外推到 Hub 栈或读者部署。",
+      "confidence": 0.78,
+      "relevance_tags": [
+        "Agent Memory",
+        "SQLite",
+        "BM25 检索",
+        "benchmark",
+        "coding agent",
+        "离线部署"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-11c0deb6fe35",
+          "source_id": "tinyfish-discovery",
+          "url": "https://wavect.io/blog/tencentdb-agent-memory-sqlite-review",
+          "title": "TencentDB Agent Memory: SQLite, APIs & Benchmarks - Wavect",
+          "publisher": "wavect.io",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:00.443434Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-11c0deb6fe35"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://wavect.io/blog/tencentdb-agent-memory-sqlite-review",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 80,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "评审给出两个可定位的修订版与后端配置：plugin（main, a3c2d860）与 Memory Hub（feat/server_team, ecc01a54），SQLite（sqlite-vec）与 Tencent Cloud VectorDB 后端",
+            "ref_ids": [
+              "ref-11c0deb6fe35"
+            ]
+          },
+          {
+            "point": "给出部署环境变量组 MEMORY_LLM_* 与 PROXY_UPSTREAM_* 及其对应的离线核查边界",
+            "ref_ids": [
+              "ref-11c0deb6fe35"
+            ]
+          },
+          {
+            "point": "提供上游 benchmark 输入输出：WideSearch token 221.31M/85.64M、PersonaMem 48%/76%（注意：非评审方复现结果）",
+            "ref_ids": [
+              "ref-11c0deb6fe35"
+            ]
+          },
+          {
+            "point": "明确安全边界：不可信工具日志只能作为证据、不能隐式授权动作；隔离与删除需检查派生记忆与文件",
+            "ref_ids": [
+              "ref-11c0deb6fe35"
+            ]
+          }
+        ],
+        "try_it": [
+          "按所选修订版使用其安装说明部署，确认 SQLite 持久卷与 MEMORY_LLM_*、PROXY_UPSTREAM_* 端点配置",
+          "用 Atlas 更正序列测试：重启后召回被修改的指令并要求返回其来源",
+          "封锁出站流量并抓取外联尝试，验证默认 BM25 检索与卸载证据的恢复"
+        ],
+        "requirements": [
+          "本地 SQLite 持久卷及文件权限、备份恢复能力",
+          "记忆抽取 LLM 端点（MEMORY_LLM_*）与 Agent 推理端点（PROXY_UPSTREAM_*）",
+          "所选修订版对应的 OpenClaw / Hub / proxy 集成配置"
+        ],
+        "limitations": [
+          "评审方未做部署实测，特定本地模型的抽取质量未验证",
+          "SQLite 单数据库文件单写者，多节点协调写入需另选服务；61%/76% 为上游特定 workload 结果，不代表读者收益",
+          "自定义 Agent 接入仍需兼容的请求处理与明确的捕获-召回生命周期，MCP 等集成路径需按客户端与修订版逐项核对"
+        ]
+      }
+    },
+    {
+      "item_id": "item-b7fc19ae33c05a968fcc28dd06e683d9",
+      "event_id": "2fce0db9-9775-556a-811e-1cef6cd17407",
+      "type": "paper",
+      "title": "多专家论证提升整篇报告ATT&CK提取精度",
+      "source": "arxiv.org",
+      "published_at": null,
+      "canonical_url": "https://arxiv.org/html/2610.39433v1",
+      "summary": "KAIST 研究者提出 ARBITRA：多个角色化 LLM 专家通读整篇 CTI 报告并各自提出候选 ATT&CK 实体，非一致候选再由量化双极论证框架 QBAF 基于文档证据与 rationale 逐一裁决。作者称其在 TRAM2 与 AnnoCTR 上取得最高 precision，且是唯一在 TRAM2 三项指标上全面超过句子级 pipeline 的系统；三类对抗扰动下平均 precision 降幅约为 frontier baseline 的一半。",
+      "why_it_matters": "CTI 报告转 ATT&CK 映射最怕误报：无证据支持的 technique 会污染检测规则和情报库。该工作给出文档级、可查验的候选验证层，对威胁狩猎与检测工程有直接参考价值。",
+      "key_facts": [
+        {
+          "fact": "ARBITRA 由 KAIST 研究者提出，用多个角色化 LLM 专家从整篇 CTI 报告提出候选 MITRE ATT&CK 实体，再用基于文档证据与 rationale 的量化双极论证框架（QBAF）逐一验证非一致候选。",
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        },
+        {
+          "fact": "作者称 ARBITRA 是唯一在 TRAM2 三项指标上全面超过句子级 pipeline 的系统，并在 TRAM2 与 AnnoCTR 两个 benchmark 上取得最高 precision，对比对象包括 GPT-5.5、TTPXHunter、CTINexus、TTPrint。",
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        },
+        {
+          "fact": "作者称在冲突 TTP 陈述、跨报告污染、语义投毒三类对抗扰动下，ARBITRA 的平均 precision 降幅约为 frontier 模型 baseline 的一半。",
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        },
+        {
+          "fact": "作者称消融显示把多专家论证坍缩为单次 verifier 调用，F1 最多下降 15 个百分点。",
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        }
+      ],
+      "technical_analysis": "核心变化是把候选发现与候选接受解耦：单次全文生成把两种职能混在一起，容易接受貌似合理但无证据的 technique。ARBITRA 先以专家多样性取并集保 recall，再对非一致候选生成支持/攻击论证交 QBAF 裁决，依据可供分析师查验。编辑推断其代价是多专家多轮调用推高 token 成本与延迟；作者称消融显示坍缩为单次 verifier 后 F1 最多降 15 pp。作者另指出 generic experts 可能不是论证式验证的有效参与者，遂构造 answer-only 与 reasoning 两种微调语料检验推理监督是否带来增益；该结果位于未读的实验部分，是否必需尚无定论。",
+      "deep_dive": [
+        {
+          "heading": "对抗威胁模型：三类报告级扰动",
+          "content": "论文称首次为 MITRE 提取定义对抗 CTI 威胁模型：攻击者仅有黑盒文本级修改能力，目标分注入假阳性与压制真阳性。三类扰动各有现实原型——冲突 TTP 陈述对应 false flag（如 Olympic Destroyer 刻意伪装成 Lazarus 样本）；跨报告污染对应多源情报聚合噪声（SolarWinds 事件一度有 UNC2452、NOBELIUM、Dark Halo、SolarStorm 四个命名，一项 90 份报告的研究中至多 33.3% 的误分类涉及语义相近 technique）；语义投毒对应改写措辞以抹去 ATT&CK 可识别信号。",
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        },
+        {
+          "heading": "与 TTPrint 的路线分歧及动机",
+          "content": "同期工作 TTPrint 同样解耦候选生成与接受，但用单个 LLM verifier 打分过阈值；ARBITRA 对每个有争议候选由多名角色化专家基于全文生成支持与攻击论证再裁决。作者以消融佐证差异并非风格问题：坍缩为单次 verifier 调用 F1 最多降 15 pp。动机还来自 USENIX Security SoK 的统一协议重测：传统 NLP pipeline 在开放集设定下反而优于生成式 LLM，症结是 ontology 歧义——许多 technique 仅意图不同，单句无法区分，必须读全文。",
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        },
+        {
+          "heading": "待检验的问题：推理微调能否造就合格论证参与者",
+          "content": "作者从 TRAM2 与 AnnoCTR 训练分割构造两种微调语料：仅含答案的 answer-only 与含推理过程的 reasoning 专用语料，用于检验同一模型参与论证时推理监督是否仍有增益，并称该比较在结构化多专家验证 pipeline 内尚属首次隔离。背景是 CoT、rationale 训练等研究提示中间步骤监督可提升可靠性，作者由此提出假设：小模型经暴露推理过程可成为更强的任务专家——但这是被检验的假设而非已证结论，微调模型规模与具体增益数字未出现在已读片段中，结果需待实验部分核实。",
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 arXiv HTML 全文摘取：摘要、引言、相关工作与问题定义（至 3.4 节中途截断）；第 4 节方法细节、第 5 节完整实验表、第 6 节对抗评测细则及大部分具体数字未获得，文中指标均转引自作者自述。published_at 为空，无法确认发布日期；未见到代码仓库或独立第三方评测。",
+      "application": "构建 CTI 自动化流水线的团队可对照其两阶段设计与对抗评测套件自查误报；其余暂观望，等代码与完整实验细节公开后再评估迁移。",
+      "caveats": "正文在第 3.4 节截断，方法与实验细节未获得；无发布日期，全部数字为作者自报，缺独立复现。",
+      "confidence": 0.75,
+      "relevance_tags": [
+        "CTI",
+        "MITRE ATT&CK",
+        "multi-agent",
+        "LLM 鲁棒性",
+        "信息抽取",
+        "安全"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-c9153d15ebb8",
+          "source_id": "tinyfish-discovery",
+          "url": "https://arxiv.org/html/2610.39433v1",
+          "title": "ARBITRA: Robust Document-Level ATT&CK Extraction ...",
+          "publisher": "arxiv.org",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:07.988058Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-c9153d15ebb8"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-ae3f91e9746b5edeb5cb445f946af20c",
+      "event_id": "a1d593b2-ea11-5a3b-91bb-d7d94e44025d",
+      "type": "github",
+      "title": "T3 Code 被要求支持关闭强制 MCP 注入",
+      "source": "github.com",
+      "published_at": null,
+      "canonical_url": "https://github.com/pingdotgg/t3code/discussions/17205",
+      "summary": "2026年10月8日，pingdotgg/t3code 出现 Ideas 讨论 #17205：T3 Code 给每个 agent session 强制挂载 t3-code MCP server 并在 system prompt 追加自带指令，无任何关闭设置——0.0.45 注入约 21 个工具，main 分支约 80 个。楼主自用 Claude Code 并给出 permissions.deny 变通；随后 Pi 用户、本地 ACP 后端用户等跟进，报告行为差异、注入不可见与 400 报错，维护者被多次 @ 但截至检索无回应。",
+      "why_it_matters": "harness 隐性注入直接消耗 context 预算、干扰复现，甚至让窄 JSON Schema 后端初始化失败；对用 T3 Code 或自建 coding agent 流水线的读者，这是可控性与可观测性的现实问题。",
+      "key_facts": [
+        {
+          "fact": "T3 Code 默认把 t3-code MCP server 挂到每个 agent session 并在 system prompt 追加指令，无关闭设置；0.0.45 为 21 个工具加 <runtime_info>、<pull_request_linking>，main 约 80 个工具加 orchestration 指令",
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        },
+        {
+          "fact": "楼主在 10月8日主帖称当时唯一变通是 Claude Code 的 permissions.deny 屏蔽 mcp__t3-code：可隐藏工具但提示文本仍在，且仅对 Claude 生效；其后跟帖者另提出 Pi 插件过滤、extension patch prompt 等用户自建变通",
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        },
+        {
+          "fact": "szafranski 在 T3 Code 0.1.0 + DeepSeek Harness 0.2.1-rc.2 + 本地 Qwen3.8-27B 上：全新 ACP 会话因 preview_navigate 的 target.url pattern 触发 grammar 解析 400；两次同工具名+合成消息的精简 schema 对照中，仅删该 pattern 返回 200",
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        },
+        {
+          "fact": "讨论自 2026年10月8日持续至 10月29日，楼主（自用 Claude Code）、Pi 用户与本地 ACP 用户等多方跟进，维护者被多次 @ 但证据中无回应",
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        }
+      ],
+      "technical_analysis": "功能请求而非已落地变更。T3 Code 默认把 PR linking、orchestration 等能力以 MCP 工具加提示文本注入所有 session，代价是 context 占用、与既有工作流冲突、窄 schema 后端初始化失败。方案权衡清晰：全局开关最省事，按 toolkit 细分更精准；关闭后相关功能失效，属用户显式选择。主帖称当时唯一变通是 permissions.deny，其后跟帖者另建插件过滤等方案。编辑推断：维护者未回应，用户短期内更可能靠 harness 侧自行过滤。",
+      "deep_dive": [
+        {
+          "heading": "变通方案的演进与局限",
+          "content": "楼主 10月8日主帖称，当时的唯一变通是 Claude Code permissions.deny 屏蔽 mcp__t3-code：只藏工具不藏提示文本、只对 Claude 生效，方向也别扭——用 T3 Code 反而要改 Claude Code 自身配置。其后跟帖者发展出替代方案：alanscodelog 建议 Pi 用户让 agent 写插件，强制隐藏未用工具并替换 system prompt 文本（T3 只是在末尾追加指令块），并加两类告警——出现不在 allow/deny 名单的新工具、或 prompt 替换失败时提醒；lexeyOK 暂以 extension patch prompt 过渡。注意这些都是用户自建方案，非官方开关，且各只覆盖部分 harness。",
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        },
+        {
+          "heading": "本地后端 400 的对照实验",
+          "content": "szafranski 给出受控对照：T3 Code 0.1.0 + DeepSeek Harness 0.2.1-rc.2 + 本地 Qwen3.8-27B（TheTom/llama-cpp-turboquant bcb85fc），全新 T3 托管 ACP 会话在执行任何工具前即报 400，错误为 grammar 解析 \"unknown escape at \\S\"。解析器指向 mcp__t3-code__preview_navigate 的嵌套字段 target.url：其 URL schema 的 isTrimmed() 生成含 \\S 与 \\s 转义的 string pattern。两次请求用同一工具名与合成消息、auto tool choice、thinking 关闭、16-token 输出上限：含该 pattern 的精简 schema 返回 400，仅删 pattern 后返回 200 且 DIAGNOSTIC_OK（fingerprint b1-bcb85fc）。全程无工具执行；此为旧 fork 上的结果，llama.cpp master 未测。",
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        },
+        {
+          "heading": "跨 harness 用户的诉求与关联讨论",
+          "content": "bheemreddy-samsara 请求「UI-only/原生 Pi 模式」：保留 T3 聊天界面与 session 展示，禁用 T3 附加提示、t3-code MCP 工具与 orchestration 注入，同时完整保留 Pi 自身 system prompt、项目指令、extensions、skills 与已配置工具；opt-in 旗标、默认行为不变，并接受依赖注入工具的功能不可用。他于 10月19日 @ juliusmarminge、10月25日 @ t3dotgg 催复，截至检索无回应。szafranski 从本地 ACP 角度提出 per-provider-instance 的 MCP opt-out，并把该需求与 #17202 的 catalog filtering 并列；楼主正文点名的关联线索是 #15370（PR-watcher 版本的同题请求），#17202 出自 szafranski 回复而非楼主清单。alanscodelog 强调核心问题是注入不可见；lexeyOK 则希望官方改以 skill + mcp.json 形式提供。",
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 GitHub 讨论 #17205 整页抓取：主帖（作者注明由 Claude Code Opus 5.5 代笔、本人编辑审阅）加 6 条用户回复。未获得：维护者任何回应、T3 Code 官方文档或变更日志、关联讨论 #15370/#17202 正文、400 复现的可复跑脚本；楼主 Related 列表为四个未显示编号与标题的链接，内容无法核实。",
+      "application": "暂无官方开关：Claude Code 可用 permissions.deny 屏蔽 mcp__t3-code（提示文本仍在）；其他 harness 先 /export 导出核查注入量，必要时写插件过滤加告警。",
+      "caveats": "证据为单条 GitHub 讨论与用户自述复现；无维护者回应；400 出自旧版 llama.cpp fork；变通均非官方方案。",
+      "confidence": 0.78,
+      "relevance_tags": [
+        "coding_agent",
+        "MCP",
+        "harness",
+        "context_management",
+        "open_source",
+        "agent_tooling"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-fa79857610ef",
+          "source_id": "tinyfish-discovery",
+          "url": "https://github.com/pingdotgg/t3code/discussions/17205",
+          "title": "Setting to not attach the t3-code MCP server (and ...",
+          "publisher": "github.com",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:02:12.852242Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-fa79857610ef"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://github.com/pingdotgg/t3code/discussions/17205",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 87,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "szafranski 的最小对照：同一工具名与合成消息、auto tool choice、thinking 关闭、16-token 上限下，含 target.url pattern 的精简 schema 返回 HTTP 400，仅删 pattern 返回 200 与 DIAGNOSTIC_OK（fingerprint b1-bcb85fc），全程无工具执行",
+            "ref_ids": [
+              "ref-fa79857610ef"
+            ]
+          },
+          {
+            "point": "楼主主帖称 Claude Code permissions.deny 屏蔽 mcp__t3-code 可隐藏工具但不隐藏提示文本，仅对 Claude 生效",
+            "ref_ids": [
+              "ref-fa79857610ef"
+            ]
+          },
+          {
+            "point": "alanscodelog 以 harness 插件移除未用工具并替换 system prompt 文本，另对新工具出现或替换失败加告警",
+            "ref_ids": [
+              "ref-fa79857610ef"
+            ]
+          }
+        ],
+        "try_it": [
+          "在 T3 Code 会话里用 /export 或自定义命令导出，核对实际注入的工具清单与 prompt 文本（alanscodelog 的做法）",
+          "Claude Code 用户在 permissions.deny 加入 mcp__t3-code，验证工具被隐藏而提示文本仍存在",
+          "本地 ACP 后端按 szafranski 对照：同一合成请求分别发送含/不含 target.url pattern 的精简 schema，观察 400/200 差异"
+        ],
+        "requirements": [
+          "T3 Code（证据涉及 0.0.45、0.1.0 与 main 分支）",
+          "对应 harness：Claude Code、Pi 或 DeepSeek Harness 0.2.1-rc.2",
+          "本地复现另需 TheTom/llama-cpp-turboquant bcb85fc 与 Qwen3.8-27B 权重",
+          "查看讨论需 GitHub 账号"
+        ],
+        "limitations": [
+          "无官方开关，各变通仅部分生效且需改 harness 配置",
+          "400 结果基于旧 fork，llama.cpp master 未测试",
+          "关闭注入后 PR linking、orchestration 等功能不可用",
+          "对照实验未执行任何工具，仅验证 schema 兼容性"
+        ]
+      }
+    },
+    {
+      "item_id": "item-b4c5ecea46d3567fb7665dd7b44b0d4c",
+      "event_id": "3ed85784-6458-5f1e-b587-50703cd1fa16",
+      "type": "news",
+      "title": "九款 Agent Memory 框架横评：按任务选型，拒绝排名",
+      "source": "zensation.ai",
+      "published_at": null,
+      "canonical_url": "https://zensation.ai/en/vergleich/agent-memory-frameworks",
+      "summary": "zensation.ai 发布九款开源 Agent Memory 框架横评，覆盖 Mem0、Graphiti（Zep）、Letta、Cognee、Supermemory、Hindsight、Memori、LangMem 与自家 ZenBrain，页面自述最后更新 2026-10-30、star 统计于 2026-10-01。核心结论是按任务选型、不做排名：同一组 benchmark 上多家作出互不相容的领先声明，因检索预算、评判与截止日期各异，数字互不可比；页面给出五问核验清单。",
+      "why_it_matters": "选 Agent Memory 常被厂商榜单带偏：同组 benchmark 多家声明领先且互不相容。该页点破托管与开源的口径差、star 仓库陷阱，五问核验框架可直接纳入技术评审清单。",
+      "key_facts": [
+        {
+          "fact": "zensation.ai 横评九款开源 Agent Memory 框架（Mem0、Hindsight、Graphiti/Zep、Cognee、Supermemory、Memori、Letta、LangMem、ZenBrain），明确不做排名，理由是各家自测口径不同；页面称 LongMemEval 与 LoCoMo 上多家同时声称领先、这些声明不能同时为真",
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "fact": "Mem0 README 的 LoCoMo 92.5、LongMemEval 94.4 对应其托管平台，官方称开源包应预期 \"directionally similar gains but not identical numbers\"",
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "fact": "Zep Community Edition 已停止支持、代码移入 legacy/，开源且活跃维护的仅剩 Graphiti 引擎，完整平台是专有的 Zep Cloud",
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "fact": "九家中仅 Hindsight 声明分数被外部机构复现（Virginia Tech Sanghani Center 与 The Washington Post）；页面转述其自述「图表中其他分数系厂商自报」并明确未复核；Letta 与 LangMem 的 README 不含任何 benchmark 数字",
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        }
+      ],
+      "technical_analysis": "价值在方法而非名次：每行只引各家 README 原话并注明出处，页面自认未复核任何数字。最大的坑是口径差——Mem0 的 92.5/94.4 对应托管平台；Zep 开源的只是 Graphiti 引擎。据页面转述，九家中仅 Hindsight 声明分数获外部机构复现，其余报数字者均系厂商自报，ZenBrain 对比为三 LLM judge 自评、非外部机构复现，Letta 与 LangMem 未报数字。star 亦易误读：Letta 主仓 24,994★ 数的是旧代码。编辑推断：该页宜当核验索引而非结论。",
+      "deep_dive": [
+        {
+          "heading": "同一 benchmark 上的互斥领先声明",
+          "content": "Supermemory 写 \"#1 on every major AI memory benchmark\"（LongMemEval 95% Recall@15，仅增约 720 token 上下文）；Hindsight 自称 \"the most accurate agent memory system ever tested\"（对比图表截止 2026 年 1 月，README 另指向持续更新的结果页）；Mem0 报 LongMemEval 94.4（托管平台口径）；Memori 报优于 Zep、LangMem 与 Mem0 三家，LoCoMo 总体 87%（每查询 721 token，约为全上下文 footprint 的 2.8%）。页面原话是 \"more than one project claims the top spot\"——并非四家都自称「第一」，但各声明互不相容；根源是各家检索预算、judge 与截止日期不同。Cognee 的 BEAM 结果（100K token 0.79、10M token 0.67，后者标注 \"Exploratory result\"）使用 benchmark 专属的数据格式、prompt 与检索配置，官方要求先读方法报告再比较。",
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "heading": "数字挂在哪个 artifact 上",
+          "content": "Mem0 在数字上方直接写明：分数来自含专有优化的托管平台，开源 SDK 不会完全一致。Zep 的切分更彻底：getzep/zep（4,942★）被官方标注 \"not Zep's product or service\"，只是 Zep Cloud 的示例与集成仓库；真正开源且活跃维护的是 Apache 2.0 的 Graphiti 引擎（31,356★）。Supermemory 走另一条路：本地原型改 baseURL 即可上托管平台。页面把这称为「最常见的静默偷换」——把托管产品的数字放在开源包旁边，比较的是两个不同的东西；评测选型前应先确认任一数字挂在哪个 artifact 上。",
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "heading": "仓库与许可证信号失真",
+          "content": "letta-ai/letta 有 24,994★，但其 README 写明现行代码在 letta-ai/letta-code（3,488★），旧 V1 服务器仅存于归档分支——不带仓库名的 star 数在此领域基本无意义。Memori 的 GitHub API 许可证显示 \"Other\"，实际 LICENSE 文件是标准 Apache 2.0，因占位括号未删导致检测失败；直接复制 API 字段会写错许可证。Letta 与 LangMem 的 README 完全不含 benchmark 数字，页面将此视为数据点而非缺陷：没有数字，也就没有可被质疑的口径。另注意时效：页面称九家中七家在同一周内推过代码，无日期的数字说明不了现状，故表格标注 star 统计日为 10月1日。",
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "heading": "作者立场与按任务分工",
+          "content": "ZenBrain 自报对比集仅含 Letta、Mem0、A-Mem 三家：九次 head-to-head 三胜（全部对 A-Mem）六平零负（3 个 LLM judge、Bonferroni 校正、版本匹配），页面自述此系独立评判但非外部机构复现，对 Zep 等其余六家不作声明；并自曝时间推理是路线图未实现，内部测试该轴得零分、原因是时间戳未传入，需要时间推理应看 Graphiti。按任务分工（各家自述）：记住用户偏好选 Mem0；时变事实进知识图谱选 Graphiti；要有状态 agent 运行时而非单纯记忆层选 Letta（MemGPT 作者开发）；文档/代码转自托管知识图谱选 Cognee；LangGraph 生态选 LangMem；与 LLM、datastore、框架解耦选 Memori。九家中六家公开评测代码（如 Mem0 的 mem0ai/memory-benchmarks、Supermemory 的 MemoryBench、getzep/zep 内 benchmarks/ 与 zep-eval-harness/）。",
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 zensation.ai 单一页面的完整正文（含对比表与 FAQ），属厂商发布的对比内容，非第三方评测；发布时间未知，页面自述最后更新 2026-10-30、star 统计于 2026-10-01。未获得：各家 README 原文、所引论文（如 arXiv:2512.12818、2501.13956、2603.19935）全文、Hindsight 外部复现报告原文、ZenBrain 的 benchmark 页与方法细节。所有数字均系该页转述，未能独立核实。",
+      "application": "暂不急着换框架。选型时先答五问：分数属于开源包还是托管平台？评测代码在哪？有无外部复现？star 统计哪个仓库？数字是哪天的？答不上就不按分数排序。",
+      "caveats": "厂商内容：发布方自家产品 ZenBrain 在列，虽自陈局限；所有引语转述自各家 README，页面未复核；无独立发布时间，自述更新于 2026-10-30。",
+      "confidence": 0.6,
+      "relevance_tags": [
+        "Agent Memory",
+        "benchmark",
+        "开源框架选型",
+        "评测方法论",
+        "Agent"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-4c3bdf481c36",
+          "source_id": "tinyfish-discovery",
+          "url": "https://zensation.ai/en/vergleich/agent-memory-frameworks",
+          "title": "Mem0 vs Zep vs Letta: which agent memory framework to ...",
+          "publisher": "zensation.ai",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:00:58.601040Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-4c3bdf481c36"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-7089a6df47655fb5a791f948c82811fe",
+      "event_id": "48e22fc8-9c54-5692-8b96-00287f292a81",
+      "type": "blog",
+      "title": "coding agent 横评：大仓库瓶颈在上下文",
+      "source": "repowise.dev",
+      "published_at": null,
+      "canonical_url": "https://repowise.dev/blog/comparisons/best-ai-coding-agents",
+      "summary": "repowise.dev 发布 2026 年 coding agent 横评，各厂商定价与文档核对至 2026-10-29（页面未标发布日期）：终端场景看 Claude Code 与 Codex，编辑器场景看 Cursor，GitHub 团队用 Copilot，另有 Cline、Aider、OpenCode 等开源 BYOM 选项。核心结论是大仓库上各 agent 差距小于上下文因素；其 MCP 索引层在 Codex 上实测输出 token 降 31.6%，其余 agent 未实测。",
+      "why_it_matters": "它把 16 款 agent 的定价、运行位置、MCP 支持整理成一张可核对表格，并用自家可控 benchmark 量化「上下文瓶颈」，选型与 token 成本优化可直接对照。",
+      "key_facts": [
+        {
+          "fact": "repowise.dev 横评页面未标发布日期；各厂商定价页与文档的核对日期为 2026-10-29（页面于 2026-10-31 检索）。文中仅实测 Claude Code 与 Codex 两款，其余 agent 未运行",
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "fact": "benchmark 在 django/django 单一 pinned commit（2026-08）上执行：Codex（gpt-5.6-sol）配 repowise 上下文层输出 token -31.6%（n=43，p<0.0001，平均 3.8 次工具调用）；Claude Code（claude-sonnet-5）为 -15.9%（n=15，p=0.035）",
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "fact": "文章核心论点：大仓库上各 agent 的差异小于上下文因素，即 agent 每次提问需重新「发现」多少代码；repowise 本地索引一次仓库并经 MCP 以 10 个工具提供服务",
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "fact": "发布方即 repowise 开发者并在正文自声明利益相关；5/48 道题因 API 用量上限在所有臂等量缺失，统计基于 43 题",
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        }
+      ],
+      "technical_analysis": "文章的价值在于拆解方式：把 agent 视为「模型 + harness」，只比较团队能决策的维度（付费模式、运行位置、MCP、上下文获取），并明确不做模型质量排名，理由是榜单随版本变化。benchmark 设计力求 like-for-like：单一 pinned commit、逐字节相同 prompt、六臂对照，但表中数字均为发布方自报。结果是收益强烈依赖 harness：Codex 上输出 token -31.6%，Claude Code 上仅 -15.9%，且 Sonnet 更少主动调 MCP 工具，模型与 harness 效应无法分离。编辑推断：该数据可作为「上下文层值得试」的信号，外推到其他 agent、其他仓库前需自测。",
+      "deep_dive": [
+        {
+          "heading": "评测方法与信息边界",
+          "content": "文章明确这是 roundup 而非 bake-off：定价与 MCP 信息逐家读自厂商页面（核对日期 2026-10-29），表中「Not stated」表示厂商页面未写、而非功能缺失；并主动放弃模型质量排名，理由是榜单随版本变化、单次跑分不预测在你仓库上的表现。被实测的只有 Claude Code 与 Codex，其余 agent 一律未运行。表格还删掉了「如何找上下文」一列，因为多数厂商页不描述该机制，Aider 是例外并在正文单独介绍其 repo map 机制（--map-tokens 默认 1k）。",
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "heading": "六臂数据、多重比较与口径提示",
+          "content": "六臂对照表中，repowise 之外的四臂：CodeGraph 输出 1,383 token（-24.4%，4.0 次调用）、Serena 1,550（-14.8%，10.1 次调用）、Graphify 1,658（-8.9%）、code-review-graph 1,710（-6.0%），裸 agent 基线 1,828 token。编辑推断：表列百分比与「工具 token ÷ 基线」直接相除不完全一致（Serena 应约 -15.2%、Graphify 约 -9.3%），疑为逐题配对均值口径，并非算术错误，引用时宜注明。对「同时检验五个工具」做多重比较校正后，作者称三个降幅稳健、两个边缘；5/48 题因 API 用量上限在所有臂等量缺失，统计基于 43 题，因各臂缺失相同，配对比较不受影响。该表比较的是同一 agent 上的上下文工具，不是 agent 之间的对比。",
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "heading": "利益相关与自报数据",
+          "content": "正文明确声明「We build repowise, so weigh our entry accordingly」（位于开篇 short list 之后），其自身条目需打折看待。同类自报数据还有 Augment Context Engine：自称在 300 个 Elasticsearch PR 上带来增益、经 MCP 供 Claude Code、Cursor、Zed、Kilo Code、Roo Code 调用，但页面无完整方法学。Windsurf/Devin 整合的二级报道日期（Windsurf 2.0 为 2026-04-15、Devin Desktop 命名在 6 月）未经 Cognition 确认；Cognition 2026-07-14 发文只说随 Devin Desktop 上线统一为一个品牌，未给日期、未用「改名」一词，且 Devin 定价页已不提 Windsurf。",
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "heading": "生态变动速览",
+          "content": "文中顺带记录多项可核对的变动：GPT-5.5 于 2026-10-14 起在 ChatGPT 登录的 Codex 中停用；Gemini CLI 免费个人访问 2026-06-18 起迁往 Antigravity CLI，且该 CLI 未针对 Gemini 4 系列调优，标准化前需确认 key 可达模型；windsurf.com/pricing 已重定向至 devin.ai/pricing；GitHub Copilot 的 Pro+/Max 可委派第三方 agent（Claude、OpenAI Codex，Preview），云端 agent 在云环境跑测试与 linter，Actions 会话上限 59 分钟、单仓库；Aider 两个被抓取的页面均未提 MCP，作者明确不替其表态。",
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 repowise.dev 博客全文摘取，正文末尾在「A saving on one repository, one commit and one」处截断；页面本身无发布日期，定价核对日期为 2026-10-29，检索日为 2026-10-31。未获得：/benchmarks 完整方法页、Augment Context Engine 的完整方法学、Cognition 对整合日期的确认、Copilot Business/Enterprise 价格。所有 agent 定价与功能描述均为厂商页面转述，非独立验证。",
+      "application": "已用 MCP 兼容 agent 的团队，可在自己仓库 A/B 同一索引层对输出 token 与工具调用的影响；未实测的 agent 只参考定价与定位做选型。",
+      "caveats": "发布方即被测工具开发者；仅覆盖 django/django 单一 commit 与两款 agent，Claude Code 臂 n=15；其余信息来自厂商页面。",
+      "confidence": 0.7,
+      "relevance_tags": [
+        "coding_agent",
+        "MCP",
+        "benchmark",
+        "context_engineering",
+        "选型指南"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-e8d6ea046076",
+          "source_id": "tinyfish-discovery",
+          "url": "https://repowise.dev/blog/comparisons/best-ai-coding-agents",
+          "title": "Best AI Coding Agents in 2026 for Large Codebases Guide",
+          "publisher": "repowise.dev",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:02:15.519063Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-e8d6ea046076"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://repowise.dev/blog/comparisons/best-ai-coding-agents",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 95,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "提供安装/启动与 agent 接入命令：repowise init --yes --no-prose、repowise agents print-config claude-code",
+            "ref_ids": [
+              "ref-e8d6ea046076"
+            ]
+          },
+          {
+            "point": "公开 benchmark 与运行结果：django/django 单一 pinned commit（2026-08），Codex 上输出 token -31.6%（n=43，p<0.0001，平均 3.8 次工具调用），附六臂对照表与基线 1,828 token；百分比疑为逐题配对口径，与汇总 token 相除略有出入",
+            "ref_ids": [
+              "ref-e8d6ea046076"
+            ]
+          },
+          {
+            "point": "公开架构：本地一次性索引仓库，经 MCP 以 10 个工具对外服务，任何支持 MCP 的 agent 可接入",
+            "ref_ids": [
+              "ref-e8d6ea046076"
+            ]
+          },
+          {
+            "point": "明确实际问题与数据缺口：5/48 题因 API 用量上限在所有臂等量缺失，统计基于 43 题",
+            "ref_ids": [
+              "ref-e8d6ea046076"
+            ]
+          }
+        ],
+        "try_it": [
+          "在目标仓库运行 repowise init --yes --no-prose 建立本地索引",
+          "运行 repowise agents print-config <agent-id>（如 claude-code）取得 MCP 配置并挂载到所用 agent",
+          "用同一组问题对比有无索引层的输出 token 与工具调用次数（参照文中六臂法）"
+        ],
+        "requirements": [
+          "支持 MCP 的 coding agent（Claude Code、Codex、Cursor、OpenCode、Kiro 等）",
+          "对应模型的订阅或 API key（各 agent 自身费用照常产生）",
+          "可本地运行索引器的开发环境"
+        ],
+        "limitations": [
+          "benchmark 仅在 django/django 单一 commit、Codex 与 Claude Code 两款 agent 上验证，增益不可直接外推",
+          "发布方为 repowise 开发者，属自家 benchmark；Augment Context Engine 数据为自报且缺完整方法学",
+          "Claude Code 臂 n=15 且 harness 与模型效应无法分离；多工具校正后两档降幅已属边缘"
+        ]
+      }
+    },
+    {
+      "item_id": "item-832c2037644e592981b8c07a4a7a9066",
+      "event_id": "e9c8bc37-6960-5c20-9c5b-ffef7115c94c",
+      "type": "paper",
+      "title": "AI 评审流水线把自然语言证明误判率降为约 1/4",
+      "source": "arxiv.org",
+      "published_at": null,
+      "canonical_url": "https://arxiv.org/html/2610.40551v1",
+      "summary": "arXiv 论文公布 Ramanujan Challenge 结果：10 道研究级数论题（含 2 个公开猜想）于 2026 年 7–8 月收到 228 份提交、4802 页证明与约 108 万行 Lean/Python/Mathematica/Sage 代码。最成功的自然语言证明多来自 Claude 与 GPT 系模型，一个公开猜想被多人证明；配套 AI 评审流水线把自然语言证明假阳性误判从 23% 降至 6%，代码判定与人工一致率从 46% 升至 58%（代码类误判降幅更大，约 11.5 倍）。",
+      "why_it_matters": "AI 生成数学结论的速度已超过专家验证能力，验证正成为瓶颈。该流水线给出可复用的多格式评审方案；同时业余者借 AI 解出研究级问题，显示研究门槛在下降。",
+      "key_facts": [
+        {
+          "fact": "Ramanujan Challenge 为研究级数论 benchmark，含 8 道解法未发表的题与 2 个公开猜想，2026 年 7–8 月举行，共收 228 份提交、4802 页自然语言证明和 1,079,380 行 Lean/Python/Mathematica/Sage 代码。",
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "fact": "AI 辅助评审流水线相对一次性 LLM-as-a-judge，把自然语言证明假阳性判定从 23.4% 降到 5.8%，CAS/Lean 代码假阳性从 38.3% 降到 3.3%，代码判定与人工一致率从 45.8% 升至 58.3%。",
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "fact": "最成功的自然语言证明多来自 Claude 与 GPT 系模型；Lean 与 CAS 组合使用的提交比依赖单一工具更常伴随正确证明；一个已发表公开猜想收到多个正确证明。",
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "fact": "流水线分四步：脚本执行 Python 生成基础评级；GPT 5.6-Sol 与 Claude Opus 5 分别总结证明与代码（只喂相关文件防交叉污染）；再由 GPT 5.6-Sol 比对摘要列出冲突；最后人工终审。",
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        }
+      ],
+      "technical_analysis": "核心变化是把一次性 LLM-as-a-judge 改为分段流水线：先执行代码获取确定性信号（编译、复杂度、退出状态），再由两个高推理强度 agent 分角色总结，第三步比对摘要列出冲突，人工只在终审介入。权衡明显：自然语言证明上与人工一致率几乎不动（65.7%→66.4%），但假阳性大幅下降；代码一致率升至 58.3%，代价是 agent 变得更严格（比人严的比例 4.2%→29.2%），边界案例被推回给人工。编辑推断：该流水线节省的主要是初筛时间，而非终审责任。",
+      "deep_dive": [
+        {
+          "heading": "流水线各步的实现细节",
+          "content": "Step 1 的自写脚本为每个 Python 脚本生成基础评级：编译是否成功、注释密度、import、圈复杂度、符号/数值关键词分类，以及固定运行环境下的退出状态、执行时间与标准输出，作为下一步输入。Step 2 用高推理强度的 GPT 5.6-Sol 逐 PDF 总结自然语言证明（含问题清单与被引用文件），高推理强度的 Claude Opus 5 读 CAS/Lean 文件加基础评级做总结；Step 3 用中推理强度的 GPT 5.6-Sol 比对两份摘要，列出相似点、冲突与共同问题；Step 4 人工借助这些文件终审。关键设计是只给 agent 相关文件而非整个提交包，以避免证明思路与代码段交叉污染。建议验证：单独消融「只喂相关文件」这一设计，量化其对误判率的影响。",
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "heading": "Trust spectrum：三级验证框架",
+          "content": "论文提出 trust spectrum：软验证为数值或概率性检查；中间层是用 Computer Algebra Systems（CAS）做符号验证，依赖符号表示与计算规则而非公理化表示，可证明性不总能在 CAS 内形式化判定；硬验证是 Lean 等机器检查，可生成到定义与公理的依赖图，人只需检查定义、所用公理与题面，且要求不得使用 sorry 或未验证的 axiom。判定分 Correct / Partial / Major Issues 三档：证明缺非核心推导步骤、或代码只验证部分结论记 Partial，带额外假设或无法编译记 Major Issues。挑战赛按「形式化证明 > CAS 推导 > 自然语言证明」的优先级要求提交。",
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "heading": "挑战赛结果：模型组合与参赛者构成",
+          "content": "Challenge 发布时，主流 LLM 用一次性提示解不出任何一题。分析显示最成功的自然语言证明多来自 Claude 与 GPT 系模型；Lean 与 CAS 组合使用的提交比只用单一工具更常伴随正确的自然语言证明，作者认为这支持「多样化佐证」的价值。结果亮点：有正确提交的证明在概念上不同于官方解；一个已发表公开猜想收到多个正确证明；正确提交者包括无高等数学教育者（其解法比作者原解更简）、无数学训练的独立研究者，以及一名对某猜想取得重要进展的高中生。作者由此提出 AI 正在降低数学研究的进入门槛。",
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "heading": "数字细节与内部不一致",
+          "content": "Table 1：自然语言证明上 pipeline 前后与人工一致率为 65.7%→66.4%，Claude 比人严 2.9%→15.3%，人比 Claude 严 31.4%→18.2%；CAS/Lean 为 45.8%→58.3%，Claude 更严 4.2%→29.2%，人更严 50.0%→12.5%。假阳性（人工判 Partial/Major Issues 而 agent 判 Correct）：自然语言 32/137（23.4%）→8（5.8%），CAS/Lean 46/120（38.3%）→4（3.3%）。注意论文内部取整不一致：摘要与引言均写 46%→58%，Related Work and Novelty 一节写 45%→58%，表格为 45.8%→58.3%；「factor 4」的误判下降仅指自然语言类，代码类约 11.5 倍。编辑推断：引用时宜以 Table 1 为准。",
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 arXiv HTML 版（v1）的正文摘取，在第 5.2 节 Lean 评定标准处截断；附录题目清单（Appendix A/B）、图 1/图 2、参考文献与后续结果章节未获得。published_at 为空，仅知 Challenge 于 2026 年 7–8 月举行、页面检索于 2026-10-31。表 1 数值完整，但均为作者自报，无第三方复现或同行评审信息。",
+      "application": "办证明类比赛或评审 AI 数学输出时，可复制「执行代码＋分角色摘要＋冲突比对＋人工终审」结构；高风险评分勿再依赖一次性 LLM 判定。",
+      "caveats": "数字均为作者团队自报，未获同行评审；自然语言判定与人工一致率仍约 66%；正文摘取在第 5.2 节中断，附录未读到。",
+      "confidence": 0.78,
+      "relevance_tags": [
+        "benchmark",
+        "LLM-as-judge",
+        "数学证明",
+        "Lean",
+        "CAS",
+        "评测流水线",
+        "arXiv 预印本"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-8b051dc7ba4e",
+          "source_id": "tinyfish-discovery",
+          "url": "https://arxiv.org/html/2610.40551v1",
+          "title": "AI-Assisted Evaluation Pipeline for Multi-Format Proofs",
+          "publisher": "arxiv.org",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:23.691902Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-8b051dc7ba4e"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-c108a9711f7c52c3b98fabe4258ec4af",
+      "event_id": "414688ed-f244-5679-b813-e98aacb7d81d",
+      "type": "news",
+      "title": "OpenAI 内部研究调试基准收录，自家模型包揽榜单",
+      "source": "llm-stats.com",
+      "published_at": null,
+      "canonical_url": "https://llm-stats.com/benchmarks/internal-research-debugging-evaluation",
+      "summary": "llm-stats 的 Internal Research Debugging Evaluation 榜单要求模型调试 OpenAI 内部研究实验中的 41 个真实 bug（另含对齐审计任务），原题曾让资深研究员耗时数小时到数天，通过标准是提供足以解困的协助，含部分根因解释或修复。2026 年 10 月更新的榜单仅 3 个 OpenAI 模型：GPT-5.6 Sol 0.683 居首，Terra 0.678、Luna 0.508，平均 0.623。",
+      "why_it_matters": "它测的不是能否一次修好，而是 Agent 的调试协助能否真正解困，判定更贴近真实科研工程；但上榜成绩只有 OpenAI 自报，跨模型参考价值目前有限。",
+      "key_facts": [
+        {
+          "fact": "该 benchmark 要求模型调试来自 OpenAI 内部研究实验的 41 个真实 bug（另含 alignment-auditing 任务），原题曾让资深研究员耗时数小时到数天；通过标准是提供足以让用户解困的协助，包括部分根因解释或修复。",
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "fact": "2026 年 10 月更新的榜单仅含 3 个 OpenAI 模型：GPT-5.6 Sol 以 0.683 居首，GPT-5.6 Terra 0.678，GPT-5.6 Luna 0.508，平均分 0.623。",
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "fact": "3 个成绩全部为 self-reported，第三方 verified 结果为 0。",
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "fact": "页面称方法论、数据集构建与评判标准详见论文（链接为 deploymentsafety.openai.com/gpt-5-6），并将该 benchmark 归类为 reasoning、agents、code 三类文本评测。",
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "fact": "页面明确 GPT-5.6 Terra 为每百万输入 token $2.00，并称其在与榜首分差 10% 以内的模型中最便宜；Sol 的 $5/$30、Luna 的 $0.20/$1.20 来自榜单 Cost 列，输入/输出价读法为编辑按列格式推断。",
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        }
+      ],
+      "technical_analysis": "该基准把调试有效性量化为 0–1 分，「通过」不要求完整修复，口径比「修好率」宽松。Sol 与 Terra 仅差 0.005，Luna 落后约 17.5 个百分点。Terra 的 $2 为页面明文的每百万输入 token 价，Sol $5、Luna $0.20 按 Cost 列格式推断为输入价（编辑推断）；页面以「与榜首差 10% 以内」口径点名 Terra 性价比最佳。效度短板：3 个成绩全自报，41 个 bug 另含 alignment-auditing 任务，总样本量不明且偏小。",
+      "deep_dive": [
+        {
+          "heading": "页面元数据与舍入口径",
+          "content": "榜单页除总分外另以百分比呈现三档成绩（68.3%、67.8%、50.8%），概览处平均分写作 0.6、FAQ 处为 0.623，属同一数字的不同舍入。三个模型的 context 均标 1.1M，License 列留空；页面设「Notice missing or incorrect data?」修正入口，提示数据可能依赖外部提交或抓取维护（编辑推断）。页面称方法论、数据集构建与评判标准详见其论文（deploymentsafety.openai.com/gpt-5-6），但本次仅读到榜单页，论文未核验，逐任务结果、判定者身份与 harness 细节均不可得。",
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "heading": "价格口径与性价比点名",
+          "content": "页面 FAQ 的性价比口径是「在得分处于榜首 10% 以内的模型中谁最便宜」，据此点名 Terra（0.678，$2.00/百万输入 token）。价格口径的证据强度不同：只有 Terra 的 $2 被页面明文标注为 per million input tokens；Sol 的 $5/$30 与 Luna 的 $0.20/$1.20 来自榜单 Cost 列的两栏格式，「输入价/输出价」的读法是编辑按列格式推断的。若按输入价计，Terra 与 Sol 仅 0.005 的分差对应 2.5 倍价差，Luna 价格再低一个数量级但分数掉到 0.508；同一 benchmark 内「高价≈高分」是否线性，需逐任务结果才能判断，页面未提供该粒度数据（编辑推断）。",
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "heading": "验证缺口与建议验证",
+          "content": "页面明示：3 个结果中 0 个 verified、3 个 self-reported，榜单更新于 2026 年 10 月，且未给出页面发布日期。缺失信息包括：任务明细、判定由谁执行、是否有可复现的公开 harness、其他厂商为何缺席。编辑推断：这更像 OpenAI 自建的内部评测被聚合站收录，而非开放提交的公开 benchmark。建议验证：一是打开论文链接核对方法论与判定流程；二是等待或查找第三方实验室在同一任务集上的复现；三是跟踪该页面是否随后收录非 OpenAI 模型，以判断其开放性。",
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 llm-stats.com 单一聚合页的全文抓取（榜单表加 FAQ），属发布说明/摘要级信息；未读取所链接论文原文，未获得逐题结果、评判者信息、harness 细节或任何非 OpenAI 模型成绩；页面也未给出确切发布日期，仅称 2026 年 10 月更新。",
+      "application": "暂不宜据此跨厂商选型；若已在用 GPT-5.6 系列，可用 Terra 在自有 debug 任务上小样本对比 Sol，看 0.005 分差是否复现。",
+      "caveats": "仅 3 个模型、全为 OpenAI 自报、0 个第三方验证；未读论文原文与逐题数据，41 个 bug 之外还有对齐审计任务，总样本量不明且偏小。",
+      "confidence": 0.55,
+      "relevance_tags": [
+        "benchmark",
+        "OpenAI",
+        "GPT-5.6",
+        "debug",
+        "Agent",
+        "模型评测"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-15d596523a62",
+          "source_id": "tinyfish-discovery",
+          "url": "https://llm-stats.com/benchmarks/internal-research-debugging-evaluation",
+          "title": "Internal Research Debugging Evaluation Leaderboard",
+          "publisher": "llm-stats.com",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:23.691528Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        },
+        {
+          "claim_index": 4,
+          "ref_ids": [
+            "ref-15d596523a62"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-d803b7f3db795916bc468eec02c22dfe",
+      "event_id": "172a068f-6cca-593c-a893-2f66fbb9dbb9",
+      "type": "blog",
+      "title": "RAG平台市场预计2036年达437.5亿美元",
+      "source": "www.globenewswire.com",
+      "published_at": null,
+      "canonical_url": "https://www.globenewswire.com/news-release/2026/10/30/3392464/28124/en/retrieval-augmented-generation-rag-platforms-market-size-share-trends-and-industry-analysis-global-forecast-to-2036-market-to-reach-usd-43-75-billion-as-agentic-rag-drives-23-cagr.html",
+      "summary": "一份经 ResearchAndMarkets 发行、2026 年 10 月 30 日见诸 GlobeNewswire 新闻稿的市场报告预测，全球 RAG 平台市场规模将从 2025 年的 40 亿美元、2026 年的约 55.2 亿美元，增至 2036 年的 437.5 亿美元，2026—2036 年 CAGR 为 23.0%。报告将 Agentic RAG 列为增长最快的架构方向：Agent 通过 MCP server 接入企业系统，并结合工具调用完成多步检索。原始研究机构在新闻稿中未具名。",
+      "why_it_matters": "报告显示价值正从向量存储转向治理与检索质量：评估与 guardrails 组件增速最高，向量能力被通用数据库捆绑、长上下文构成替代压力，直接影响 RAG 选型与采购方向。",
+      "key_facts": [
+        {
+          "fact": "报告预测全球 RAG 平台市场 2025 年为 40 亿美元，2026 年估 55.2 亿美元，2036 年达 437.5 亿美元，2026—2036 年 CAGR 为 23.0%",
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "fact": "Agentic RAG 预计为增长最快的架构方向：Agent 执行多步检索、结合工具使用，并经 MCP server 连接企业系统",
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "fact": "预注册 Stanford 研究发现 LexisNexis 与 Thomson Reuters 的法律 RAG 产品在 17%—33% 的查询上幻觉，独立使用的 GPT-4 为 43%",
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "fact": "Microsoft 于 2025 年 6 月修复 EchoLeak（CVE-2025-32711，CVSS 9.3）：由 Aim Security 发现的零点击漏洞，邮件中被检索的恶意内容可操纵 Microsoft 365 Copilot 并泄露敏感信息",
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        }
+      ],
+      "technical_analysis": "报告两面呈现：混合关键词+向量检索加 reranking 被列为首选生产架构，评估、可观测与 guardrails 增速最高；但 RAG 未消除幻觉，法律产品幻觉率 17%—33%，好于独立使用的 GPT-4（43%）。安全上 EchoLeak 表明邮件中被检索的恶意内容可操纵 Microsoft 365 Copilot 并外泄敏感信息（编辑推断：属间接 prompt injection 类，新闻稿未用该术语）。编辑推断：向量存储商品化与长上下文正把价值推向 reranking、权限治理与 Agent 集成，MongoDB 收购 Voyage AI 为报告点名的例证。",
+      "deep_dive": [
+        {
+          "heading": "细分增长结构：钱流向哪里",
+          "content": "组件层面，vector database 与搜索引擎预计在 2026 年领跑，但评估、可观测与 guardrails 将录得最高 CAGR——企业需要量化准确性、监控性能漂移并防止数据泄漏。应用层面，企业搜索与知识管理是最大板块，客户支持增速最高。行业层面，BFSI 规模最大，医疗与生命科学增长最快。部署层面，cloud 占比最大，hybrid 增速最高，因银行、保险、医疗与政府需将敏感数据留在本地。区域上北美 2026 年领先，亚太 CAGR 最高。",
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "heading": "架构迁移：从标准向量 RAG 到 Agentic RAG",
+          "content": "报告目录将架构分为标准向量 RAG、混合检索+reranking、GraphRAG、Agentic 多步检索与多模态五类（另列与长上下文/微调的对比）。混合架构因在复杂数据集上精度更高而成为首选生产形态；Agentic RAG 增速最高，Agent 执行多步检索、结合工具调用并经 MCP server 连接企业系统。GraphRAG 适合实体关系类查询，多模态 RAG 将检索扩展到图像与混合媒介。数据类型上，非结构化文本仍是最大板块，多模态增长最快；随着 Agent 把文档与业务系统记录结合，结构化与半结构化数据的检索也在上升。",
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "heading": "反方证据：幻觉与检索通道攻击",
+          "content": "报告把持续幻觉与检索通道安全列为市场阻力（restraints）。预注册 Stanford 研究识别出的问题类型包括虚构判例、回答不完整与错误解读案例；安全侧的 EchoLeak 是由 Aim Security 发现的零点击漏洞，Microsoft 于 2025 年 6 月修复，攻击路径是邮件中被检索的恶意内容操纵 Microsoft 365 Copilot 并外泄敏感信息（具体幻觉率区间与 CVE 编号见关键事实；编辑推断：该攻击形态可归入间接 prompt injection 类别，新闻稿正文未使用该术语）。作为应对，企业优先投入 permission-aware retrieval、prompt injection 检测、DLP、溯源与审计。报告另列两条阻力：长上下文模型可能替代部分检索需求，以及向量搜索被通用数据库捆绑带来的商品化压力。",
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "heading": "竞争格局与整合信号",
+          "content": "Elastic 披露 2026 财年一季度有超过 2,200 家 Elastic Cloud 客户运行生成式 AI 负载，三季度收入增长 18% 至 4.5 亿美元（新闻稿未说明比较基准与所属财年口径）。整合已在发生：MongoDB 收购 Voyage AI，Elastic 推出带 MCP server 的 Agent Builder；报告预计云与数据库厂商将继续沿 RAG 技术栈扩张并购。被点名厂商包括 Microsoft、AWS、Google、Databricks、Snowflake、Pinecone、Weaviate、Zilliz、Qdrant、Cohere、Glean、Vectara、LangChain、LlamaIndex 等。口径上，基础模型使用费与无检索功能的通用数据库不计入市场规模。",
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 GlobeNewswire 上的完整报告发布新闻稿（含摘要、目录与厂商名单），并非报告全文；自下而上/自上而下的测算明细、分厂商收入、SWOT 与 2025 年份额排名表未获得，437.5 亿美元等预测无法独立复核；新闻稿亦未包含报告定价或获取方式信息，原始研究机构未具名。",
+      "application": "选型时把混合检索+reranking、permission-aware retrieval、评估与 guardrails 列为必查项；暂不押注单一独立向量数据库；引用报告数字前先核对公开案例。",
+      "caveats": "来源为市场报告新闻稿，方法论与假设未披露，发布方为分发平台而非具名研究机构；幻觉率与 EchoLeak 为第三方研究或公告，本刊未独立复核。",
+      "confidence": 0.8,
+      "relevance_tags": [
+        "RAG",
+        "agentic-ai",
+        "MCP",
+        "market-forecast",
+        "enterprise-ai",
+        "security",
+        "vector-database"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-03d1656e7283",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.globenewswire.com/news-release/2026/10/30/3392464/28124/en/retrieval-augmented-generation-rag-platforms-market-size-share-trends-and-industry-analysis-global-forecast-to-2036-market-to-reach-usd-43-75-billion-as-agentic-rag-drives-23-cagr.html",
+          "title": "Retrieval-Augmented Generation (RAG) Platforms Market ...",
+          "publisher": "www.globenewswire.com",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:18.164987Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-03d1656e7283"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://www.globenewswire.com/news-release/2026/10/30/3392464/28124/en/retrieval-augmented-generation-rag-platforms-market-size-share-trends-and-industry-analysis-global-forecast-to-2036-market-to-reach-usd-43-75-billion-as-agentic-rag-drives-23-cagr.html",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 80,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "报告公开了生产架构选择：混合关键词+向量检索加 reranking 被列为首选生产架构",
+            "ref_ids": [
+              "ref-03d1656e7283"
+            ]
+          },
+          {
+            "point": "说明了权限与安全边界：企业优先部署 permission-aware retrieval、prompt injection 检测、DLP、溯源与审计",
+            "ref_ids": [
+              "ref-03d1656e7283"
+            ]
+          },
+          {
+            "point": "给出可观察结果：预注册 Stanford 研究测得 LexisNexis、Thomson Reuters 法律 RAG 产品幻觉率 17%—33%，GPT-4 独立使用为 43%",
+            "ref_ids": [
+              "ref-03d1656e7283"
+            ]
+          },
+          {
+            "point": "披露了限制与权衡：基础模型调用费与无检索功能的通用数据库不计入市场口径；长上下文可能减少部分场景对检索的依赖",
+            "ref_ids": [
+              "ref-03d1656e7283"
+            ]
+          }
+        ],
+        "try_it": [
+          "核对 Microsoft 2025 年 6 月对 CVE-2025-32711（EchoLeak）的公开公告，验证邮件内容经检索操纵 Microsoft 365 Copilot 的攻击路径",
+          "查阅 Stanford 预注册法律 RAG 研究公开版，复核幻觉率区间及虚构判例等问题类别",
+          "按报告覆盖框架（向量库、embedding/reranking、编排、摄取与连接器、评估与 guardrails、MCP 集成）对照自查现有 RAG 栈的缺口"
+        ],
+        "requirements": [
+          "可访问 Microsoft 安全公告与 Stanford 研究公开版",
+          "报告完整方法论与测算明细未随新闻稿公开，获取方式未在新闻稿中说明",
+          "自查技术栈需已有 RAG 部署环境与评估数据"
+        ],
+        "limitations": [
+          "核心为商业预测报告而非可复现实验，市场数字无法独立验证",
+          "幻觉率与安全案例来自第三方研究/公告，本刊未复现",
+          "MCP 集成仅在报告层面描述，无具体实现或代码示例"
+        ]
+      }
+    },
+    {
+      "item_id": "item-e082855c0f9555ccab1b4cf2fe072c41",
+      "event_id": "2f6c3671-0cc2-501e-a0fc-fb0e371121e6",
+      "type": "news",
+      "title": "BuzzClan 企业 MCP 集成指南：架构与安全",
+      "source": "buzzclan.com",
+      "published_at": null,
+      "canonical_url": "https://buzzclan.com/ai/what-is-mcp",
+      "summary": "BuzzClan 博客发布 MCP 企业集成长文（作者 Abhi Garg，文内署名日期 2026-10-30），讲解以 host/client/server 三层架构与 Tools、Resources、Prompts 三类能力对接 CRM、ITSM 等系统，并给出 MCP 与 API、RAG 的分工对比、六类安全风险对策、五点就绪自检清单与 ROI 度量指标。",
+      "why_it_matters": "该文把 MCP 从概念拉回工程现实：明确它不替代 API、RAG 与既有安全控制，并把权限边界、prompt injection 防护、ROI 验收拆成可执行清单，可用作企业立项评审时的自查框架（编辑推断）。",
+      "key_facts": [
+        {
+          "fact": "BuzzClan 博客发布 MCP 企业集成长文（作者 Abhi Garg，文内署名日期 2026-10-30），介绍 host/client/server 架构与 Tools、Resources、Prompts 三类能力",
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "fact": "文章强调 MCP 不替代 API 与 RAG：API 连接底层系统，RAG 检索信息为回答提供依据，MCP 提供 AI 侧统一发现与调用能力的共享接口",
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "fact": "文章列出六类安全风险与对策：过度权限、prompt injection、不可信 server、凭据滥用、敏感数据暴露、危险操作，要求最小权限与高危操作人工审批",
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "fact": "文章给出五点就绪自检清单（用例、系统可及、客户端兼容、安全治理、生产与 ROI 计划）与 ROI 度量指标：流程耗时、人工环节、任务完成与错误率、工具调用失败与重试、采用率、集成维护成本、安全例外",
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        }
+      ],
+      "technical_analysis": "文章核心主张是避免为每个 AI 客户端重复搭建 AI 侧集成：一个 MCP server 暴露精选能力，客户端统一发现调用，底层仍走既有 API——编辑推断，收益可概括为“一次暴露、多端复用”。文章坦承 MCP 不消除底层集成维护、不自带认证授权与数据过滤，需按最小权限拆分只读与写操作工具，并把检索文档与工具响应当不可信输入以防 prompt injection。",
+      "deep_dive": [
+        {
+          "heading": "三层架构与五步调用流",
+          "content": "MCP 由三部分组成：host 是协调模型、用户交互与连接的 AI 应用，client 代表 host 与某个 server 通信，server 把业务系统能力暴露给 AI。能力分三类：Tools 是查客户、查库、建工单等动作，Resources 是文件、记录等上下文数据，Prompts 是可复用的交互模板；双方须都支持相应能力才能协作。一次典型调用分五步：client 连接 server 发现可用工具；AI 依据请求判断需要信息还是动作；server 校验请求并应用授权规则；server 调用底层 API、数据库或集成层；结果返回 AI 应用继续工作流。MCP 只标准化接口，不替代模型也不决定其推理方式。",
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "heading": "MCP、API 与 RAG 的分工",
+          "content": "原文以对比表加 MCP vs API、MCP vs RAG 两个小节呈现分工，编辑可将其归纳为三个问题：API 解决“软件之间如何交换数据与执行操作”，MCP 解决“兼容的 AI 应用如何统一发现和使用能力”，RAG 解决“如何检索相关信息让回答有据”。三者可叠加：MCP server 内部可调用既有 CRM API 完成操作，也可把知识库检索封装成 MCP 工具供 RAG 工作流使用，API 与集成服务继续负责连接底层系统。因此 MCP 不会消灭 API、自定义 adapter 或业务逻辑，收益来自减少每个 AI 客户端重复的 AI 侧接口开发。最终效果仍取决于数据源质量、权限设计与模型如何使用检索内容。",
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "heading": "安全风险表与上线前测试",
+          "content": "文章列出六类风险及对策：过度权限（最小权限、只读与增删改工具分离）；prompt injection（把检索文档与工具响应当不可信输入，不允许其指令覆盖安全策略）；不可信或被入侵的 server（审查来源与配置、监控依赖、维护更新流程）；凭据滥用（正规 secret 管理，绝不在 prompt 或工具参数中暴露 API key）；敏感数据暴露（响应过滤、限制访问、脱敏与保留策略）；危险操作（校验工具输入、强制授权、高危操作需人工审批）。远程 server 应遵循相应 MCP authorization spec 并校验 access token；上线前需测试无效输入、过期凭据、服务不可用、权限变更与异常请求，并记录工具调用、授权结果与错误日志。",
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "heading": "ROI 度量与五点就绪清单",
+          "content": "文章强调按业务结果而非 server 数量衡量：试点前先建基线，追踪流程完成时间、被消除的人工环节与交接、任务完成率与错误率、工具调用失败与重试次数、员工采用与复用率、集成开发与维护成本、安全例外与未授权访问尝试，再与实施、基础设施、模型使用与维护成本对比。就绪自检五点：清晰业务用例（含业务负责人与可量化成功标准）、系统可及性（API、适配器、数据源）、兼容所需 MCP 能力与传输的 AI 客户端、安全与治理（身份、最小权限、数据过滤、审批、日志、归属）、生产与 ROI 计划（测试、监控、维护、成本、事件处理、版本管理）。多项不达标时应先做有限试点再扩。",
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 BuzzClan 博客全文（文末 FAQ 尾句截断）。未获得：独立实测或 benchmark 数据、代码与配置仓库、客户案例量化结果、与官方 spec 的版本对照；发布时间仅来自文内署名 “Abhi Garg Oct 30, 2026”，页面无结构化日期。文中提及 BuzzClan 自有的 MCP server 实施指南与 Google Workspace MCP 集成文章，但正文未随附其内容。",
+      "application": "暂无 MCP 需求者收藏备查；准备试点者先过五点就绪自检，圈定单一工作流做小范围 pilot，只暴露必需工具，按业务指标复盘后再扩。",
+      "caveats": "供应商营销性质科普文，无实测数据、代码或客户案例结果；发布时间仅见文内署名（2026-10-30），协议细节以官方 spec 为准。",
+      "confidence": 0.7,
+      "relevance_tags": [
+        "MCP",
+        "enterprise-integration",
+        "security",
+        "Agent",
+        "RAG",
+        "governance",
+        "vendor-guide"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-d850ce6c10ef",
+          "source_id": "tinyfish-discovery",
+          "url": "https://buzzclan.com/ai/what-is-mcp",
+          "title": "What Is MCP? How It Powers Enterprise AI Integration - BuzzClan",
+          "publisher": "buzzclan.com",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:00.442541Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-d850ce6c10ef"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://buzzclan.com/ai/what-is-mcp",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 83,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "公开工作流与架构：host/client/server 三层分工，能力经“发现→选工具→校验访问→调底层系统→返回结果”五步流转",
+            "ref_ids": [
+              "ref-d850ce6c10ef"
+            ]
+          },
+          {
+            "point": "说明权限与安全边界：最小权限、只读与写操作工具分离、工具响应当不可信输入、凭据不入 prompt、高危操作需人工审批",
+            "ref_ids": [
+              "ref-d850ce6c10ef"
+            ]
+          },
+          {
+            "point": "给出可观察指标：试点前建基线，追踪流程耗时、人工环节、工具调用失败与重试、采用率、安全例外等",
+            "ref_ids": [
+              "ref-d850ce6c10ef"
+            ]
+          }
+        ],
+        "try_it": [
+          "按五点就绪清单自查：用例、系统可及性、AI 客户端兼容性、安全治理、生产与 ROI 计划",
+          "圈定单一工作流做有限试点，仅暴露必需的 Tools/Resources，读操作先行",
+          "上线前测试无效输入、过期凭据、权限变更与异常请求，并接入日志与监控"
+        ],
+        "requirements": [
+          "具备支持 MCP 的 AI 客户端及目标系统的 API/适配器",
+          "身份认证、最小权限、审批与日志监控等治理能力"
+        ],
+        "limitations": [
+          "文章为概念指南兼厂商服务介绍，未含代码、配置或实测结果",
+          "MCP 不替代 API、RAG 或既有安全控制，底层集成维护成本仍在",
+          "远程 MCP server 需遵循相应 MCP authorization spec"
+        ]
+      }
+    },
+    {
+      "item_id": "item-09bf8875701f55f3a3032a75e35d4e3d",
+      "event_id": "154a0eac-cd06-531a-b6e5-24b500687b53",
+      "type": "news",
+      "title": "LSTM–MLP 在模拟数据上将 PDSI 预测 R² 提至 99.97%",
+      "source": "www.nature.com",
+      "published_at": null,
+      "canonical_url": "https://www.nature.com/articles/s41598-026-78725-6",
+      "summary": "nature.com 论文（编号 s41598-026-78725-6；未标注发表日期，2026-10-31 检索到）提出 LSTM–MLP 混合模型，用 Grey Wolf Optimizer 与 Genetic Algorithm 联合优化配置，在 864 条气候情景记录上预测干旱指数 PDSI，R² 达 99.97%，高于 CNN、LSTM 等对比基线；作者自述结果仅适用于模拟情景数据，不代表实测站点的泛化能力。",
+      "why_it_matters": "接近满分的 R² 出自模拟气候情景数据，是“先核数据来源再信指标”的典型案例；其 LSTM 编码＋MLP 回归头＋元启发式调参的组合对一般时序任务也有参考价值。",
+      "key_facts": [
+        {
+          "fact": "研究提出 LSTM–MLP 混合架构：LSTM 提取气候变量序列的时间依赖，MLP 完成到 PDSI 的非线性映射，并用 GWO–GA 混合元启发式策略优化模型配置",
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        },
+        {
+          "fact": "在 864 条含情景信息、变量为 pr/tas/tasmin/tasmax/srad 的气候数据上，LSTM–MLP 取得 MSE 0.0004、RMSE 0.0201、MAE 0.0169、R² 99.97%",
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        },
+        {
+          "fact": "对比基线 R²：CNN 94.58%、LSTM 90.84%、GRU 88.70%、BiLSTM 87.39%、BiGRU 86.48%",
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        },
+        {
+          "fact": "作者明确说明数据为模拟气候情景记录而非实测站点观测，结果应视为模拟条件下的评估，不代表对真实干旱条件的泛化，需独立实测验证",
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        }
+      ],
+      "technical_analysis": "方法上，模型把“时序编码＋回归头”拆成 LSTM 与 MLP 两段，并用 GWO–GA 替代人工调参与网格搜索——作者称后两者在高维非线性空间代价高且易得次优。文中引用的黄河流域 LSTM 研究（TerraClimate 观测＋偏差校正 CMIP6 数据）R² 为 0.766，本文在模拟情景数据上达 99.97%。编辑推断：悬殊差距更多反映模拟数据规律性强于真实观测，而非架构优势；作者也把实测独立验证列为必要条件。",
+      "deep_dive": [
+        {
+          "heading": "与观测数据研究的性能差距",
+          "content": "论文相关工作部分列举了基于实测或再分析数据的结果：上埃及八省的 CNN–SVR 测试集 R²=0.828、RMSE=0.688；黄河流域内蒙古段基于 TerraClimate 观测与偏差校正 CMIP6 预估的 LSTM 为 R²=0.766、RMSE=0.885；埃塞俄比亚干旱分级任务上 Random Forest 准确率 71.18%、ROC–AUC 0.90。与本文模拟情景数据上的 99.97% 相比，若只看 R² 绝对差约 0.17 并不悬殊；换残差口径（1−R²，约 0.17 对 0.0003）则误差相差超过两个数量级。编辑推断：差距主要反映数据形态（模拟 vs 观测/再分析）而非模型代际进步，跨研究指标不宜直接比较。",
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        },
+        {
+          "heading": "GWO–GA 组合的分工与动机",
+          "content": "GWO 由 Mirjalili 等提出，模拟灰狼群体的领导层级与狩猎行为，强调探索与利用的平衡；GA 依靠选择、交叉、变异逐代演化候选解。论文组合二者的理由是互补：GWO 做全局探索，GA 的进化算子细化有希望的解。文中指出，人工调参与穷举式网格搜索在高维非线性空间中计算昂贵且常得到次优配置，这是引入群体元启发式优化的直接动机；作者称既有 PDSI 研究多停留在单一模型、CNN 混合架构或单一优化策略。",
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        },
+        {
+          "heading": "任务口径：回归、分级与提前期不可混比",
+          "content": "同类“干旱预测”口径各异：本文做连续 PDSI 回归；Melese 等做干旱等级分类；Mohammadi Ghaleni 等做 SPEI-6 的 1–24 个月提前期预测，12 个月提前期下特征提取把 LSTM 的 RMSE 从 0.16 降到 0.07、相关系数从 0.65 升至 0.90；Marusov 等对比 ConvLSTM 与 transformer 架构，报告的 ROC–AUC 包括 1 个月 0.948、12 个月 0.617——证据原文未写明数值归属哪个模型，上下文指向 EarthFormer——并据此说明架构排序会随预测时距变化。这意味着拿本文的 R² 与任何提前期预测或分类研究直接比高低都没有意义。",
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是论文的摘要、引言与相关工作部分，正文在相关工作小节处截断；未获得方法学细节、实验设置（训练/测试划分、超参搜索预算）、结果全文及代码与数据可得性信息。published_at 为空，仅能确认 2026-10-31 检索到页面；期刊归属由 URL 编号 s41598 推断为 Scientific Reports，证据文本未明示期刊名。",
+      "application": "做时序预测的团队可把 GWO–GA 联合调参思路迁移到自有任务；干旱业务场景暂不采纳，需先在本地实测观测数据上复现对比。",
+      "caveats": "证据仅含摘要、引言与相关工作（截断），缺方法细节、数据划分与代码信息；无发表日期；99.97% 仅限模拟情景数据，泛化未验证。",
+      "confidence": 0.75,
+      "relevance_tags": [
+        "深度学习",
+        "时间序列预测",
+        "气候AI",
+        "超参数优化",
+        "benchmark"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-40daa6f18c04",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.nature.com/articles/s41598-026-78725-6",
+          "title": "Hybrid GWO–GA optimized LSTM–MLP framework for ...",
+          "publisher": "www.nature.com",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:07.988676Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-40daa6f18c04"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-6c24627fa4bc53259ff0b977bc318d1e",
+      "event_id": "9ff78ad7-6c1f-51e2-8b54-e1deb15cda20",
+      "type": "news",
+      "title": "Reflection AI 官网出现 Beam 安全技术报告页",
+      "source": "reflection.ai",
+      "published_at": null,
+      "canonical_url": "https://reflection.ai/beam-safety-report",
+      "summary": "Reflection AI 官网 reflection.ai 上存在题为《Beam Safety Technical Report》的页面，2026-10-31 检索到该 URL。页面元数据未给出发布日期，采集时未取回正文，报告范围、评估方法、样本与结论均未知。除标题、URL 与发布方外，本次未获得可核验的内容性信息，此前转述的片段内容亦无法核验。",
+      "why_it_matters": "编辑推断：Agent 安全评估的公开细节相对稀缺，这类厂商自述报告是了解其安全工作口径的一个入口；但它属自我披露、不等于独立复现，作为安全审查对照材料前，须先取得全文并核对方法与数据。",
+      "key_facts": [
+        {
+          "fact": "Reflection AI 官网存在题为 \"Beam Safety Technical Report - Reflection AI\" 的页面，2026-10-31 检索到",
+          "ref_ids": [
+            "ref-622e47dd7465"
+          ]
+        },
+        {
+          "fact": "该来源记录未提供正文内容，发布日期缺失（published_at 为空）",
+          "ref_ids": [
+            "ref-622e47dd7465"
+          ]
+        }
+      ],
+      "technical_analysis": "本次证据仅含页面标题、URL、发布方与检索时间，正文未取回，无法对报告内容作任何技术判断。可确定的只有：页面位于 Reflection AI 自有域名，主题指向名为 Beam 的安全评估，发布日期未知。此前版本引用的第三方评估方、挑战数量、生物安全边界等片段未随证据提供、无法核验，本版不再作为事实呈现。编辑推断：即便取得全文，厂商自述的安全评估也属自我披露，结论需独立复现或外部佐证方能支撑安全决策。",
+      "deep_dive": [],
+      "evidence_note": "实际获得的证据仅为来源记录中的 URL、标题、publisher（reflection.ai）与检索时间 2026-10-31；untrusted_evidence 为空，未取回报告全文、摘要或任何摘录。评估对象、方法、样本规模与结论均未获得。",
+      "application": "暂不据此调整安全策略或选型；将链接列入跟踪清单，待取得全文或出现独立解读后，再评估其证据强度与适用性。",
+      "caveats": "仅标题级元数据：正文、日期、方法与结论均未获取，任何内容性表述均不可引用为事实。",
+      "confidence": 0.45,
+      "relevance_tags": [
+        "AI Safety",
+        "Agent",
+        "安全评估",
+        "Reflection AI"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-622e47dd7465",
+          "source_id": "tinyfish-discovery",
+          "url": "https://reflection.ai/beam-safety-report",
+          "title": "Beam Safety Technical Report - Reflection AI",
+          "publisher": "reflection.ai",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:07.988501Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-622e47dd7465"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-622e47dd7465"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-0bf72f7026735054ac84ae599b7e32ec",
+      "event_id": "84fc4beb-7b4e-534c-b1d1-17685141e0e4",
+      "type": "news",
+      "title": "Postgres 与 pgvector 自建 Memory 层",
+      "source": "pub.towardsai.net",
+      "published_at": null,
+      "canonical_url": "https://pub.towardsai.net/day-37-100-build-your-own-agent-memory-layer-with-postgres-and-pgvector-767dacc2c850",
+      "summary": "pub.towardsai.net 一文 \"[Day 37/100] Build Your Own Agent Memory Layer with Postgres and pgvector\" 于 2026-10-31 被检索。标题显示属百篇系列第 37 篇，主题是用 Postgres 与 pgvector 自建 Agent Memory 层；正文与发布日期未取得。",
+      "why_it_matters": "自建 Memory 是托管记忆服务之外的候选路线；评估 Agent Memory 选型的团队可将此文列为待读材料。但本次仅获标题级信息，其方法是否可复现、与托管方案如何取舍，在当前证据下无法判断。",
+      "key_facts": [
+        {
+          "fact": "pub.towardsai.net 存在标题为 \"[Day 37/100] Build Your Own Agent Memory Layer with Postgres and pgvector\" 的文章页面，2026-10-31 检索到",
+          "ref_ids": [
+            "ref-7b01462b4cea"
+          ]
+        },
+        {
+          "fact": "标题显示该文为编号至 100 的系列第 37 篇，主题为用 Postgres 与 pgvector 构建 Agent Memory 层",
+          "ref_ids": [
+            "ref-7b01462b4cea"
+          ]
+        },
+        {
+          "fact": "来源元数据未给出发布日期（published_at 为空），正文未取回",
+          "ref_ids": [
+            "ref-7b01462b4cea"
+          ]
+        }
+      ],
+      "technical_analysis": "标题给出的技术路线是：以 Postgres 为存储、pgvector 扩展承担向量检索，为 Agent 构建 Memory 层。编辑推断：此类自建方案的潜在收益是数据留在自有数据库、运维栈统一；代价是 embedding 写入、检索策略与记忆淘汰逻辑都需自研——以上均为推断，原文正文未随证据提供。标题中的 Day 37/100 表明它属于编号至 100 的系列，本篇只是 Memory 这一切面，代码与论证强度需读原文后再评估。",
+      "deep_dive": [],
+      "evidence_note": "实际获得的证据仅为来源记录中的 URL、标题、publisher（pub.towardsai.net）与检索时间 2026-10-31；untrusted_evidence 为空，未取回正文，此前引用的系列范围搜索线索也不在证据中。作者、发布日期、代码、schema、benchmark 与对比结论均未获得。",
+      "application": "已用 Postgres 的团队可将 pgvector 列为 Memory 候选路线之一；先通读原文核实方法与代码再决定落地，勿仅凭标题选型。",
+      "caveats": "仅标题级元数据：正文、作者、日期与代码均未获取，系列范围未经核实，不宜据此做选型结论。",
+      "confidence": 0.4,
+      "relevance_tags": [
+        "Agent",
+        "Memory",
+        "Postgres",
+        "pgvector",
+        "RAG",
+        "vector-database",
+        "tutorial"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-7b01462b4cea",
+          "source_id": "tinyfish-discovery",
+          "url": "https://pub.towardsai.net/day-37-100-build-your-own-agent-memory-layer-with-postgres-and-pgvector-767dacc2c850",
+          "title": "[Day 37/100] Build Your Own Agent Memory Layer with ...",
+          "publisher": "pub.towardsai.net",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:21.030136Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-7b01462b4cea"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-7b01462b4cea"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-7b01462b4cea"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-0b3cec231f7c599a8c5eba1b490c3a5a",
+      "event_id": "62f1ee32-1115-5a27-a3e5-25dd4d105a9e",
+      "type": "news",
+      "title": "hwchase17 发帖谈 context engineering 新挑战",
+      "source": "x.com",
+      "published_at": null,
+      "canonical_url": "https://x.com/hwchase17/status/2116553654857867330",
+      "summary": "X 账号 hwchase17 发布题为 \"New context engineering challenges in late 2026\" 的帖子。本次采集仅命中该帖的检索元数据（标题与 URL），引用记录的证据字段为空，帖子正文未随引用提供；标题所称「新挑战」的具体所指、案例与结论均无法核对。来源未标注发布时间，页面检索于 2026-10-31，本条按最小事实处理。",
+      "why_it_matters": "编辑推断：hwchase17 通常被视为 LangChain 创始人 Harrison Chase 的账号，其 context engineering 讨论往往影响工程社区的注意力方向；但本条仅有标题元数据，是否值得跟进取决于原帖内容，应先核对原文。",
+      "key_facts": [
+        {
+          "fact": "X 账号 hwchase17 发布题为 \"New context engineering challenges in late 2026\" 的帖子（标题来自检索元数据，未经正文核实）",
+          "ref_ids": [
+            "ref-b63276d2da16"
+          ]
+        },
+        {
+          "fact": "本次采集未获得该帖正文：引用记录的证据字段为空，仅有 URL、标题与发布方 x.com；来源未标注发布时间，检索时间为 2026-10-31",
+          "ref_ids": [
+            "ref-b63276d2da16"
+          ]
+        }
+      ],
+      "technical_analysis": "本次采集只获得检索元数据：标题、URL 与发布方 x.com，引用记录的证据字段为空字符串，无发布时间。据此仅能确认存在这样一条帖子及其自称的主题方向（late 2026 的 context engineering 挑战），无法转述任何论点或结论；此前草稿中「Memory 分为数据结构与 agent 智能层」「维护困难」等转述因缺少可核对的正文片段，本次已按证据边界删除。编辑推断：该账号通常为 LangChain 创始人 Harrison Chase 所用。",
+      "deep_dive": [],
+      "evidence_note": "实际获得的是检索结果元数据（标题、URL、发布方），引用记录的证据字段为空字符串，帖子正文未获得；标题与正文是否一致亦无法核对，本条按最小事实处理，未转述内容。",
+      "application": "暂缓行动：先打开原帖核对正文，确认「新挑战」具体所指后，再对照自身 context engineering 实践评估。",
+      "caveats": "仅获标题与 URL 元数据、无正文；标题未经正文核实，无发布时间，不作内容转述。",
+      "confidence": 0.45,
+      "relevance_tags": [
+        "context engineering",
+        "Memory",
+        "Agent",
+        "记忆架构"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-b63276d2da16",
+          "source_id": "tinyfish-discovery",
+          "url": "https://x.com/hwchase17/status/2116553654857867330",
+          "title": "New context engineering challenges in late 2026",
+          "publisher": "x.com",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:21.029595Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-b63276d2da16"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-b63276d2da16"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-4eae3b33c561586b82df0a97f1208273",
+      "event_id": "05ddf880-fad9-500a-9d75-483ea446fc4f",
+      "type": "blog",
+      "title": "LangWatch：多轮对话要分三层评估",
+      "source": "langwatch.ai",
+      "published_at": null,
+      "canonical_url": "https://langwatch.ai/blog/how-to-evaluate-multi-turn-conversations",
+      "summary": "LangWatch 在官方博客发文，主张对 AI Agent 的多轮对话做整段评估而非只测单轮回复：在整段会话、跨轮工具调用轨迹、单轮回复三个层级，用结果导向的判据打分。发布前用模拟用户生成对话测试，上线后按 thread_id 聚合真实会话交给 monitor 评分，失败样本可转为回归测试。博文未标注发布日期。",
+      "why_it_matters": "单轮评估发现不了第二轮才出现的 bug：重复索要已给信息、前后矛盾、被追问三次后违反退款政策。文章给出从写判据、跑模拟用户到生产监控的完整路径，覆盖发布前与上线后两个阶段。",
+      "key_facts": [
+        {
+          "fact": "LangWatch 博文主张对 AI Agent 的多轮对话分三个层级评估：整段会话、跨轮工具调用轨迹（trajectory）、单轮回复，用结果导向的判据打分，而非 coherence 之类的通用评分。",
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "fact": "发布前用模拟用户（LLM 扮演客户）生成多轮对话、由 LLM 判官按判据打分；Scenario 为 LangWatch 自述其构建的开源框架，可在 pytest 下运行，TypeScript 包 @langwatch/scenario 在 vitest 下运行同样结构。",
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "fact": "博文称：生产环境按 thread_id 聚合每条用户消息的 trace，Thread Level monitor 的 LLM 判官读完整线程评分，默认等线程空闲 5 分钟后触发，monitor 在响应发出后运行、不影响延迟。",
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "fact": "博文称：Instant Evals 可对时间窗内全部会话（而非抽样）做评判，约每 10,000 段会话耗时 1 分钟；monitor 判失败的会话可加入数据集并转为新的 scenario 回归测试。",
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        }
+      ],
+      "technical_analysis": "文章核心主张是判据比工具重要。单轮 eval 一次输入对一次输出，暴露不了依赖前文的失败；「工单＋预期工具序列」数据集假设路径唯一，而真实对话会中途引入新信息，故应对结果与动作打分。权衡有二：每轮设 checkpoint 会因措辞变化频繁误报，单轮层级只留给特定时刻成立的规则。原文指出回复文本看不到 Agent 实际做了什么；编辑推断：判官读 trace 更能暴露「嘴上说已取消却从未调工具」这类行为，但依赖 trace 关联质量。",
+      "deep_dive": [
+        {
+          "heading": "三层判据各管什么",
+          "content": "会话层回答「用户是否得到想要的」，判据写结果，如「客户结束对话时知道订单能否取消」。轨迹层看回复文本看不到的部分：Agent 可以写「订单已取消」却从未调用 cancel 工具，判官读 trace 后对照实际工具调用 span 检查「先查订单再答复」，还能抓住「因错误原因通过的对话」——作者九月通话中的例子是工具失败重试两次后成功，他认为这不该算通过。单轮层只留给必须在特定时刻成立的规则，如「不再次索要订单号」。作者建议从会话层起步，因为它直接对应用户是否得到帮助；判据要写结果和动作而非措辞，因为每次运行的措辞都会变。",
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "heading": "Scenario 测试怎么写",
+          "content": "pytest 示例中，scenario.run 接收三类 agent：用 AgentAdapter 包装的 SupportAgent、UserSimulatorAgent 与 JudgeAgent；script 里 scenario.user()/scenario.agent() 钉住需要检查的轮次，scenario.proceed(turns=3) 让模拟用户即兴发挥，每次运行测的是新措辞而非同一段手写对话。scenario.judge(criteria) 是 checkpoint，某条判据失败即停止运行，直接定位哪一轮坏了；自定义步骤可从消息和 span 读取全部工具调用，断言含 get_order_status 且 cancel_order 至多一次。Agent 独立部署为服务时，在 scenario.configure() 设 fetch_remote_traces=True 让判官读其自身 trace；不想写代码可用 LangWatch 的 scenario 编辑器逐行填判据。",
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "heading": "生产评分与 Instant Evals",
+          "content": "每条用户消息产生一个 trace，在 @langwatch.trace() 里用 metadata 传 thread_id 和 user_id 即可按会话分组。Thread Level monitor 的 LLM 判官读整段线程，含每轮工具调用、参数与结果，检查判据；默认等线程空闲 5 分钟才评分，避免新消息触发重复评分，博文称 monitor 在响应发出后运行、不影响用户延迟。Trace Level 用于单回复检查，如 PII 检测、答非所问。对历史流量的新问题，博文称 Instant Evals 评判时间窗内全部会话而非抽样、约 1 分钟处理 10,000 段，CLI 示例：langwatch instant-eval run \"the agent asked for something the customer had already given\" --target threads --last 30d。",
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "heading": "被否定的做法与冷启动",
+          "content": "文章点名反对「工单＋预期工具调用序列」数据集：它假设通向答案的路径唯一，而真实对话会中途带来新信息；其多轮 cookbook 改为对结果打分，判据形如「当且仅当 order.status != 'shipped' 时，Agent 必须告知用户可以取消」——已发货时不得告知可取消，无论路径怎么走判据都成立。闭环方面，博文称可用 automation 把 monitor 判失败的 trace 加入数据集，一段完整对话存为一行，成为下一个 scenario 候选，让线上发现的 bug 在下次发布前有测试可跑。还没有判据的团队，作者的冷启动建议是先读二十段真实线程、逐条写下哪里出错——这些笔记就是第一批判据。",
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 langwatch.ai 博客全文（正文、代码示例与 FAQ，经 tinyfish-discovery 于 2026-10-31 抓取），published_at 为空，无发布日期。未获得：Scenario 多轮 cookbook 全文、判官（LLM-as-a-Judge）准确率数据、与其它评估方法的对比或任何第三方独立验证；文末含厂商产品推广段落。",
+      "application": "先读二十段真实会话，把失败点写成首批判据；已有线上流量的按 thread_id 聚合 trace，先上会话级 monitor，再把失败样本转成回归测试。",
+      "caveats": "官方博客，方法与其 Scenario 框架和监控平台绑定，有推广动机；无判官准确率与第三方复现数据，也无发布日期。",
+      "confidence": 0.7,
+      "relevance_tags": [
+        "AI Agent",
+        "评测",
+        "多轮对话",
+        "LLM-as-a-Judge",
+        "LangWatch",
+        "工程实践"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-f93b5cc90182",
+          "source_id": "tinyfish-discovery",
+          "url": "https://langwatch.ai/blog/how-to-evaluate-multi-turn-conversations",
+          "title": "How to evaluate multi-turn conversations with your AI agent",
+          "publisher": "langwatch.ai",
+          "published_at": null,
+          "retrieved_at": "2026-10-31T22:01:09.217545Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-f93b5cc90182"
+          ]
+        }
+      ]
+    }
+  ],
+  "trends": [
+    {
+      "summary": "Agent Memory 成为活跃的选型与落地议题：zensation.ai 横评 Mem0、Zep、Letta 等九款开源框架，因各家自测口径不同明确拒绝排名；wavect.io 评审称 TencentDB Agent Memory 可用本地 SQLite（sqlite-vec）持久化 Memory、独立托管向量服务在受限部署中变为可选；pub.towardsai.net 出现「用 Postgres 与 pgvector 自建 Agent Memory 层」的系列文章（仅标题可得，正文未取回）。",
+      "ref_ids": [
+        "ref-4c3bdf481c36",
+        "ref-11c0deb6fe35",
+        "ref-7b01462b4cea"
+      ]
+    },
+    {
+      "summary": "公开 benchmark 分数以厂商自报为主、第三方复证稀缺：llm-stats.com 调试基准榜单 3 个成绩全部标注 self-reported、第三方 verified 结果为 0；zensation.ai 横评页面称多家同时声称领先、这些声明不能同时为真，并明确未复核各家分数（九家中仅 Hindsight 自述被外部机构复现，页面未复核该声明）。",
+      "ref_ids": [
+        "ref-15d596523a62",
+        "ref-4c3bdf481c36"
+      ]
+    },
+    {
+      "summary": "评测方法本身成为工程重点：LangWatch 博文主张多轮对话按整段会话、跨轮工具调用轨迹、单轮回复三层，用结果导向判据评估，替代 coherence 类通用评分；Ramanujan Challenge 论文报告 AI 辅助评审流水线相对一次性 LLM-as-a-judge，把自然语言证明假阳性从 23.4% 降至 5.8%、CAS/Lean 代码假阳性从 38.3% 降至 3.3%。",
+      "ref_ids": [
+        "ref-f93b5cc90182",
+        "ref-8b051dc7ba4e"
+      ]
+    },
+    {
+      "summary": "Memory 与上下文层被作为降低 token 消耗的手段，数字均为厂商或上游自报口径：repowise.dev 自测其 MCP 上下文层使 Codex（gpt-5.6-sol）输出 token -31.6%（n=43，p<0.0001）、Claude Code（claude-sonnet-5）-15.9%（n=15，p=0.035），benchmark 基于 django/django 单一 pinned commit 且仅实测两款 agent；TencentDB Agent Memory 上游 benchmark 称 WideSearch token 221.31M→85.64M（约省 61%）。",
+      "ref_ids": [
+        "ref-e8d6ea046076",
+        "ref-11c0deb6fe35"
+      ]
+    }
+  ],
+  "briefing": {
+    "headline": "Agent Memory 与上下文层成为选型议题，benchmark 自报为主、第三方复证稀缺",
+    "takeaway": "本期线索可归纳为三点：其一，Agent Memory 选型信息混杂，zensation.ai 横评因各家自测口径不同拒绝排名，并称 LongMemEval 与 LoCoMo 上多家同时声称领先、这些声明不能同时为真；其二，Memory 与上下文层被作为降低 token 消耗的手段，但支撑数字均为厂商自报（repowise 为利益相关方，benchmark 仅实测 Claude Code 与 Codex 两款）；其三，评测方法本身正被工程化改造（分层评估、多步 AI 辅助评审流水线），其改变的是对效果的测量与判定方式，而非直接决定效果。llm-stats.com 调试基准榜单 3 项成绩全部 self-reported、第三方 verified 为 0，选型应以自建验证为准。",
+    "actions": [
+      "Agent Memory 选型前先自建基准，勿直接采信厂商分数（llm-stats 榜单 self-reported 为主、verified 为 0）",
+      "审计 coding agent 默认挂载的 MCP server 与 system prompt 注入并要求提供关闭开关（T3 Code 相关讨论自 2026年10月8日持续至 10月29日，维护者未回应）",
+      "用分层会话评测与多步评审流水线替代单轮 LLM 打分"
+    ],
+    "read_minutes": 15
+  },
+  "source_stats": {
+    "raw_candidates": 59,
+    "shortlist": 14,
+    "sources": 1,
+    "coverage": {
+      "discovery": {
+        "queries": [
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") new research methods replication benchmark findings",
+            "lane": "research",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") open source tools release implementation deployment experience",
+            "lane": "engineering",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") product API pricing licensing availability changes",
+            "lane": "ecosystem",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") independent evaluation limitations security incident technical debate",
+            "lane": "discussion",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "LLM agent framework release update",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "Model Context Protocol MCP adoption ecosystem",
+            "lane": "topic",
+            "status": "ok",
+            "count": 0
+          },
+          {
+            "phase": "discovery",
+            "query": "MCP server security vulnerability",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "retrieval augmented generation GraphRAG hybrid search",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "agent long-term memory LLM context engineering",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "LLM evaluation benchmark results study",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "followup",
+            "query": "CVE-2026-62863 MCP SSE mode sessionId disclosure unauthorized /message tool calls",
+            "lane": "topic",
+            "status": "ok",
+            "count": 4
+          },
+          {
+            "phase": "followup",
+            "query": "nyo16 nous 0.18.2 project audit Role permissions not enforced unrestricted agent",
+            "lane": "topic",
+            "status": "ok",
+            "count": 2
+          },
+          {
+            "phase": "followup",
+            "query": "Microsoft Agent Framework Go agent-framework-go release announcement",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "followup",
+            "query": "Empowering Long-Horizon LLM Agents cognitive Memory Management Context Optimization arXiv 2610.40350",
+            "lane": "topic",
+            "status": "ok",
+            "count": 4
+          }
+        ],
+        "followups": [
+          {
+            "seed_id": "s10",
+            "query": "CVE-2026-62863 MCP SSE mode sessionId disclosure unauthorized /message tool calls",
+            "language": "en",
+            "purpose": "NVD摘要未指明受影响组件：需确认该漏洞涉及哪个MCP服务器/产品、触发前提（SSE模式配置）与官方修复版本或补丁公告"
+          },
+          {
+            "seed_id": "s3",
+            "query": "nyo16 nous 0.18.2 project audit Role permissions not enforced unrestricted agent",
+            "language": "en",
+            "purpose": "核实2026-10-31项目审计的原始报告：角色限制未生效可生成无限制agent的影响范围、是否有独立安全公告或CVE编号，以及0.18.3 InputGuard补丁（多条user消息绕过分类）是否已完整覆盖"
+          },
+          {
+            "seed_id": "s16",
+            "query": "Microsoft Agent Framework Go agent-framework-go release announcement",
+            "language": "en",
+            "purpose": "确认microsoft/agent-framework-go是否为官方正式发布、与Python/.NET实现的功能差距和预览/正式状态，寻找官方公告而非仅仓库存在"
+          },
+          {
+            "seed_id": "s7",
+            "query": "Empowering Long-Horizon LLM Agents cognitive Memory Management Context Optimization arXiv 2610.40350",
+            "language": "en",
+            "purpose": "追论文方法与复现：Memory Management与Context Optimization两个工具的实现细节、是否开源代码、所用基准与对比基线结果"
+          }
+        ],
+        "limitations": [],
+        "found_by_type": {
+          "news": 78,
+          "github": 8,
+          "blog": 20,
+          "paper": 4
+        },
+        "undated_leads": 110,
+        "page_fetch": [
+          {
+            "url": "https://papers.cool/arxiv/cs.SE",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://github.com/brycewang-stanford/Auto-Empirical-Research-Skills/blob/main/README-en.md",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://huggingface.co/papers?q=agent+improvement",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://zensation.ai/en/vergleich/agent-memory-frameworks",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://iwaponline.com/wpt/article/doi/10.2166/wpt.2026.485/113667/Deep-learning-for-leakage-detection-in-water",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.ssdnodes.com/learn/hindsight-vs-mem0",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://mistral.ai/news/mistral-large-4-oss",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://latent.space/p/ainews-building-aie-code-the-top-coding-agent-conference",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://blog.gopenai.com/google-wants-language-models-to-learn-while-they-sleep-we-built-a-pytorch-lab-to-understand-why-17cbf5ba2c5a",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://shattered.io/samaya-sterling-3b-active-finance-agent-frontierfinance-58-9-percent-2026",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.ovaledge.com/blog/context-graph-tools-for-ai-agents",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://buzzclan.com/ai/what-is-mcp",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://github.com/agentscope-ai/AgentTeams",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.truefoundry.com/blog/claude-code-vs-gemini-cli",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.photon.com/platform/agent-management",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://medium.com/engineering-playbook/ai-agent-development-architecture-costs-security-and-production-deployment-cd74305099ed",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.facebook.com/tildapublishing/posts/-new-article-what-an-mcp-server-is-how-it-works-what-you-can-do-with-itmcp-lets-/1445877444316124",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://wavect.io/blog/tencentdb-agent-memory-sqlite-review",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://bitcoinfoundation.org/news/ai/building-ai-agents",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://aiagentstore.ai/ai-agent-news/this-week",
+            "status": "failed",
+            "error": "CollectionError"
+          }
+        ]
+      },
+      "eligible_by_type": {
+        "blog": 18,
+        "paper": 2,
+        "news": 38,
+        "github": 1
+      },
+      "shortlist_by_type": {
+        "blog": 10,
+        "paper": 2,
+        "github": 1,
+        "news": 17
+      },
+      "selected_by_type": {
+        "blog": 4,
+        "paper": 2,
+        "github": 1,
+        "news": 7
+      },
+      "excluded_reasons": {
+        "不在本次阅读时间范围内": 1577,
+        "预发布版本，稳定版优先": 1,
+        "同包有更新的稳定版": 2
+      },
+      "editor_rejections": [
+        {
+          "raw_item_id": "c5c32f061c9bbbc220683fe246c8dee20cbb87cb60a3df0c83d851cd8b2c60b9",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "d7a46e1f0a8919f07de03d99daec2e8751fdf8d7388cbabe3ec066c3b7b10211",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "d876f8d0245db3b3998c7653f3c6422a1a3555ee53ae21c67ae0ec5ed5ce183f",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "54b373c92e03d7e9f8c81860cd51c2a6cef047050cdfda4b3868022f1370465f",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "ff58f3fe01f91634f6713435a92245485b583432c9da3905327bb167688db8dc",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "5ad0fb9fbcc2285907f3af43e4c73115c24ca6f54942704008c1d1229815e552",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "32e803f7ff0c9febb9e326f6cbbea9943161895f60b1d852fd085a2fad88a5c0",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "48a0d112809aa175dc5ae12d298fb14c30d8949e305f74e27e327078ce2496cc",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "3a14db82f4156aaea6aec1935e185424beb1d98b60ea8aa05dd65e362ea08372",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "525a15abd799b92badfabeea3a86233767a4bdf638325989b96715ef65bb240f",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "5ccb69850179065d7c85f4dcda285c758ce22dd5e557dc2059e65e3735e27bcc",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "b059da747d0ceee290f99479ce1e50aa20b4c694b3ec7bbfe9bca6260325275f",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "cd299de10e513dc7238486d1b42c1f18c7c1f2a79cbd50b537108330403dac6c",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "1e73239e15d29e2c827062cfe02019903b3fb727cd6047ef3717ef0464d8bf97",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "2cef65ef85f85ac6522e1e9925b44af359f940e26e792c4712a5c3d9b9d15b11",
+          "reason": "超过条目上限"
+        },
+        {
+          "raw_item_id": "59a7443ced8467cfd334744f910fc65f32b5c4ce4160d4bbc2f93c4ef7b73383",
+          "reason": "超过条目上限"
+        }
+      ],
+      "scope_note": "仅检查本次已搜索和采集的覆盖，不能证明互联网热点无遗漏。"
+    },
+    "practice": {
+      "window_days": 7,
+      "queries": [
+        {
+          "query": "\"Agent Skills\" SKILL.md implementation workflow repository test",
+          "lane": "skill",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"Model Context Protocol\" production deployment authentication security",
+          "lane": "mcp",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "site:github.com \"MCP server\" installation configuration tools",
+          "lane": "mcp",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"AI coding agent\" testing code review CI workflow repository",
+          "lane": "ai_coding",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"AI agent\" evaluation observability production failure postmortem",
+          "lane": "agent_workflow",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "RAG agent production benchmark latency cost implementation case study",
+          "lane": "rag_eval",
+          "status": "ok",
+          "count": 10
+        }
+      ],
+      "registry": {
+        "returned": 200,
+        "unique_with_repository": 32,
+        "skipped_without_repository": 114,
+        "status": "ok",
+        "candidates": 32
+      },
+      "repository_verification": {
+        "attempted": 12,
+        "verified": 12,
+        "failed": 0
+      },
+      "page_fetch": [
+        {
+          "url": "https://github.com/scenario-labs/skills/blob/main/AGENTS.md",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://www.chatprd.ai/how-i-ai/workflows/build-a-self-improving-ai-to-generate-agent-skills-in-codex",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://www.reddit.com/r/ClaudeWorkflows/comments/1xfnlag/workflow_collection_of_51_claude_code_agent",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://dev.to/aairom/turning-books-into-actionable-agent-skills-a-deep-dive-into-book-to-skill-and-docling-1i52",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://www.firecrawl.dev/blog/antigravity-skills",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://developer.android.com/tools/agents/android-skills",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://cloud.google.com/blog/topics/developers-practitioners/behind-the-scenes-two-months-later-how-we-ship-google-agent-skills-like-products",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://arxiv.org/html/2610.36188v1",
+          "status": "failed",
+          "error": "CollectionError"
+        }
+      ],
+      "limitations": [
+        "MCP Registry 本次最多读取 200 条更新"
+      ],
+      "discovered": 91,
+      "qualification": {
+        "leads": 97,
+        "qualified": 13,
+        "rejected": {
+          "研究论文不直接充当工程实践": 3,
+          "案例缺少工作流、结果或限制": 77,
+          "榜单或清单不作为实践": 3,
+          "缺少安装、配置或示例": 1
+        },
+        "stale_disqualified": 84,
+        "history_duplicates": 0
+      }
+    },
+    "generation_fallbacks": [
+      "模型主编未完成，按规则评分选择条目"
+    ],
+    "generation_models": [
+      "glm-5.3",
+      "typesafe/jev-1.13-20260917"
+    ]
+  },
+  "quality_report": {
+    "passed": true,
+    "hard_failures": [],
+    "warnings": [
+      "模型主编未完成，按规则评分选择条目",
+      "14 条搜索线索缺少可核验发布日期",
+      "正文补全成功率低于 80%",
+      "来源正文状态未确认: https://reflection.ai/beam-safety-report",
+      "来源正文状态未确认: https://pub.towardsai.net/day-37-100-build-your-own-agent-memory-layer-with-postgres-and-pgvector-767dacc2c850",
+      "来源正文状态未确认: https://x.com/hwchase17/status/2116553654857867330",
+      "Critic 仍有 6 项声明需要人工核验",
+      "Critic 提醒：[item-b7fc19ae33c05a968fcc28dd06e683d9] 标题《多专家论证提升整篇报告ATT&CK提取精度》把论文自报结论写成既成事实。该结果来自作者自述、实验章节（第 5 节）未获得、亦无独立复现，建议在标题中加\"论文称\"或\"KAIST 提出\"式限定。",
+      "Critic 提醒：[item-41c199fd40de5e03958f82e58c70d199] deep_dive《benchmark 数字与成本口径》把\"也不应被当作完整当前 Hub 栈的 benchmark\"直接接在 PersonaMem 48%→76% 之后，但原文该句（\"Nor should the older token result be presented as a benchmark of the complete current Hub stack\"）明确指向较早的 Wid",
+      "Critic 提醒：[item-b7fc19ae33c05a968fcc28dd06e683d9] deep_dive《对抗威胁模型》写\"SolarWinds 事件一度有 UNC2452、NOBELIUM、Dark Halo、SolarStorm 四个命名\"，原文为\"at least four distinct vendor-assigned identifiers\"（至少四个），\"四个\"损失了\"至少\"的限定。",
+      "Critic 提醒：[item-b7fc19ae33c05a968fcc28dd06e683d9] summary 末句\"三类对抗扰动下平均 precision 降幅约为 frontier baseline 的一半\"与前面\"作者称\"的管辖边界不清晰，该数字同样出自作者摘要自述，建议显式标注为作者自报。",
+      "Critic 提醒：[item-b7fc19ae33c05a968fcc28dd06e683d9] deep_dive《与 TTPrint 的路线分歧及动机》重复了 technical_analysis 已给出的\"坍缩为单次 verifier 调用 F1 最多降 15 pp\"，属跨节重复；建议只在一处给出数字，另一处改为交叉引用。",
+      "Critic 提醒：[item-ae3f91e9746b5edeb5cb445f946af20c] summary 写『0.0.45 注入约 21 个工具』：证据原话为确切数字『21 tools』（仅 main 分支是 'about 80'），key_fact 1 也写 21，summary 的『约』应删去。",
+      "Critic 提醒：[item-ae3f91e9746b5edeb5cb445f946af20c] key_fact 4 与 summary 的『维护者被多次 @』：证据只显示用户 @ 了 t3dotgg（10/25）与 juliusmarminge（10/19、10/25）；t3dotgg 可由仓库名 pingdotgg 推知为作者，但 juliusmarminge 的维护者身份在所引证据中未确立，建议改为『被 @ 的 t3dotgg 与 juliusmarminge』或先核实其角色。",
+      "Critic 提醒：[item-ae3f91e9746b5edeb5cb445f946af20c] deep_dive 第三节的『#15370（PR-watcher 版本的同题请求）』：楼主原话带 'seems to be' 的推测限定，且 evidence_note 已声明 #15370 正文未获取、无法核实；建议保留『楼主推测』语气而非陈述为同题请求。",
+      "Critic 提醒：[item-ae3f91e9746b5edeb5cb445f946af20c] deep_dive『本地后端 400 的对照实验』与 key_fact 3 重复度偏高：版本组合、同工具名+合成消息、删 pattern 得 200、无工具执行、旧 fork 未测 master 等几乎逐句重述；深潜的增量仅 isTrimmed() 机制、pattern 字面量、DIAGNOSTIC_OK fingerprint 与 target:{kind:\"url\"} 结构，建议压缩与 key",
+      "Critic 提醒：[item-b4c5ecea46d3567fb7665dd7b44b0d4c] key_fact 2 直接写『Mem0 README 的 LoCoMo 92.5、LongMemEval 94.4』：所引证据只是 zensation 页面对 Mem0 README 的转述，README 原文未获取；key_fact 4 对 Hindsight 用了『页面转述其自述』的措辞，此处建议同样标注『据该页引述 README』，避免被读成已核对原文。",
+      "部分趋势没有两个独立来源"
+    ],
+    "metrics": {
+      "item_count": 14,
+      "body_success_rate": 0.7857,
+      "clue_item_count": 3,
+      "event_duplicate_rate": 0.0
+    },
+    "checked_at": "2026-10-31T22:47:02.755600+00:00"
+  }
+}
