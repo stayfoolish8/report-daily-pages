@@ -1,0 +1,2038 @@
+{
+  "schema_version": "1.0",
+  "issue_date": "2026-11-08",
+  "revision": 1,
+  "generated_at": "2026-11-07T22:15:18.368902Z",
+  "run_id": "97792bb7-6146-4b20-ac85-5f5dbc14a412",
+  "window": {
+    "start": "2026-11-06T22:00:00Z",
+    "end": "2026-11-07T22:00:00Z"
+  },
+  "snapshot": {
+    "candidate_count": 14,
+    "frozen": true
+  },
+  "snapshot_summary": "公共候选池经确定性去重、评分、正文补全后生成。",
+  "sections": [
+    {
+      "type": "ai_practice",
+      "item_ids": [
+        "item-f236abdce1565b07ae84762cc5d778b9",
+        "item-860399da85365217b6e1a60b8fd86b6f",
+        "item-ff50878969e7513d8b148883ac32e7fc",
+        "item-8d7335acbeb95289befcf079f3b40f05",
+        "item-92821af8c35250a5a2c3bf8d77f96577"
+      ]
+    },
+    {
+      "type": "news",
+      "item_ids": [
+        "item-26859851e62c56eb93fc1a9a050bd479",
+        "item-4b5a7f6514c351568166a16dc2c26923",
+        "item-c7a4d57312a45f388493206da71549dc",
+        "item-de5e48fda85b5b039acad483e4a1166b",
+        "item-6658eed16b3759c69aaa999223c4c753",
+        "item-cf756c4fb9c6538f8aff0061c02672a1",
+        "item-5ff6fb2503e6507099377a8dba78ff80",
+        "item-5295e87bb51757a584a5b8d26a1208ae"
+      ]
+    },
+    {
+      "type": "blog",
+      "item_ids": [
+        "item-883586296d9858aa9636262e54dbbf2b"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "item_id": "item-f236abdce1565b07ae84762cc5d778b9",
+      "event_id": "d800ccaa-fca3-5beb-8236-18f76bd08833",
+      "type": "blog",
+      "title": "Uber公开生产级Agent安全三层纵深框架",
+      "source": "www.uber.com",
+      "published_at": null,
+      "canonical_url": "https://www.uber.com/us/en/blog/securing-ai-agents",
+      "summary": "Uber 工程团队于 2026年11月6日发布博客，公开生产环境的三层 Agent 安全框架：provisioning 校验（AI Registry 行为契约、Argus 自动分析、MCP 供应链审查）、runtime 强制（AI Guard 决策，Agent Guard、LangFx 与 AI Guard SDK 执行）与持续保障（trace、replay、red teaming）。以 persona、显式 intent 与语义约束对抗 prompt injection、tool poisoning，并定性披露误拦、延迟与自治度之间的权衡，未附量化指标。",
+      "why_it_matters": "一手生产经验罕见：既给出 PAP/PDP/PEP 语义扩展与 MCP 供应链审查等可复用模式，又坦承安全同准确性、延迟、成本与自治度相互制约；作者自评控制降低风险但未消除，非营销口径。",
+      "key_facts": [
+        {
+          "fact": "Uber 于 2026年11月6日发布工程博客，公开覆盖 provisioning 校验、runtime 强制与持续保障三层的 Agent 安全框架，组件含 AI Registry、Argus、AI Guard、Agent Guard 与 LangFx。",
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "fact": "Runtime 层沿用 PAP/PDP/PEP 分离但将策略扩展到语义行为：AI Registry 为 policy administration point，AI Guard 为 policy decision point，Agent Guard runtime hooks、LangFx 与 AI Guard SDK 为 policy enforcement point。",
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "fact": "第三方 MCP server 与工具经静态与动态分析、software composition analysis、声誉信号及工具描述语义审查，用于识别 tool poisoning 与间接 prompt injection；monorepo 扫描用于发现未注册 Agent 与未授权 MCP endpoint。",
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "fact": "作者结论：guardrail 降低了风险并提高利用成本但未消除风险；最有效的缓解是把 Agent 限制在显式 intent 与约束内，代价是牺牲部分自治灵活性。",
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        }
+      ],
+      "technical_analysis": "核心变化：把授权从'谁被允许'扩到'该不该做'——即便各环节授权全合法，动作仍可因偏离 persona、intent 或 session 上下文被拒，以此拦截传统控制管不到的间接 prompt injection。工程权衡：guardrail 处于热路径，Uber 弃用通用 SaaS 大模型逐次判定，改本地小模型并行推理加内存向量检索控延迟；统一阈值导致误拦与保护失衡，改按 Agent 风险画像逐个校准，shadow mode 与流量回放先行。",
+      "deep_dive": [
+        {
+          "heading": "上线前：行为契约与 MCP 供应链校验",
+          "content": "AI Registry 权威记录 Agent 的身份、所有权、persona、许可 intent、约束、依赖与风险等级，构成'行为契约'；Argus 自动分析源码、prompt、配置、依赖、暴露 endpoint 与工具调用路径，既找安全弱点，也从实现推导结构化 intent，与声明行为互相对照，团队只需审阅修订而非从零手写。第三方 MCP server 与工具经静态与动态分析、SCA、声誉信号和工具描述语义审查，识别 tool poisoning 等恶意行为；LLM 部署前也过安全评估，monorepo 扫描负责发现未注册 Agent 与未授权 MCP endpoint。",
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "heading": "Runtime：语义决策与 prompt provenance",
+          "content": "AI Guard 作为 security、privacy 与 safety 三类策略的共享决策服务，在应用、模型与工具检查点评估 proposed action；Agent Guard 在 Agent 与工具执行边界拦截并执行 verdict。即便凭证与用户权限都合法，越出定义 intent 或与整体上下文不一致的动作仍会被拒。另一机制是 prompt provenance 与 evidence chaining，把特权动作回溯关联到用户实际请求，用于防御间接 prompt injection 与 goal hijacking；博客表示下一阶段将继续扩展该机制并推进语义约束与 operating principles。",
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "heading": "开发者采纳：让安全路径成为最省力的路径",
+          "content": "Secure AI 不是各产品团队各自接入的独立网关，而是嵌入 Uber 现有 AI 与工程栈的公共节点：代码与 no-code Agent 开发平台的集成在开发早期即发现并注册 Agent，建立身份、所有权、persona、intent 与风险等级；LangFx 与 AI Guard SDK 提供标准接入路径。手动注册、定义 persona、指派 guardrail 的 onboarding 开销曾构成团队绕过控制的动机，Argus 据此自动预生成 persona 与 intent 供人审阅修订。作者的中心教训是：security、准确性、延迟、成本、自治度与开发者体验无法各自独立优化，guardrail 本质上是分布式系统工程问题。编辑推断：维护多个微调小模型与逐 Agent 校准流程，对小团队复制成本不低。建议验证：用一段真实会话日志做 replay，对比收窄 intent 前后的误拦变化。",
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "heading": "持续保障闭环与作者承认的局限",
+          "content": "统一执行 trace 连接 Agent 动作、工具调用与 guardrail 决策；prompt 与响应内容仅在需要时记录，敏感信息最小化或脱敏，按敏感度限制访问并设保留期。录制交互可回放给候选 guardrail 与更新策略，强制前先对照真实生产行为验证。自动化威胁建模结合设计信息与源码分析维护动态攻击面视图，驱动场景化渗透测试与持续 AI red teaming，结果回流风险分、策略与模型校准。作者明确承认：核心 security、privacy guardrail 在 Uber 自有与第三方 Agent 上自始部署，PersonaGuard 等属于其上的加强层；控制提高利用成本但未消除风险，对新注入手法的效果'可预测性较低'。",
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 Uber 工程博客正文全文摘取（结尾结论段末句在抓取中被截断），发布日期取正文标注的 November 6, 2026。未获得：量化指标（拦截率、误拦/误放率、延迟数字）、guardrail 专用小模型的规模与训练细节、AI Guard/Argus 的开源或外售计划，也没有独立第三方验证或外部红队结果。",
+      "application": "自查三点：Agent 是否声明 persona 与显式 intent；第三方 MCP server 接入前是否做静态与动态审查；新 guardrail 是否先 shadow mode 再强制。",
+      "caveats": "单方工程叙述，无拦截率、误拦率或延迟数字，也无第三方审计；作者自承对新型注入手法防御'可预测性较低'，组件开源与否未见披露。",
+      "confidence": 0.78,
+      "relevance_tags": [
+        "agent-security",
+        "prompt-injection",
+        "mcp",
+        "guardrails",
+        "defense-in-depth",
+        "supply-chain-security",
+        "production-practice"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-c981ac9544a0",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.uber.com/us/en/blog/securing-ai-agents",
+          "title": "Securing AI Agents: Lessons From Real-World Deployment",
+          "publisher": "www.uber.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:01:04.068488Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-c981ac9544a0"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://www.uber.com/us/en/blog/securing-ai-agents",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 83,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "安全边界：runtime 由 AI Guard 依据 Registry 中的 persona、许可 intent、语义约束与多轮 session 历史对 proposed action 出 verdict，Agent Guard 在 Agent 与工具执行边界强制执行。",
+            "ref_ids": [
+              "ref-c981ac9544a0"
+            ]
+          },
+          {
+            "point": "明确问题：分层叠加 guardrail 带来可测延迟；统一阈值与通用控制无法适配不同 Agent 的用途、行为、工具与风险画像。",
+            "ref_ids": [
+              "ref-c981ac9544a0"
+            ]
+          },
+          {
+            "point": "公开工作流：provisioning（Registry+Argus 生成行为契约、MCP 供应链审查）→ runtime（AI Guard 并行小模型判定）→ 持续保障（trace、replay、red teaming 回流校准）。",
+            "ref_ids": [
+              "ref-c981ac9544a0"
+            ]
+          },
+          {
+            "point": "可观察结果：作者称控制降低了风险并提高利用成本，但未消除；对新型 prompt injection 与操纵手法的效果可预测性较低。",
+            "ref_ids": [
+              "ref-c981ac9544a0"
+            ]
+          },
+          {
+            "point": "披露权衡：最有效的缓解是用显式 intent 与约束收窄 Agent 行为，代价是牺牲令自治设计有吸引力的部分灵活性。",
+            "ref_ids": [
+              "ref-c981ac9544a0"
+            ]
+          }
+        ],
+        "try_it": [
+          "为内部 Agent 建立类 Registry 条目：persona、显式 intent、约束、依赖与风险等级，并用静态分析对照声明行为与实际能力。",
+          "第三方 MCP server 接入前做静态/动态分析与工具描述语义审查，重点排查 tool poisoning 与间接注入。",
+          "新 guardrail 先以 shadow mode 跑真实流量并回放对比，度量误拦/误放后再启用强制。"
+        ],
+        "requirements": [
+          "可注入 runtime 拦截点的 Agent 执行路径（SDK 或等效 hook）",
+          "本地可部署的小模型推理（含按 guardrail 功能微调）与低延迟向量检索",
+          "trace 存储及数据脱敏与保留策略"
+        ],
+        "limitations": [
+          "Argus、AI Guard、LangFx 为 Uber 内部平台，未见开源或外售披露，外部团队只能复用模式而非组件",
+          "文中无拦截率、误拦率、延迟等量化数据，效果不可独立复核",
+          "显式 intent 收窄行为会牺牲 Agent 自治性，高灵活性场景需重新权衡"
+        ]
+      }
+    },
+    {
+      "item_id": "item-860399da85365217b6e1a60b8fd86b6f",
+      "event_id": "d06fcb79-b971-5f5a-b0da-922430a63d0d",
+      "type": "blog",
+      "title": "Anthropic公开跨会话Memory设计",
+      "source": "hdatf.com",
+      "published_at": null,
+      "canonical_url": "https://hdatf.com/news",
+      "summary": "据 hdatf.com 聚合页 2026-11-06 条目转述：Anthropic 公布 agent memory 设计研究，memory 指 Claude 跨会话保留的知识。机制两种：memory notes 由 agent 当下判断何为显著写入；dreaming 让 agent 离线重读会话 transcript 修正错误笔记。公司自评的长时程 Pokemon 实验中，较旧模型写 413 个 memory 文件得 1 个 badge，较新模型写 9 个文件得 4 个；dreaming 曾纠正一条记错的地点笔记，使运行回到正轨。",
+      "why_it_matters": "价值在于头部厂商公开了跨会话 memory 的设计取向：即时记显著加离线纠错，并附自评实验数据。但本次证据仅为聚合页一句话转述；'失败常源于 memory 设计'是聚合方编辑评论，方法细节需以原文为准。",
+      "key_facts": [
+        {
+          "fact": "据聚合页转述，Anthropic 公布 agent memory 设计研究，memory 指 Claude 在会话之间保留的知识。",
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        },
+        {
+          "fact": "两种机制：memory notes 由 agent 当下判断何为显著来写入；dreaming 让 agent 离线重读会话 transcript 以修正错误笔记。",
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        },
+        {
+          "fact": "Anthropic 自评的长时程 Pokemon 实验：较旧模型写 413 个 memory 文件只得 1 个 badge，较新模型写 9 个文件得 4 个 badge。",
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        },
+        {
+          "fact": "dreaming 修正了一条记错的地点笔记，使运行回到正轨。",
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        }
+      ],
+      "technical_analysis": "证据给出的对照是：较旧模型写 413 个 memory 文件得 1 个 badge，较新模型写 9 个得 4 个。两次运行来自不同代际模型，badge 差异混杂了模型因素，不能单独归因于记忆策略，但至少说明'多记'没有兑换成成绩。dreaming 的纠错通过离线重读 transcript 完成（编辑推断：这可能减少任务执行时的额外介入，代价是需留存完整 transcript 且纠错滞后于错误发生；此权衡证据未直接讨论）。",
+      "deep_dive": [
+        {
+          "heading": "自纠错实例与证据边界",
+          "content": "研究给出的 dreaming 直接证据是一次地点纠错：agent 此前把某地点记错，dreaming 阶段离线重读会话 transcript 后修正了这条错误笔记，后续运行得以回到正轨。证据原文只说'corrected / fix mistaken notes'，未说明错误条目是被改写、删除还是以其他方式处理，不宜引申'改写而非删除'的对比；笔记写入的触发条件、dreaming 的执行频率等实现细节本次均未出现。另需注意：'长时程任务的失败常可追溯到 memory 设计'出自聚合页编辑评论（Why it matters 段），并非可核验的 Anthropic 原文表述。编辑推断：该案例中被纠错的是事实类（地点）笔记，但据此推断自检价值集中于事实类笔记，属单一案例外推。",
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        },
+        {
+          "heading": "同期参照：BioBasicsBench连失败案例一起发布",
+          "content": "同日（2026-11-06）OpenAI 与酶设计生物技术公司 Ligo 发布 BioBasicsBench：100 个任务与评分 rubric 由科学家基于 gel 图像、显微镜堆栈、测序 reads 等原始实验证据撰写，考察 agent 处理常规湿实验分析的能力。OpenAI 自评显示，GPT-6 Astra 在最高报告推理设置下平均获 66.7% 的分数，GPT-5.6 Sol 为 43.8%；失败案例随结果一并发布，如菌落计数约 12% 的高估。编辑推断：连同失败发布与 Anthropic 公开 memory 设计细节同属'让评估可复核'的取向，但两家数字均为厂商自评。",
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 hdatf.com 聚合页对 Anthropic Research 与 OpenAI Blog 条目的简短转述，非研究原文；未获得 memory 设计的论文全文、笔记生成机制、dreaming 频率、两代模型具体版本与 badge 定义；BioBasicsBench 是否公开可下载亦未知。聚合页 published_at 为空，条目日期 2026-11-06 取自页面自身标注。",
+      "application": "自建 Agent 团队可先审计现有 memory：哪些笔记实际被读取与使用？再小范围试离线复盘纠错，暂不必全盘照搬。",
+      "caveats": "证据仅为聚合页对研究的简短转述，未获论文原文；模型版本、笔记机制细节与 badge 定义均未知，数字为 Anthropic 自评。",
+      "confidence": 0.55,
+      "relevance_tags": [
+        "Agent",
+        "Memory",
+        "长时程任务",
+        "Anthropic",
+        "benchmark"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-c9c96b924981",
+          "source_id": "tinyfish-discovery",
+          "url": "https://hdatf.com/news",
+          "title": "News",
+          "publisher": "hdatf.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:00:44.821610Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-c9c96b924981"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://hdatf.com/news",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 83,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "摘要转述了公开的 memory 工作流：memory notes 按当下显著性写入，dreaming 离线重读会话 transcript 修正错误笔记。",
+            "ref_ids": [
+              "ref-c9c96b924981"
+            ]
+          },
+          {
+            "point": "给出长时程 Pokemon 任务运行结果：旧模型 413 个 memory 文件得 1 个 badge、新模型 9 个文件得 4 个，并含一次 dreaming 纠正地点笔记的实例。",
+            "ref_ids": [
+              "ref-c9c96b924981"
+            ]
+          }
+        ],
+        "try_it": [
+          "1. 经聚合页'Read original'链接核对 Anthropic Research 原文，确认笔记写入与 dreaming 触发细节（建议验证）",
+          "2. 在自有长时程任务中分别记录'多记'与'精选'两种 memory 策略下的笔记数与完成指标，注意控制模型变量（建议验证）",
+          "3. 每晚离线重读 transcript，统计被修正的错误笔记及其对次日任务的影响（建议验证）"
+        ],
+        "requirements": [
+          "能留存完整会话 transcript 的长时程任务环境",
+          "Anthropic Research 原文访问（本次证据仅为聚合摘要）"
+        ],
+        "limitations": [
+          "结果为 Anthropic 自评且限于 Pokemon 单一任务，两次运行模型代际不同，成绩差异不能单独归因于记忆策略",
+          "笔记筛选与 dreaming 的工程实现细节未在证据中给出",
+          "不应因 Claude 口碑默认该方案适用于自建 Agent"
+        ]
+      }
+    },
+    {
+      "item_id": "item-ff50878969e7513d8b148883ac32e7fc",
+      "event_id": "399c1c55-e8ed-560e-9763-01d75578de53",
+      "type": "github",
+      "title": "Claude Code 学术研究 Skill 套件 ARS",
+      "source": "github.com",
+      "published_at": null,
+      "canonical_url": "https://github.com/imbad0202/academic-research-skills",
+      "summary": "公开仓库 ARS 为 Claude Code 提供学术研究到投稿全流程 Skill：Deep Research（13-agent）、论文写作（12-agent）、多视角评审（7-agent）、10 阶段 pipeline 与系统综述双盲筛选加仲裁，每个 checkpoint 由人确认。仓库 v3.7.0+ 起支持 plugin 两条命令安装，README 先决条件仅要求 Claude Code 最新版、未给出其最低版本；v3.8 新增可选 claim audit，对照三层引用锚点核验主张并以硬门拦截问题输出。",
+      "why_it_matters": "它回应被量化过的问题：README 引 Zhao 等对 arXiv、bioRxiv、SSRN 与 PMC 共 250 万篇论文的审计，保守估计 2025 年约 14.7 万条幻觉引用；ARS 以三层 locator 锚点加可选 claim audit 给出可运行方案，也是 Agent 编排进科研流程的现成样板。",
+      "key_facts": [
+        {
+          "fact": "仓库提供 plugin 安装：/plugin marketplace add Imbad0202/academic-research-skills 后执行 /plugin install academic-research-skills；README 将 plugin 安装标注为 v3.7.0+（对照 Claude Science 导入“需本仓库 v3.14.0+”的写法，应为仓库自身版本），先决条件仅要求 Claude Code 最新版、未给出其最低版本；claude.ai 与 Claude Desktop 付费版亦可安装。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "fact": "套件含五个 Skill：Deep Research（13-agent）、Academic Paper（12-agent 写作）、Academic Paper Reviewer（7-agent 多视角评审）、Academic Pipeline（10 阶段编排）与 SR-Screener（两名盲评 AI 评审加第三方仲裁）。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "fact": "v3.8 新增可选 claim audit（ARS_CLAIM_AUDIT=1）：抓取被引来源对照三层 locator 锚点判断主张是否被支持，五类 HIGH-WARN 经 formatter 终端硬门拒绝输出；校准 runner 附 25 条合成 gold set，验收阈值 FNR<0.15、FPR<0.10。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "fact": "README 估计全 pipeline 处理 1.5 万词论文约 US$3–7（2026-09 牌价、缓存折扣前，项目方口径）；star 数与许可证信息未随证据获得，不作事实列出。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "fact": "随附校准测试以返回 gold 标签的 stub judge 驱动，只验证工具链而非真实判官；live-judge 校准结果尚未记录，当前 live review 标记 NOT_CALIBRATED。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "fact": "README 声明所引文献（Zhao、Lu、Ren、Gartenberg、Wang、King & Worthington 六篇 anchor 及 Brodeur、Dycke & Gurevych 等内引文献）均为设计理由而非 ARS 输出质量的证据；corpus 级评估 ARS 自身列为未来工作。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        }
+      ],
+      "technical_analysis": "核心取舍是把自动化停在验证环节：README 引 Lu 等全自主系统的失败模式清单为反面，又引 Brodeur 等 PNAS 随机实验（人工、AI 辅助、AI 主导复现率分别为 94%、91%、37%）说明 AI 主导验证大幅更差，故每个 checkpoint 保持人主导。编辑推断：值得看的是把引用审计做成硬门——主张不被来源支持即拒绝产出——而非 Agent 数量；代价是校准滞后，live review 仍 NOT_CALIBRATED，随附校准测试只用 stub judge。",
+      "deep_dive": [
+        {
+          "heading": "integrity gate 与证据链机制",
+          "content": "pipeline 在 Stage 2.5 与 Stage 4.5 设 integrity gate，运行 7 类失败模式阻断清单，对应 Lu 等（Nature 651:914-919）在 The AI Scientist 自述 Limitations 中列举的实现 bug、结果幻觉、捷径依赖、bug-as-insight 重构、方法学编造、frame-lock 与引用幻觉（该系统论文盲审得分 6.33/10，高于 ICLR 2025 workshop 均值 4.87）。v3.7.1 加 trust-chain frontmatter 记录来源出处；v3.7.3 给每条引用挂三层 locator 锚点，供 v3.8 的 claim 级审计使用。另含 anti-leakage protocol、VLM 图表核验、可选跨模型核验（ARS_CROSS_MODEL）、write-scope guard（需真 Python）与 data_access_level 元数据（raw/redacted/verified_only，v3.3.2+，由 scripts/check_data_access_level.py 强制；README 称模式改编自 Anthropic 的 automated-w2s-researcher）。模拟评审面板按 Wang 等综述的评审权威阶梯停在“作者侧反馈”最低层级，不做官方审稿决定。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "heading": "README 的证据基础及其自认边界",
+          "content": "README 以六篇 anchor 文献支撑设计决策，并反复声明它们是设计理由而非 ARS 效果证据。Zhao 等（2026-05）审计 arXiv、bioRxiv、SSRN、PMC 上 250 万篇论文的 1.11 亿条引用，保守估计 2025 年 146,932 条幻觉引用。King & Worthington（2026-10）主研究覆盖 124 篇稿件与 134 份付费专家评审；另一项由两个模型家族分别担任评审与判官的复制实验中，AI 评审获 404/416（97.1%，Opus 判官）与 392/416（94.2%，GPT 判官）偏好，README 未说明复制实验是否基于同一批稿件。无工具条件下 5.5% 的 AI 主张判断与稿件矛盾（人类评审 15.9%），37.1% 的 AI 评审至少含一处此类错误。Dycke & Gurevych 的 391 处破坏科学支撑关系的编辑未显著改变受测自动评审打分（对照 540 处中性编辑）。对应缺口以 issue 追踪（#871、#872、#1001、#1002）。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "heading": "安装渠道差异：README 只说不同、未做排序",
+          "content": "README 单列各安装渠道的控制可用性差异，逐渠道映射放在 CONTROL_AVAILABILITY.md（未随证据获得），并未对渠道做功能排序。claude.ai 与 Claude Desktop 付费版可装，但 hooks 与 plugin agents 在纯聊天中不运行（SETUP Method 0）；Claude Science 导入要求仓库 v3.14.0+，导入为时点快照，slash 命令、hooks、subagent 编排不随迁移，更新后需重导；Pi 走社区维护的 in-tree wrapper（pi install git:github.com/Imbad0202/academic-research-skills）；Codex CLI 另有兄弟发行版 academic-research-skills-codex，同一工作流内容、以单一 $academic-research-suite skill 与 ars-* 别名做 Codex 原生打包。第三方封装平台列于 THIRD_PARTY.md，为社区提交、维护者未审阅背书。装完以 /ars-plan 或 /ars-lit-review 单题验证。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "heading": "校准现状的增量：ramp-on 在等 live-judge 结果",
+          "content": "在“随附测试只验工具链”这一结论之外，v3.8 spec §5 的 ramp-on 计划明确等待首个 live-judge 校准结果后才推进；完整校准目前只产出有界候选 profile（bounded candidate profile），live-profile 的应用尚未接线，因此当前 live review 保持 NOT_CALIBRATED 标记。评审员另提供 opt-in 校准模式，可用用户自供 gold set 测自身 FNR/FPR，与随附 25 条合成 gold set 的 runner 相互独立。与文献对应的评审缺口以 issue 追踪：#1001（domain reviewer 推荐文献时不做检索验证，对照 King & Worthington 中带检索时 AI 胜率 100%、无检索 62%）与 #1002（不将 panel 主张与稿件核对，对照无工具条件下 5.5% 主张判断与稿件矛盾）。",
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        }
+      ],
+      "evidence_note": "实读内容为仓库 README 全文摘取（自述式发布说明，正文在 Task Type Annotation 段截断），非代码实现或独立评测；未获得：仓库内文档（ARCHITECTURE/SETUP/PERFORMANCE/RISK_REGISTER/CONTROL_AVAILABILITY 等）正文、README 所引六篇 anchor 文献及其内引文献（Brodeur、Dycke & Gurevych、Shaw & Nave、Song 等）原文、任何第三方运行结果或 live-judge 校准数据；安装命令未独立执行验证，成本与阈值数字为项目方口径；star 数与许可证信息未随证据获得。",
+      "application": "先低成本试装：跑 /ars-plan 或 /ars-lit-review 单题验证；投稿前引用与结论仍逐条人工核对，不要关闭确认点与硬门。",
+      "caveats": "证据仅为 README 自述：无独立评测，live review 未校准，corpus 级评估属未来工作，成本与阈值为项目方口径，许可证未核实。",
+      "confidence": 0.72,
+      "relevance_tags": [
+        "Claude Code",
+        "Skill",
+        "学术写作",
+        "Agent 编排",
+        "引用审计",
+        "开源工具"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-2d69ab2a1c81",
+          "source_id": "tinyfish-discovery",
+          "url": "https://github.com/imbad0202/academic-research-skills",
+          "title": "Academic Research Skills for Claude Code ...",
+          "publisher": "github.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:00:44.822750Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "claim_index": 4,
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        },
+        {
+          "claim_index": 5,
+          "ref_ids": [
+            "ref-2d69ab2a1c81"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "github:imbad0202/academic-research-skills",
+        "kind": "ai_coding",
+        "evidence_level": "runnable",
+        "reproducibility_score": 85,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "提供可复制的安装与验证命令：plugin marketplace add / install 后运行 /ars-plan 验证",
+            "ref_ids": [
+              "ref-2d69ab2a1c81"
+            ]
+          },
+          {
+            "point": "包含真实配置项：ANTHROPIC_API_KEY、ARS_CLAIM_AUDIT=1、ARS_CROSS_MODEL 等开关及 per-mode token 预算（README 指向 PERFORMANCE.md）",
+            "ref_ids": [
+              "ref-2d69ab2a1c81"
+            ]
+          },
+          {
+            "point": "附带测试与验收阈值：v3.8 校准 runner 加 25 条合成 gold set，FNR<0.15、FPR<0.10（随附测试用 stub judge，只验工具链）",
+            "ref_ids": [
+              "ref-2d69ab2a1c81"
+            ]
+          },
+          {
+            "point": "README 声明数据与安全边界文档：DATA_FLOWS.md 列明出网路径与关闭方式，另有 write-scope guard、RISK_REGISTER、SECURITY.md（正文未随证据获得）",
+            "ref_ids": [
+              "ref-2d69ab2a1c81"
+            ]
+          },
+          {
+            "point": "README 声明架构文档 ARCHITECTURE.md 含流程图、阶段矩阵、skill 依赖图与质量门（正文未随证据获得）",
+            "ref_ids": [
+              "ref-2d69ab2a1c81"
+            ]
+          },
+          {
+            "point": "明确未解决问题：live review NOT_CALIBRATED、corpus 级自评估属未来工作、L3 主张忠实度缺口（L3 为 ARS 自有术语）",
+            "ref_ids": [
+              "ref-2d69ab2a1c81"
+            ]
+          }
+        ],
+        "try_it": [
+          "在 Claude Code（README 要求 latest）执行 /plugin marketplace add Imbad0202/academic-research-skills",
+          "执行 /plugin install academic-research-skills 完成安装",
+          "运行 /ars-plan 进入 Socratic 结构对话，或 /ars-lit-review “你的主题” 做单次验证"
+        ],
+        "requirements": [
+          "Claude Code 最新版（plugin 打包要求较新版本；README 未给出具体最低版本）",
+          "已 export 的 ANTHROPIC_API_KEY（或首次 claude 运行时配置）",
+          "可选：Pandoc（DOCX）、tectonic 加 Source Han Serif TC（APA PDF）；可选 Python（write-scope guard 与少数 opt-in 命令）"
+        ],
+        "limitations": [
+          "全 pipeline 约 US$3–7 每 1.5 万词论文（项目方 2026-09 牌价、缓存折扣前口径）",
+          "claude.ai 纯聊天中 hooks 与 plugin agents 不运行",
+          "live review 未校准；README 文献引用是设计理由而非 ARS 效果证据",
+          "Claude Science 导入为时点快照，slash 命令、hooks 与 subagent 编排不迁移"
+        ]
+      }
+    },
+    {
+      "item_id": "item-8d7335acbeb95289befcf079f3b40f05",
+      "event_id": "cd1cbd24-927d-5c05-a452-889b55fd2366",
+      "type": "github",
+      "title": "MengTo/Skills：设计向 Agent Skill 合集",
+      "source": "MengTo/Skills",
+      "published_at": "2026-11-05T15:47:18Z",
+      "canonical_url": "https://github.com/mengto/skills",
+      "summary": "GitHub 仓库 MengTo/Skills 是面向设计师与构建者的 agent skill 合集，README 自述当前快照收录 176 个、分九类，覆盖 web design（81 个）、Three.js 游戏开发、游戏特效、手写 SVG 插画与 workflow 等。每个 skill 是以 SKILL.md 为入口的可移植文件夹，Codex、Claude Code、Cursor 均可加载；代表工作流 video-to-superprompt 可把设计录屏转成详细 prompt，README 另给出核对命令 find agent-skills -name SKILL.md。",
+      "why_it_matters": "它示范了把一次性 prompt 经验沉淀为可版本化、带触发条件与默认值的 Agent 操作规程的完整做法，可直接借鉴进团队 Agent 规范；前端与 Three.js 工作流数量多、按类别索引，可即取即用。",
+      "key_facts": [
+        {
+          "fact": "MengTo/Skills 是面向设计师与构建者的 agent skill 合集，README 标注适用于 Codex、Claude、Cursor 等 AI coding agent。",
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "fact": "README 自述当前快照含 176 个 skill、分九类，并给出核对命令 find agent-skills -name SKILL.md | sort 作为 source of truth；README 自身的分类计数（如 Codex workflows 标 19 而逐条列举 16）在截断文本中无法完全对账。",
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "fact": "每个 skill 为可移植文件夹：SKILL.md 必需（frontmatter + workflow），REFERENCES.md（仅链接）、ARTICLE.md、assets、scripts、demo 可选。",
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "fact": "旗舰 web-design 工作流含 video-to-superprompt、html-to-interaction-prompts、stitched-full-page-capture、daily-ui-inspiration-capture 四项。",
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        }
+      ],
+      "technical_analysis": "核心做法是把隐性设计经验外化为“操作规程”文件：SKILL.md 保持精简、REFERENCES.md 只放链接，视觉类 skill 附 demo/index.html 与 PROMPT.md 供复刻，游戏特效类内建评分卡与盲评脚本。跨 Agent 兼容靠纯 Markdown 契约——“先读最窄匹配的 skill 再执行”。编辑推测：不同 Agent 对契约的遵循程度可能不一，执行质量或随 Agent 漂移。“一次只改 1–2 处”“变体优先于重抽”等默认值是可迁移的方法论。",
+      "deep_dive": [
+        {
+          "heading": "文件夹契约与各 Agent 接入方式",
+          "content": "README 规定固定文件夹契约：SKILL.md 必含 frontmatter 与 workflow，是 Agent 实际加载执行的文件；REFERENCES.md 仅存链接以保持精简；ARTICLE.md 存长文解释；assets/scripts/demo 可选。视觉与交互类 skill 可带可独立运行的 demo/index.html 与复刻用 PROMPT.md，workflow 类可带 demo/input.md 与 demo/expected-output.md 交接示例。约定要求 skill 保持规程式（步骤、模式、护栏）而非百科式，触发条件用显式 Use when...，并写明时长、间距、层级、命令与验收检查等默认值。接入按 Agent 分流：Codex 先加载相关 SKILL.md、仓库行为写入 AGENTS.md、浏览器操作用 Codex browser；Claude Code 从 CLAUDE.md 引用、复制进 skills 目录或直接打开 SKILL.md 作工作上下文；Cursor 把 rules 或 chat context 指向具体 skill 文件夹；其他 Agent 遵循同一契约——先读最窄匹配的 skill，再按步骤与链接执行。",
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "heading": "旗舰链路：从参考素材到可复用 prompt",
+          "content": "四个 flagship 工作流构成一条参考驱动链路：video-to-superprompt 把设计、landing page 或动效的录屏分析成 super prompt，README 称其可让 Fable 5 一次性生成 HTML；html-to-interaction-prompts 把既有 HTML 页（README 以 Aura Build 页面为例）拆成单区块、单动画、单按钮、单 hover 态或单个 WebGL 效果的复用 prompt；stitched-full-page-capture 面向懒加载、动画与 WebGL 页面的整页截图，替代只截 hero 的做法，为 Agent 提供结构、节奏与视觉层级参考；daily-ui-inspiration-capture 把浏览、截图、参考研究与 prompt 生成串成 agent loop，产出 prompt 包。Media 类另有 aura-asset-images 与 unsplash-asset-images 两个图像选取 skill。",
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "heading": "特效与插画 skill 的内建验证机制",
+          "content": "游戏 combat 类六个 skill 的自述显示内建验证设计：火、冰、水与水晶四个特效 skill 各配可复用模块、跑在扫描 CC0 地面上的五段式 demo（five-beat demo）与 target-image scorecard；lightning-energy-skill-vfx 则自述为盲评 scorecard（blind-judged），不宜一概而论。game-dev-combat-animation 按编号的手臂、手腕与手部规则构建和修复攻击动作，配真实网格上的逐帧测试与盲评；game-dev-combat-skill-polish 用两名盲评裁判打分并把最弱项拉到基准线，附分步时钟拍摄、接触条带与评审脚本，视觉对标 Diablo IV。插画类 14 个手写 SVG 风格各附三张示例卡、量取的调色板、绘制套件、headless 渲染器与 linter。编辑推断：作者刻意把“可观察结果”写进 skill 本身，但以上机制均为 README 自述，未见独立复现。",
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "heading": "方法论与 workflow 类 skill",
+          "content": "README 的四条哲学把 skill 定位为资产与规程：好 prompt 应存成文件、做版本、建库与样式卡；明确约束与层级胜过反复重抽，迭代“一次只改 1–2 处”；截图与示例比长段文字更能传达字体、间距、配色与节奏；好 skill 要写清何时触发、先做什么、默认值与常见坑。workflow 类四个 skill 把真实项目里反复出现的线程规则变成带脚本的流程：workflow-progress-screenshots 用 headless 截图脚本在无人要求时主动同步起点、关键节点与结果的并排对照；workflow-score-to-target 的说明在抓取中截断，完整定义未获得；workflow-ship-change 与 workflow-threads-manager 在截断文本中仅有条目级信息。",
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是经 GitHub README API 抓取的仓库 README 全文摘取，正文在 workflow-score-to-target 描述处截断。未获得：仓库源码与各 SKILL.md 全文、DEMOS.md 内容、commit 历史、许可证信息与任何第三方评测；176 个 skill 的数量、分类与特效效果均为 README 自述，发布时间取自抓取元数据（2026-11-05）。",
+      "application": "先借鉴其文件夹契约与 Use when... 触发式写法整理自家 Agent 规范；有 landing page 或 Three.js 需求时按类别索引试用，先跑 demo 验证效果。",
+      "caveats": "仅有 README 证据且正文截断；176 个 skill 与特效效果均为作者自述，无第三方复现，分类计数不可完全对账。",
+      "confidence": 0.72,
+      "relevance_tags": [
+        "Agent Skills",
+        "coding agent",
+        "prompt engineering",
+        "web design",
+        "Three.js",
+        "开源仓库",
+        "workflow"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-9c75a6b84125",
+          "source_id": "tinyfish-discovery",
+          "url": "https://github.com/mengto/skills",
+          "title": "MengTo/Skills: Agent skills for designers and builders ...",
+          "publisher": "MengTo/Skills",
+          "published_at": "2026-11-05T15:47:18Z",
+          "retrieved_at": "2026-11-07T22:01:56.858201Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-9c75a6b84125"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "github:mengto/skills",
+        "kind": "skill",
+        "evidence_level": "runnable",
+        "reproducibility_score": 74,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "公开 skill 文件夹契约与各 Agent 加载方式：SKILL.md 必需；Codex 经 AGENTS.md、Claude Code 经 CLAUDE.md、Cursor 经 rules 指向具体 skill 文件夹",
+            "ref_ids": [
+              "ref-9c75a6b84125"
+            ]
+          },
+          {
+            "point": "README 声明输入输出示例：demo/index.html 为独立 HTML/CSS/JS，PROMPT.md 提供精确复刻 prompt，DEMOS.md 汇总可运行 demo",
+            "ref_ids": [
+              "ref-9c75a6b84125"
+            ]
+          },
+          {
+            "point": "提供核对命令：find agent-skills -name SKILL.md | sort 为 176 个 skill 的 source of truth（README 自述）",
+            "ref_ids": [
+              "ref-9c75a6b84125"
+            ]
+          },
+          {
+            "point": "多个 skill 自述带可观察结果：火/冰/水/水晶类配 target-image scorecard，闪电类为盲评 scorecard，另配独立 demo 页面",
+            "ref_ids": [
+              "ref-9c75a6b84125"
+            ]
+          }
+        ],
+        "try_it": [
+          "克隆仓库后运行 find agent-skills -name SKILL.md | sort 列出全部 skill 核对数量",
+          "打开 agent-skills/codex/video-to-superprompt/SKILL.md，按 Agent 支持说明在 Codex、Claude Code 或 Cursor 中加载",
+          "按 README 指引浏览 DEMOS.md 汇总的可运行 demo，或直接打开视觉类 skill 的 demo/index.html 查看效果"
+        ],
+        "requirements": [
+          "一个能读取 SKILL.md 的 Agent（Codex、Claude Code、Cursor，或遵循“先读最窄匹配 skill”契约的其他 Agent）",
+          "截图与录屏类 skill 需要浏览器工具（README 指定 Codex browser）",
+          "个别 skill 依赖外部服务，如 Elevenlabs TTS、Aura Assets"
+        ],
+        "limitations": [
+          "效果与 skill 数量均为作者自述，无第三方复现",
+          "README 正文截断，workflow-score-to-target 等内容不完整",
+          "各类 skill 详略差异大：游戏特效类描述极详，工作流类说明较简，实际质量需逐个验证",
+          "许可证信息未随证据获得"
+        ]
+      }
+    },
+    {
+      "item_id": "item-26859851e62c56eb93fc1a9a050bd479",
+      "event_id": "a83bbd34-b12e-5eb6-946f-0043c899bb6d",
+      "type": "news",
+      "title": "NVIDIA SkillEvaluator 文档含仓库集成页",
+      "source": "docs.nvidia.com",
+      "published_at": null,
+      "canonical_url": "https://docs.nvidia.com/skills/skillevaluator/repository-integration",
+      "summary": "检索记录显示 docs.nvidia.com 的 skills 文档板块存在 SkillEvaluator 的 repository-integration 页面，标题大意为“把 Skill 评估带入你的仓库”（原始标题截断）。页面正文与摘要文本均未获得，集成方式、CI 配置与扫描组件等细节无从核验。检索元数据无发布日期，抓取于 2026-11-07。",
+      "why_it_matters": "页面标题指向“把 Skill 评估带入你的仓库”，若确有 CI 级集成方案，第三方 Skill 引入可多一道自动化关卡；但当前证据仅标题与 URL，价值判断须待原文核验。",
+      "key_facts": [
+        {
+          "fact": "docs.nvidia.com 存在路径 /skills/skillevaluator/repository-integration 的文档页，标题为 “Bring Skill Evaluation to Your Repository | SkillEvaluator …”（标题截断）",
+          "ref_ids": [
+            "ref-01c0908f1918"
+          ]
+        },
+        {
+          "fact": "该页正文与摘要文本均未获得；检索元数据无发布日期，抓取时间为 2026-11-07",
+          "ref_ids": [
+            "ref-01c0908f1918"
+          ]
+        }
+      ],
+      "technical_analysis": "可核验证据仅三件：URL 位于 docs.nvidia.com 的 skills/skillevaluator 路径下；标题为 “Bring Skill Evaluation to Your Repository | SkillEvaluator …”（截断）；抓取发生在 2026-11-07。编辑推断：SkillEvaluator 除独立评估外可能提供仓库内集成说明，但这仅由路径与标题推断；集成方式、CI 配置、容器与安全扫描组件均未在证据中出现。检索元数据无发布日期，无法判断页面上线时间。",
+      "deep_dive": [],
+      "evidence_note": "本轮证据记录的正文为空，未读到任何页面文本或摘要；可核验信息仅限来源元数据——标题、URL 路径、发布方 docs.nvidia.com 与抓取时间 2026-11-07。集成步骤、组件清单与上线日期均不在证据范围内。",
+      "application": "维护 skill 仓库的团队可直接读该文档页原文，评估是否值得纳入 CI；在取得正文前不建议做任何具体改动。",
+      "caveats": "正文与摘要均为空：集成方式、组件与日期均未确认，勿据此改动 CI。",
+      "confidence": 0.55,
+      "relevance_tags": [
+        "NVIDIA",
+        "Skill",
+        "CI/CD",
+        "Agent 安全",
+        "供应链安全",
+        "开发者工具"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-01c0908f1918",
+          "source_id": "tinyfish-discovery",
+          "url": "https://docs.nvidia.com/skills/skillevaluator/repository-integration",
+          "title": "Bring Skill Evaluation to Your Repository | SkillEvaluator ...",
+          "publisher": "docs.nvidia.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:01:45.341168Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-01c0908f1918"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-01c0908f1918"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-883586296d9858aa9636262e54dbbf2b",
+      "event_id": "2889b82d-7ca3-5e6a-a6ac-d65cbb1a3569",
+      "type": "blog",
+      "title": "Sophos AI 博客：BSides 恶意 Skill 议题",
+      "source": "www.sophos.com",
+      "published_at": null,
+      "canonical_url": "https://www.sophos.com/en-us/blog/killing-ill-willed-skills-sophos-ai-at-bsides-sydney",
+      "summary": "www.sophos.com 存在博客页 “Killing ill-willed skills: Sophos AI at BSides Sydney”，标题显示 Sophos AI 在 BSides Sydney 谈恶意 Skill 的处置。页面正文与摘要均未获得，作者、样本与检测效果无从核验；检索元数据无发布日期，抓取于 2026-11-07。",
+      "why_it_matters": "恶意 Skill 是 Agent 供应链的现实风险，厂商安全团队公开处置思路值得跟进；但可核验信息止于标题，方法与效果须读全文后再判断，不宜据此为扫描工具选型。",
+      "key_facts": [
+        {
+          "fact": "www.sophos.com 存在博客页 “Killing ill-willed skills: Sophos AI at BSides Sydney”，标题主题为恶意 Skill 的处置",
+          "ref_ids": [
+            "ref-043d1244b421"
+          ]
+        },
+        {
+          "fact": "该页正文与摘要文本均未获得；检索元数据无发布日期，抓取时间为 2026-11-07",
+          "ref_ids": [
+            "ref-043d1244b421"
+          ]
+        }
+      ],
+      "technical_analysis": "可核验证据止于元数据：sophos.com 存在该博客 URL，标题为 “Killing ill-willed skills: Sophos AI at BSides Sydney”，抓取时间 2026-11-07，检索元数据无发布日期。编辑推断：这可能是 Sophos AI 就其 BSides Sydney 演讲撰写的厂商自述，主题为恶意 Skill 的处置；即便后续读到全文，其效果声明也属厂商口径，不构成第三方复现。正文、作者、样本与指标均未获得，涉及具体扫描器、检测模式与效果的表述均不在证据范围内。",
+      "deep_dive": [],
+      "evidence_note": "证据记录正文为空，未读到任何博客文本或搜索线索；可核验信息仅限标题、URL、发布方与抓取时间 2026-11-07。测试者、扫描工具与检测效果等细节均不在证据范围内。",
+      "application": "关注 Agent 供应链安全的团队可读博客全文，跟进处置思路；扫描工具的效果与选型待原文与独立验证后再定。",
+      "caveats": "仅标题与 URL 可核验：作者、样本、指标与日期均未知，勿据此下检测或选型结论。",
+      "confidence": 0.4,
+      "relevance_tags": [
+        "Agent 安全",
+        "Skill 生态",
+        "恶意 Skill 扫描",
+        "开源安全工具",
+        "Sophos AI"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-043d1244b421",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.sophos.com/en-us/blog/killing-ill-willed-skills-sophos-ai-at-bsides-sydney",
+          "title": "Killing ill-willed skills: Sophos AI at BSides Sydney",
+          "publisher": "www.sophos.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:01:45.341298Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-043d1244b421"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-043d1244b421"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-92821af8c35250a5a2c3bf8d77f96577",
+      "event_id": "ee85b9d1-2a5c-5445-b912-3bafc29fdb4b",
+      "type": "news",
+      "title": "138项Agent服务目录，标注人工开通边界",
+      "source": "aiagentstore.ai",
+      "published_at": null,
+      "canonical_url": "https://aiagentstore.ai/services-for-ai-agents",
+      "summary": "aiagentstore.ai 维护的 Services for AI agents 目录页面写明收录 138 项可供 Agent 调用的外部服务，覆盖邮箱、云浏览器、代码沙箱、Memory、支付、语音与 RAG 等能力，页面标注目录更新于 2026-11-07。每个条目给出能力、凭证、成本与人工开通要求四要素，附接入指引，经 provider 的 API、SDK、MCP 或 CLI 连接。",
+      "why_it_matters": "Agent 落地常卡在权限与人工开通而非模型能力（编辑推断）；这份目录逐项写清谁开账号、哪些动作必须人确认，可直接当选型清单，也是观察服务方如何划定人机边界的样本。",
+      "key_facts": [
+        {
+          "fact": "aiagentstore.ai 的 Services for AI agents 目录页面写明收录 138 项服务，目录更新日期标注为 2026-11-07",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "fact": "页面指引逐条检查 capabilities、credentials、costs 与 required human setup，读接入说明后经 provider 的 API、SDK、MCP 或 CLI 连接",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "fact": "AgentMail 条目写明 Agent 注册的邮箱可收信，但须人工连接账号后发送才解锁",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "fact": "Stripe 条目原文为 complete any required business activation before live payment operations，即如需则完成 business activation，为条件式要求",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "fact": "Algolia DocSearch 条目给出 MCP endpoint https://mcp.algolia.com/1/docsearch/mcp，写明无需 Algolia 账号、application ID 或 API key；另有网页转 Markdown 条目写明有限介绍性抓取无需 key",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "fact": "Upstash 条目写明 scratch database 72 小时后过期，除非经 Upstash 账号认领；Cloudinary 临时 Claimable Cloud 须有人以 email verification 认领才能保留",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        }
+      ],
+      "technical_analysis": "目录的核心价值不在数量，而在把接入标准化为能力、凭证、成本、人工开通四要素加一份 integration playbook。多个条目体现同一取向：读取类动作可自动化，对外副作用需人工解锁——AgentMail 的邮箱可自动收信，但须有人连接账号后才能发送；Stripe 条目写明 live 支付操作前须完成 any required business activation（如需则完成，条件式表述）。编辑推断：把人当最后一道闸门正成为 Agent 服务接入的常见设计；review date 是目录方提供的唯一质量信号。",
+      "deep_dive": [
+        {
+          "heading": "临时资源的认领与过期约定",
+          "content": "目录多处把“资源能否继续存在”绑定到人工动作：Cloudinary 条目写明 Agent 可临时创建 Claimable Cloud，但须有人以 email verification 认领才能保留；一个 observability 条目写明 Agent 创建的临时 organization 须在 24 小时内被 owner 认领才能留存；Upstash 的 scratch database 在 72 小时后过期，除非通过 Upstash 账号认领。配套约定还有：Daytona 要求把 sandbox cleanup 当作结果的一部分，Vercel 要求先验证固定 preview revision 再上生产，Kernel 要求先恢复既有 browser session 再开新的（编辑推断：后者的意图或是避免会话堆积，原文未说明动机）。这套设计让 Agent 可自由创建临时资源，留存与否由人决定；选型时应逐项确认服务是否提供过期、认领与清理机制。",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "heading": "检索与 Memory 条目的验证优先原则",
+          "content": "RAG 与 Memory 类条目的 integration playbook 几乎都在强调先小规模验证再放量：Pinecone 建议把 retrieval 测试与 answer generation 分开；Zep 要求检查底层事实变化时 memory 是否更新；managed RAG API 条目要求先用已知答案证明 retrieval 再加载全量语料；Jina 提醒把检索覆盖与排序质量分开评估。这些约定把常见失败模式——检索不准但被生成结果掩盖——拆成可单独测量的环节，可直接搬进自家评测流程：先测检索命中，再测答案生成，最后单独验证 memory 是否随事实变化而更新。",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "heading": "接入门槛的分层与无 key 例外",
+          "content": "目录声明统一经 provider 的 API、SDK、MCP 或 CLI 接入，但各条目门槛差异明显：Algolia DocSearch 条目给出 HTTPS endpoint（https://mcp.algolia.com/1/docsearch/mcp），写明无需 Algolia 账号、application ID 或 API key；另一个网页转 Markdown 条目也写明有限介绍性抓取无需 key、更高额度需账号。因正文在 Railway 条目处截断，无法确认 138 项中还有多少无 key 例外，不宜断言谁是唯一。其余门槛各不相同：ScrapingBee 需账号、API key 与 credit 预算；Valyu 需创建账号、获取 API key 或 MCP sign-in 并选择 plan；Knock 需创建账号、配置 delivery providers 并授权 workflow；Stripe 与 Telnyx 分别要求（如需）business activation 与适用的 provider onboarding。编辑推断：可按读取、写入、付费三级划分审批层级，与人工边界模式配套。",
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是目录页文本摘取，正文在 Railway 条目处截断，未覆盖全部 138 项明细；未获得定价数字、实测结果、目录收录与审核流程说明及页面首次发布时间。来源记录中未提供可核验的 search hint 内容。",
+      "application": "选型时先按能力筛候选，再逐项核对凭证与人工开通要求；可用 MCP client 无凭证连接 Algolia DocSearch endpoint 先做文档检索验证，再评估需账号与预算的服务。",
+      "caveats": "读到的是目录页截取文本，未含全部138项明细与定价；无首次发布日期，可靠性仅能靠各条目 review date 判断。",
+      "confidence": 0.82,
+      "relevance_tags": [
+        "agent_infrastructure",
+        "mcp",
+        "tool_catalog",
+        "agent_safety",
+        "integration"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-131617a32b85",
+          "source_id": "tinyfish-discovery",
+          "url": "https://aiagentstore.ai/services-for-ai-agents",
+          "title": "Services for AI agents",
+          "publisher": "aiagentstore.ai",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:00:52.841838Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "claim_index": 4,
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        },
+        {
+          "claim_index": 5,
+          "ref_ids": [
+            "ref-131617a32b85"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://aiagentstore.ai/services-for-ai-agents",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 83,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "目录页指引逐条检查 capabilities、credentials、costs、required human setup 四要素，并读 integration instructions 后经 API、SDK、MCP 或 CLI 连接",
+            "ref_ids": [
+              "ref-131617a32b85"
+            ]
+          },
+          {
+            "point": "Algolia DocSearch 条目给出完整 MCP endpoint https://mcp.algolia.com/1/docsearch/mcp，写明无需 Algolia 账号、application ID 或 API key",
+            "ref_ids": [
+              "ref-131617a32b85"
+            ]
+          },
+          {
+            "point": "AgentMail 条目写明收发分离：Agent 注册邮箱可自动收信，人工连接账号后发送才解锁",
+            "ref_ids": [
+              "ref-131617a32b85"
+            ]
+          }
+        ],
+        "try_it": [
+          "配置 MCP-compatible client，连接 https://mcp.algolia.com/1/docsearch/mcp（条目写明无需账号或 API key）",
+          "用它检索一份公开 developer 文档，先确认文档集再信任代码示例",
+          "回到目录按能力（如云浏览器）对比同类服务的凭证、成本与人工开通要求后选型"
+        ],
+        "requirements": [
+          "MCP-compatible client（用于 DocSearch 示例）",
+          "多数服务需 provider 账号、API key 与预算授权",
+          "涉及对外副作用的条目需 owner 完成人工开通、（如条目要求的）business activation 或 provider onboarding"
+        ],
+        "limitations": [
+          "目录本身不验证服务质量，仅为选型入口，可靠性靠各条目 review date",
+          "多数服务按量计费且需 owner 授权，不适合无人审批环境直接接入",
+          "正文截断，未见全部 138 项明细与定价，无法穷举无 key 条目"
+        ]
+      }
+    },
+    {
+      "item_id": "item-4b5a7f6514c351568166a16dc2c26923",
+      "event_id": "d4a57737-d78c-50fe-9477-9128b6f6915b",
+      "type": "news",
+      "title": "MongoDB 与 Vercel AI SDK 持久 Memory 集成线索",
+      "source": "pub.towardsai.net",
+      "published_at": null,
+      "canonical_url": "https://pub.towardsai.net/introducing-the-mongodb-vercel-ai-sdk-integration-persistent-memory-for-ai-applications-2c9e2397d178",
+      "summary": "pub.towardsai.net 上出现一篇标题为 Introducing the MongoDB Vercel AI SDK Integration 的文章，URL slug 为 persistent-memory-for-ai-applications，指向为 AI 应用提供持久 Memory 的主题。本次采集未获得正文：该集成由 MongoDB 官方还是第三方作者发布、是否部署在 MongoDB Atlas、API 形态与支持的 SDK 版本均无来源文本可核验，检索元数据亦无发布日期。本条目按标题级线索处理，结论待官方文档确认。",
+      "why_it_matters": "若集成属实，它意味着 Memory 正从自建组件变为数据库厂商面向 SDK 生态提供的集成能力，对用 Vercel AI SDK 的团队是省自建持久层的机会；但目前仅有标题与 URL 线索，只能当核验入口而非结论。",
+      "key_facts": [
+        {
+          "fact": "检索到一篇刊于 pub.towardsai.net 的文章，标题为 Introducing the MongoDB Vercel AI SDK Integration，URL slug 含 persistent-memory-for-ai-applications，检索时间 2026-11-07",
+          "ref_ids": [
+            "ref-c5dbd603c1ab"
+          ]
+        },
+        {
+          "fact": "来源记录的证据正文为空，未读到任何页面文本；published_at 元数据为空，集成的官方身份、Atlas 托管与 API 细节均未获证据",
+          "ref_ids": [
+            "ref-c5dbd603c1ab"
+          ]
+        }
+      ],
+      "technical_analysis": "可核验的证据只有两点：文章标题 Introducing the MongoDB Vercel AI SDK Integration，以及 URL slug 中的 persistent-memory-for-ai-applications；据此可推断主题是给基于 Vercel AI SDK 的 AI 应用提供持久 Memory。正文未获得，部署在 MongoDB Atlas、persistent memory store 等措辞、是否涉及向量检索与上下文管理均无来源支持；文章刊于第三方平台 pub.towardsai.net，作者与 MongoDB 的关系不明。编辑推断：此类集成的实际价值取决于 Memory 检索是否贴合真实对话结构、历史如何组织，须以官方文档与实测验证。",
+      "deep_dive": [],
+      "evidence_note": "实际获得的仅是检索元数据（标题与 URL），证据正文为空，未读到任何页面文本；此前草稿所述搜索线索未出现在证据记录中，不予采信。API 名称与用法、是否涉及向量检索、支持的 SDK 版本、发布日期、作者身份与定价均未获得。",
+      "application": "用 Vercel AI SDK 的团队可把该 URL 当核验入口，到 MongoDB 官方文档确认集成是否存在及 Memory 接口；核验前不应据此做存储迁移决策。",
+      "caveats": "仅有标题与 URL 线索，正文为空；官方身份、Atlas 托管、API 细节与发布日期均未核验。",
+      "confidence": 0.45,
+      "relevance_tags": [
+        "Agent",
+        "Memory",
+        "Vercel AI SDK",
+        "MongoDB Atlas",
+        "AI 应用开发"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-c5dbd603c1ab",
+          "source_id": "tinyfish-discovery",
+          "url": "https://pub.towardsai.net/introducing-the-mongodb-vercel-ai-sdk-integration-persistent-memory-for-ai-applications-2c9e2397d178",
+          "title": "Introducing the MongoDB Vercel AI SDK Integration",
+          "publisher": "pub.towardsai.net",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:01:08.681231Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-c5dbd603c1ab"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-c5dbd603c1ab"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-c7a4d57312a45f388493206da71549dc",
+      "event_id": "fe1d3c63-5c85-51f9-9e1f-3abc21c1f73d",
+      "type": "news",
+      "title": "ACL 条目线索：把外部知识输入扩展到上下文之外",
+      "source": "aclanthology.org",
+      "published_at": null,
+      "canonical_url": "https://aclanthology.org/2026.acl-long.468",
+      "summary": "采集管道发现 ACL Anthology 条目 URL（2026.acl-long.468），标题元数据在 “Scaling External Knowledge Input Beyond Context ...” 处截断。URL 编号指向 2026 年 ACL long paper 轨道（编辑推断）。本次未获得任何页面正文，论文的完整标题、作者、方法与结果均未知；检索线索曾称其为多 Agent 框架 ExtAgents、署名 Z Liu、被引 8 次，但这些线索未保存于证据记录，无法复核，不应作为事实引用。评估其价值需先打开条目页核对摘要与 PDF。",
+      "why_it_matters": "上下文窗口是 RAG 与外部知识注入的硬约束，截断标题指向的“把外部知识输入扩展到上下文之外”与知识密集型应用直接相关。但条目内容完全未核验：方法路线、实验对比均未知，参考价值要等全文确认。",
+      "key_facts": [
+        {
+          "fact": "采集记录包含 ACL Anthology 条目 URL（2026.acl-long.468），标题元数据为截断的 “Scaling External Knowledge Input Beyond Context ...”",
+          "ref_ids": [
+            "ref-6602512f317b"
+          ]
+        },
+        {
+          "fact": "证据正文为空：论文完整标题、作者、摘要、方法与引用数据均未获得；检索线索曾称的框架名 ExtAgents、署名 Z Liu、被引 8 次无法复核",
+          "ref_ids": [
+            "ref-6602512f317b"
+          ]
+        },
+        {
+          "fact": "编辑推断：URL 编号 2026.acl-long.468 指向 2026 年 ACL long paper 轨道条目；“属长文”仅为 URL 线索推断，未经页面内容证实",
+          "ref_ids": [
+            "ref-6602512f317b"
+          ]
+        }
+      ],
+      "technical_analysis": "截断标题 “Scaling External Knowledge Input Beyond Context” 的字面方向，与 RAG、长上下文同属“如何喂入超出窗口的知识”这一问题域（编辑推断）。检索线索曾称其为多 Agent 框架 ExtAgents、目标为推理时知识整合，署名 Z Liu、被引 8 次，但这些线索未保存于证据记录，无法复核，已全部撤回；当前唯一可靠信息是 URL 与截断标题。编辑推断：该问题域常见路线包括检索分摊、分层汇总与多 Agent 分工，本条目取何种路线、有无实验对比未知，需读全文确认。",
+      "deep_dive": [],
+      "evidence_note": "仅获得条目 URL、截断标题元数据与检索时间（2026-11-07）；untrusted_evidence 为空，未读到任何页面文本。此前 evidence_note 所称的搜索线索（署名、被引数、摘要提示）在记录中不存在，相应陈述已撤回。",
+      "application": "暂缓引用：先访问条目页核对完整标题、作者与摘要，确认方法与实验后再评估与 RAG/长上下文场景的相关性。",
+      "caveats": "仅 URL 与截断标题，无正文；框架名、作者、被引数均无证据，待条目页核验。",
+      "confidence": 0.5,
+      "relevance_tags": [
+        "Agent",
+        "RAG",
+        "长上下文",
+        "推理时知识整合",
+        "ACL 2026"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-6602512f317b",
+          "source_id": "tinyfish-discovery",
+          "url": "https://aclanthology.org/2026.acl-long.468",
+          "title": "Scaling External Knowledge Input Beyond Context ...",
+          "publisher": "aclanthology.org",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:00:56.393621Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-6602512f317b"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-6602512f317b"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-6602512f317b"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-de5e48fda85b5b039acad483e4a1166b",
+      "event_id": "4cd78326-52f9-5ff3-8c3f-5cad88dd160d",
+      "type": "news",
+      "title": "OpenObserve 文档含 openai-agents 集成页",
+      "source": "openobserve.ai",
+      "published_at": null,
+      "canonical_url": "https://openobserve.ai/docs/integration/ai/frameworks/openai-agents",
+      "summary": "采集记录显示 openobserve.ai 文档站存在路径 /docs/integration/ai/frameworks/openai-agents，页面标题元数据为 “OpenAI Agents SDK”，URL 层级表明该页位于 AI 框架集成文档区（编辑推断）。本次未获得任何页面正文：该集成是否自动捕获 agent runs、LLM calls 与 handoffs，是否每次 Runner.run() 调用产出一条 trace，均无法核验；此类说法此前仅见于未保存于记录的检索线索，现已删除。来源元数据无发布日期（不代表页面本身未标注）。",
+      "why_it_matters": "Agent 排障的痛点是多步调用与 handoff 链路难还原；可观测平台若真提供 SDK 级 tracing，可省手工埋点。但当前仅 URL 级线索，采集方式、trace 字段、版本兼容均未读到，先核验原文再谈价值。",
+      "key_facts": [
+        {
+          "fact": "采集记录包含 openobserve.ai 文档站 URL（/docs/integration/ai/frameworks/openai-agents），页面标题元数据为 “OpenAI Agents SDK”",
+          "ref_ids": [
+            "ref-7e59c6052b56"
+          ]
+        },
+        {
+          "fact": "证据正文为空：检索线索曾称的自动捕获 agent runs、LLM calls、handoffs 与每次 Runner.run() 产出 trace 均未保存于记录，无法复核",
+          "ref_ids": [
+            "ref-7e59c6052b56"
+          ]
+        },
+        {
+          "fact": "来源元数据 published_at 为空，仅说明抓取元数据缺发布日期，不能证明页面本身未标注日期",
+          "ref_ids": [
+            "ref-7e59c6052b56"
+          ]
+        }
+      ],
+      "technical_analysis": "URL 位于 docs/integration/ai/frameworks/openai-agents，与框架集成文档的层级结构一致（编辑推断：OpenObserve 将 OpenAI Agents SDK 列为集成对象之一）。检索线索曾称该集成自动捕获 agent runs、LLM calls 与 handoffs、每次 Runner.run() 产出一条 trace，但这些线索未保存于证据记录，无法复核，不应作为事实引用。评估此类集成的关键点——自动 instrumentation 还是显式配置、trace schema 是否含 token 用量与 handoff 明细、数据保留与存储成本、SDK 版本兼容——均有待文档原文回答。",
+      "deep_dive": [
+        {
+          "heading": "接入前需核验的四个未知项",
+          "content": "以下均为建议验证清单，当前证据无法回答，需以文档原文为准：一是采集方式，是自动 instrumentation 还是显式配置代码，侵入性差异直接影响改造成本；二是 trace 的字段结构，是否包含 span 层级、token 用量、错误信息与 handoff 明细，决定排障时能否还原完整链路；三是数据保留策略与存储成本，观测数据量随调用次数增长，长期运行的 agent 尤其需要估算；四是与 OpenAI Agents SDK 各版本的兼容范围及更新节奏，SDK 迭代频繁时集成层容易脱节。建议先在非生产项目小规模接入验证，再决定是否推广。",
+          "ref_ids": [
+            "ref-7e59c6052b56"
+          ]
+        }
+      ],
+      "evidence_note": "仅获得 URL、页面标题元数据（“OpenAI Agents SDK”）与检索时间（2026-11-07）；untrusted_evidence 为空，未读到任何页面文本。此前所称的搜索摘要片段与截断引文在记录中不存在，相应陈述已撤回。",
+      "application": "若在用 OpenAI Agents SDK，先打开该文档页核对采集方式、trace 字段与版本要求，确认确有集成说明后再试接入。",
+      "caveats": "仅 URL 与标题元数据，无正文；采集方式、trace 内容、版本与日期均未核验。",
+      "confidence": 0.4,
+      "relevance_tags": [
+        "Agent",
+        "可观测性",
+        "tracing",
+        "OpenAI Agents SDK",
+        "开发者工具"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-7e59c6052b56",
+          "source_id": "tinyfish-discovery",
+          "url": "https://openobserve.ai/docs/integration/ai/frameworks/openai-agents",
+          "title": "OpenAI Agents SDK",
+          "publisher": "openobserve.ai",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:00:56.394395Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-7e59c6052b56"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-7e59c6052b56"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-7e59c6052b56"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-6658eed16b3759c69aaa999223c4c753",
+      "event_id": "9ed22c6a-a2c0-5988-92f4-15448326e046",
+      "type": "news",
+      "title": "微软文档站收录Agent 365连接平台管理页",
+      "source": "learn.microsoft.com",
+      "published_at": null,
+      "canonical_url": "https://learn.microsoft.com/en-us/microsoft-agent-365/admin/connected-platforms",
+      "summary": "检索记录显示，微软官方文档站 learn.microsoft.com 存在题为 Connected platforms in Microsoft Agent 365 的页面，URL 位于 admin 管理路径。本次未读到任何页面文本：正文与摘要均为空，连接平台清单与 SDK 分工说法均不可核验；检索元数据无发布日期，检索时间 2026-11-07。",
+      "why_it_matters": "编辑推断：URL 的 admin 路径表明这是 Agent 365 面向管理员的连接平台文档，可作企业接入评估的官方核验入口；但正文未读到，分工与能力结论不能引用本页佐证。",
+      "key_facts": [
+        {
+          "fact": "learn.microsoft.com 检索记录中存在题为 Connected platforms in Microsoft Agent 365 的页面，URL 为 microsoft-agent-365/admin/connected-platforms，抓取时间 2026-11-07，检索元数据无发布日期。",
+          "ref_ids": [
+            "ref-7562c17702a4"
+          ]
+        },
+        {
+          "fact": "该记录未附带任何页面文本，正文与检索摘要均为空，页面实际内容本次不可核验。",
+          "ref_ids": [
+            "ref-7562c17702a4"
+          ]
+        }
+      ],
+      "technical_analysis": "证据仅一条检索记录：标题、URL、发布方与抓取时间。标题确认微软文档站为 Agent 365 设有 connected platforms 主题页，URL 的 admin 段表明其归入管理文档区。此前转述的『自建自托管应改用 SDK』分工来自一条未随记录提供的检索摘要，无法核对，已撤回。页面自身是否标注日期不可考，只能确认检索元数据为空。",
+      "deep_dive": [],
+      "evidence_note": "本次仅获得一条检索记录：标题、URL、发布方与抓取时间；正文与检索摘要文本均为空，未读到任何页面内容。此前版本据以转述分工的『检索摘要』在证据记录中并不存在，相应内容已撤回。发布日期、支持平台清单、SDK 相关说明均未获取。",
+      "application": "把原链接列入核验清单：直接访问该页确认连接平台清单、前置要求与 SDK 关系；读到正文前，不要据此调整接入架构或路线选择。",
+      "caveats": "仅有URL级检索记录，未读到页面文本；发布日期与页面内容均不可核验。",
+      "confidence": 0.35,
+      "relevance_tags": [
+        "Microsoft Agent 365",
+        "Agent",
+        "SDK",
+        "企业Agent接入",
+        "官方文档"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-7562c17702a4",
+          "source_id": "tinyfish-discovery",
+          "url": "https://learn.microsoft.com/en-us/microsoft-agent-365/admin/connected-platforms",
+          "title": "Connected platforms in Microsoft Agent 365",
+          "publisher": "learn.microsoft.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:00:52.841955Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-7562c17702a4"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-7562c17702a4"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-cf756c4fb9c6538f8aff0061c02672a1",
+      "event_id": "c622d065-3880-5884-9d70-c264e44c723e",
+      "type": "news",
+      "title": "medRxiv条目标题：多Agent团队提升差分召回",
+      "source": "www.medrxiv.org",
+      "published_at": null,
+      "canonical_url": "https://www.medrxiv.org/content/10.64898/2026.09.24.26363897v4",
+      "summary": "检索记录显示 medRxiv 存在一篇条目，可读标题为 Multi-agent LLM teams improve differential recall on ...，在 on 之后截断，任务域与评测对象不可见。本次未获得摘要、正文或作者信息，此前转述的队列设计、精选病例与急诊标签表现均无证据支持。检索元数据无发布日期，检索时间 2026-11-07。",
+      "why_it_matters": "标题可见部分把多Agent团队与召回提升直接挂钩，若被引用会直接影响医疗Agent的评测取向；但证据止于截断标题，任何结论性转述都会放大不可核验信息，须先补全文再引用。",
+      "key_facts": [
+        {
+          "fact": "medRxiv 检索记录存在条目，可读标题为 Multi-agent LLM teams improve differential recall on ...（在 on 之后截断），URL 为 medrxiv.org/content/10.64898/2026.09.24.26363897v4，检索时间 2026-11-07，元数据无发布日期。",
+          "ref_ids": [
+            "ref-086332267000"
+          ]
+        },
+        {
+          "fact": "该记录未附带摘要、正文或作者信息；评测设计、样本量、模型与结论细节均不可核验。",
+          "ref_ids": [
+            "ref-086332267000"
+          ]
+        }
+      ],
+      "technical_analysis": "证据仅截断标题与URL。标题可见部分主张多Agent LLM团队提升差分召回，但比较对象、任务域与评测分布在 on 之后不可见；此前转述的队列设计与急诊结论无文本支持，已撤回。URL 含 2026.09.24 日期段与 v4 标记，编辑推断对应初稿日期与第四次修订；DOI 前缀 10.64898 异于 medRxiv 常见的 10.1101，归属待核实。",
+      "deep_dive": [],
+      "evidence_note": "本次仅获得一条检索记录：截断标题、URL、发布方与抓取时间；无摘要、无正文、无作者列表。此前版本转述的『两队列、两模型家族』『精选病例集召回提升』『急诊工作标签表现不佳』在证据记录中均无对应文本，已撤回。URL 中的日期段与版本号仅作线索，未经页面确认。",
+      "application": "暂不引用该条目作结论依据。跟进方式：直接访问链接核对完整标题、摘要、作者与v4修订说明，并先核实DOI归属再入库。",
+      "caveats": "仅截断标题可读：无摘要无正文无作者；DOI前缀异常，结论与归属均待核验。",
+      "confidence": 0.25,
+      "relevance_tags": [
+        "多Agent",
+        "医学AI",
+        "鉴别诊断",
+        "benchmark",
+        "预印本",
+        "泛化风险"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-086332267000",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.medrxiv.org/content/10.64898/2026.09.24.26363897v4",
+          "title": "Multi-agent LLM teams improve differential recall on ...",
+          "publisher": "www.medrxiv.org",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:00:44.822853Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-086332267000"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-086332267000"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-5ff6fb2503e6507099377a8dba78ff80",
+      "event_id": "fe16c7e8-53ad-5d1a-8aec-ffba52192461",
+      "type": "news",
+      "title": "视频标题称盘点 5 个免费 Claude Code 增强仓库",
+      "source": "www.youtube.com",
+      "published_at": null,
+      "canonical_url": "https://www.youtube.com/watch?v=JTptPQg0Tck",
+      "summary": "检索窗口内发现一条 YouTube 视频，标题为《The 5 GitHub Repos That Make Claude Code Better (Free)》，据标题自称介绍 5 个免费增强 Claude Code 的 GitHub 仓库。视频记录无发布日期，2026-11-07 检索；正文与转写均未获得，采集管线自述该日有 1 条正文补全失败、仅保留标题线索。5 个仓库的名称、链接与功能全部未知，标题所称\"增强\"具体指什么亦无从确认。",
+      "why_it_matters": "编辑推断：Claude Code 经 skill 与 MCP 形成可扩展用法后，第三方仓库带来的供应链风险随之上升，社区盘点视频因此有发现价值；但本条仅有标题级证据，不构成对任何仓库质量的背书。",
+      "key_facts": [
+        {
+          "fact": "检索到一条 YouTube 视频，标题为《The 5 GitHub Repos That Make Claude Code Better (Free)》，据标题自称介绍 5 个免费增强 Claude Code 的 GitHub 仓库。",
+          "ref_ids": [
+            "ref-e5755ed4ba2a"
+          ]
+        },
+        {
+          "fact": "该记录无发布日期，视频正文与转写未获得，检索时间为 2026-11-07。",
+          "ref_ids": [
+            "ref-e5755ed4ba2a"
+          ]
+        }
+      ],
+      "technical_analysis": "本条为标题级线索：可核对的只有视频标题、链接与抓取时间（2026-11-07），正文补全失败，无转写或页面文本；标题中\"5 个免费仓库\"\"Better\"均为视频自述，无法核验。编辑推断：此类盘点常用于分发 skill 或工具仓库，若含安装前扫描类工具，与 skill 供应链风险的讨论方向一致；但具体是哪 5 个仓库、有无实测均未知，采纳前需到视频页核对链接与源码。",
+      "deep_dive": [],
+      "evidence_note": "实际获得的证据仅为视频标题、URL 与抓取元数据（无发布日期，2026-11-07 检索），正文与转写未获得；证据记录中不存在任何搜索摘要文本，此前版本引用的 NVIDIA Skill Specter 功能描述无对应证据，已删除。5 个仓库的名称、链接与功能均未知。",
+      "application": "暂不照单安装。可到视频页核对 5 个仓库的链接与维护状态；安装任何第三方 skill 前先读其源码与提交记录。",
+      "caveats": "仅标题级线索：无正文、无转写、无发布日期，仓库清单与功能描述均未核验。",
+      "confidence": 0.3,
+      "relevance_tags": [
+        "claude-code",
+        "skill-security",
+        "prompt-injection",
+        "supply-chain",
+        "tooling",
+        "ecosystem"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-e5755ed4ba2a",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.youtube.com/watch?v=JTptPQg0Tck",
+          "title": "The 5 GitHub Repos That Make Claude Code Better (Free)",
+          "publisher": "www.youtube.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:01:45.341580Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-e5755ed4ba2a"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-e5755ed4ba2a"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-5295e87bb51757a584a5b8d26a1208ae",
+      "event_id": "0c339347-d1e7-53ff-a243-9e463c36d2ac",
+      "type": "news",
+      "title": "社群帖标题谈如何在 GitHub 协调多 Agent",
+      "source": "www.facebook.com",
+      "published_at": null,
+      "canonical_url": "https://www.facebook.com/groups/web.devs.community/posts/4425040957747376",
+      "summary": "检索窗口内发现 Facebook 群组 web.devs.community 的一条帖子，标题为《How to coordinate multiple agents in GitHub for reliable ...》，在 reliable 后截断，无发布日期，2026-11-07 检索。帖子正文未获得，可确认的只有话题方向：在 GitHub 上协调多个 agent 以达成某种可靠性目标。协调机制、工具与示例均未知；此前版本引用的课程模块名与 observable workflows 等关键词在证据中不存在，已删除。",
+      "why_it_matters": "多 Agent 协作的过程黑盒与失败归因是工程痛点，把状态落到 GitHub 原生载体是常见思路。编辑推断：若该帖确有编排细节，可作设计参考；但本条证据止于截断标题，当前价值仅是提示检索方向。",
+      "key_facts": [
+        {
+          "fact": "检索到 Facebook 群组 web.devs.community 的一条帖子，标题为《How to coordinate multiple agents in GitHub for reliable ...》，在 reliable 处截断。",
+          "ref_ids": [
+            "ref-3b37e8e4b71e"
+          ]
+        },
+        {
+          "fact": "该记录无发布日期，帖子正文未获得，检索时间为 2026-11-07；除标题所示话题方向外无内容可核验。",
+          "ref_ids": [
+            "ref-3b37e8e4b71e"
+          ]
+        }
+      ],
+      "technical_analysis": "本条可核对的止于一条截断标题：《How to coordinate multiple agents in GitHub for reliable ...》，出自 Facebook 群组 web.devs.community，无日期、无正文。标题只确立话题：在 GitHub 上协调多个 agent，目标含\"可靠\"，但 reliable 之后截断，具体所指未知。编辑推断：此类内容若展开，大概率涉及把任务分配、状态与产物落到 issue、PR、check 等 GitHub 可审计载体；这是对标题的常见解读，并非来源陈述。协调拓扑、工具链与是否配有课程均无从判断。",
+      "deep_dive": [],
+      "evidence_note": "实际获得的证据仅为帖子标题（在 reliable 处截断）、URL 与抓取元数据（无发布日期，2026-11-07 检索），正文为空；证据记录中不存在课程模块名 Multi-Agent systems and orchestration、observable workflows 或 coordinated 等文本，此前版本相关描述已删除。课程是否存在、作者与平台均未知。",
+      "application": "仅作线索留存：用标题前半句检索原帖与作者；获得正文前，不建议据此选型或改造协作流程。",
+      "caveats": "唯一证据是截断标题：无正文、无日期、无作者，课程与模块的说法均无证据支持。",
+      "confidence": 0.25,
+      "relevance_tags": [
+        "multi-agent",
+        "orchestration",
+        "observability",
+        "GitHub",
+        "coding-agent",
+        "课程"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-3b37e8e4b71e",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.facebook.com/groups/web.devs.community/posts/4425040957747376",
+          "title": "How to coordinate multiple agents in GitHub for reliable ...",
+          "publisher": "www.facebook.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-07T22:00:56.393759Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-3b37e8e4b71e"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-3b37e8e4b71e"
+          ]
+        }
+      ]
+    }
+  ],
+  "trends": [
+    {
+      "summary": "Agent 安全与 Skill 治理在多方来源同时出现：Uber 于 2026-11-06 发布工程博客，公开覆盖 provisioning 校验、runtime 强制与持续保障三层的 Agent 安全框架，作者称最有效缓解是把 Agent 限制在显式 intent 与约束内、代价是牺牲部分自治灵活性；docs.nvidia.com 存在题为 Bring Skill Evaluation to Your Repository 的 SkillEvaluator 文档页（无发布日期，正文未获得）；Sophos AI 博客存在题为 Killing ill-willed skills: Sophos AI at BSides Sydney 的页面，主题为恶意 Skill 处置（无发布日期，正文未获得，未见 Sophos 发布扫描产品的证据）；GitHub 上 MengTo/Skills 的 README 自述当前快照收录 176 个面向 Codex、Claude、Cursor 等 coding agent 的 skill。",
+      "ref_ids": [
+        "ref-c981ac9544a0",
+        "ref-01c0908f1918",
+        "ref-043d1244b421",
+        "ref-9c75a6b84125"
+      ]
+    },
+    {
+      "summary": "Memory 持久化出现两条独立线索：据 hdatf.com 聚合页转述，Anthropic 公布跨会话 memory 设计，含 memory notes（agent 当下判断何为显著并写入）与 dreaming（离线重读会话 transcript 以修正错误笔记）两种机制，其 Pokemon 长时程实验中较旧模型写 413 个 memory 文件得 1 个 badge、较新模型写 9 个文件得 4 个 badge（两次运行模型不同，badge 差异不能仅归因于记忆策略）；另检索到 pub.towardsai.net 刊出的 Introducing the MongoDB Vercel AI SDK Integration 一文，URL slug 含 persistent-memory-for-ai-applications，正文未获得，其官方身份、托管形态与 API 细节均未核验。",
+      "ref_ids": [
+        "ref-c9c96b924981",
+        "ref-c5dbd603c1ab"
+      ]
+    }
+  ],
+  "briefing": {
+    "headline": "Uber 公开生产级 Agent 安全框架，Skill 治理与 Memory 设计出现多方线索",
+    "takeaway": "客观事实：Uber 于 2026-11-06 发布工程博客，公开覆盖 provisioning 校验、runtime 强制与持续保障三层的 Agent 安全框架，并说明对第三方 MCP server 的静态与动态分析及 tool poisoning、间接 prompt injection 识别；Skill 与服务生态本次仅见快照数量——GitHub 合集 README 自述当前含 176 个 skill，aiagentstore 目录写明收录 138 项服务（标注更新日 2026-11-07），无时间序列可证增长；docs.nvidia.com 出现仓库级 Skill 评估文档页、Sophos AI 博客主题为恶意 Skill 处置，两者无发布日期且正文未获得，不能确认为同期发布或已落地产品；Memory 方向仅有聚合页转述的 Anthropic 跨会话设计与第三方平台 MongoDB Vercel AI SDK 持久 memory 文章的标题线索。编辑推断：安全与 Memory 正成为 Agent 基础设施的公共议题；多 Agent 收益仍需按任务验证。",
+    "actions": [
+      "核实 NVIDIA SkillEvaluator 仓库集成页与 Sophos 恶意 Skill 博客的原文后，再决定是否在 CI 中加入 skill 扫描步骤（两页正文本次均未获得，扫描模式与工具能力待确认）",
+      "为长时程 Agent 建立离线 memory 复核与纠错流程（可参照据聚合页转述的 Anthropic dreaming 机制）",
+      "引入多 Agent 团队前自建单 Agent 对照基线、按任务验证收益（现有 medRxiv 条目仅见截断标题，其评测设计未核验）"
+    ],
+    "read_minutes": 15
+  },
+  "source_stats": {
+    "raw_candidates": 43,
+    "shortlist": 14,
+    "sources": 1,
+    "coverage": {
+      "discovery": {
+        "queries": [
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") new research methods replication benchmark findings",
+            "lane": "research",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") open source tools release implementation deployment experience",
+            "lane": "engineering",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") product API pricing licensing availability changes",
+            "lane": "ecosystem",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") independent evaluation limitations security incident technical debate",
+            "lane": "discussion",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "LLM agent framework release multi-agent orchestration",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "Model Context Protocol MCP server ecosystem update",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "MCP security vulnerability tool poisoning disclosure",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "RAG retrieval augmented generation benchmark comparison long context",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "agent long-term memory architecture vector store integration",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "LLM evaluation benchmark leaderboard contamination debate",
+            "lane": "topic",
+            "status": "ok",
+            "count": 6
+          },
+          {
+            "phase": "followup",
+            "query": "NVIDIA SkillSpector security scanner AI agent skills",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "followup",
+            "query": "How Should Agents See Code rethinking code representation arXiv 2611.07286",
+            "lane": "topic",
+            "status": "ok",
+            "count": 3
+          },
+          {
+            "phase": "followup",
+            "query": "multi-agent LLM teams differential recall curated cases emergency working-label matching medRxiv",
+            "lane": "topic",
+            "status": "ok",
+            "count": 5
+          },
+          {
+            "phase": "followup",
+            "query": "Flexera MCP server workload optimization Ocean Elastigroup",
+            "lane": "topic",
+            "status": "ok",
+            "count": 1
+          }
+        ],
+        "followups": [
+          {
+            "seed_id": "s18",
+            "query": "NVIDIA SkillSpector security scanner AI agent skills",
+            "language": "en",
+            "purpose": "核实该扫描器的检测规则覆盖范围、已知误报/漏报局限与维护状态，确认是否为 NVIDIA 官方项目，并查找第三方实测或与近期 agent skills 投毒事件的关联验证"
+          },
+          {
+            "seed_id": "s12",
+            "query": "How Should Agents See Code rethinking code representation arXiv 2611.07286",
+            "language": "en",
+            "purpose": "查找论文的开源代码与数据集、实验方法细节，核实其声称的跨 Claude Code 与 Codex 的 agent 无关评估设置能否被复现"
+          },
+          {
+            "seed_id": "s22",
+            "query": "multi-agent LLM teams differential recall curated cases emergency working-label matching medRxiv",
+            "language": "en",
+            "purpose": "核实该两队列、两模型家族医学评估的样本量、方法与作者披露的局限性，检索是否存在独立复现或反驳其结论的证据"
+          },
+          {
+            "seed_id": "s13",
+            "query": "Flexera MCP server workload optimization Ocean Elastigroup",
+            "language": "en",
+            "purpose": "确认 Flexera 官方公告中该 MCP 服务器的功能范围、接入方式与权限要求，核实是正式发布还是预览版，并寻找实际接入测试反馈"
+          }
+        ],
+        "limitations": [],
+        "found_by_type": {
+          "blog": 17,
+          "paper": 4,
+          "news": 84,
+          "github": 10
+        },
+        "undated_leads": 115,
+        "page_fetch": [
+          {
+            "url": "https://hdatf.com/news",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://arxiv.org/html/2611.07286v1",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://link.springer.com/article/10.1007/s44163-026-02384-9",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://benchlm.ai/benchmarks/paperbench",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.cdata.com/blog/mcp-server-build-hours-governance-cost",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://aclanthology.org/events/realm-2026",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://huggingface.co/papers?q=SWE-bench+Pro",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://github.com/imbad0202/academic-research-skills",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.medrxiv.org/content/10.64898/2026.09.24.26363897v4",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.instagram.com/reel/DfZgFaVp13k",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://github.com/tracer-cloud/opensre",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://medium.com/@martin.jordanovski/four-ways-enterprises-contain-ai-coding-agents-and-where-each-one-leaks-8760820cb692",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.facebook.com/groups/runlocalai/posts/1535067515087624",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://qdrant.tech/documentation/qdrant-mcp/oss",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.reddit.com/r/Rag/comments/1xpsxh8/healthcare_rag_on_local_models_how_do_you",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://cloud.google.com/blog/topics/inside-google-cloud/whats-new-google-cloud",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://careers.northwestern.edu/psc/hrnu_er/EMPLOYEE/HRMS/c/HRS_HRAM_FL.HRS_CG_SEARCH_FL.GBL?Action=U&FOCUS=Applicant&JobOpeningId=54027&PAGE=HRS_APP_JBPST_FL&PAGE=HRS_APP_JBPST_FL&Page=HRS_APP_JBPST_FL&PostingSeq=1&SiteId=1",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://community.sap.com/t5/technology-blog-posts-by-members/sap-cloud-integration-an-mcp-server-that-lets-ai-agents-build-and-test/ba-p/14516391",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://intel.wd1.myworkdayjobs.com/en-US/External/job/AI-Software-Engineer---AI-Frameworks_JR0288900",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.callstack.com/blog/building-a-software-factory-write-specs-an-agent-can-build-from",
+            "status": "failed",
+            "error": "CollectionError"
+          }
+        ]
+      },
+      "eligible_by_type": {
+        "blog": 4,
+        "github": 3,
+        "news": 36
+      },
+      "shortlist_by_type": {
+        "github": 2,
+        "blog": 4,
+        "news": 24
+      },
+      "selected_by_type": {
+        "blog": 3,
+        "github": 2,
+        "news": 9
+      },
+      "excluded_reasons": {
+        "不在本次阅读时间范围内": 1611,
+        "预发布版本，稳定版优先": 2,
+        "同包有更新的稳定版": 2
+      },
+      "editor_rejections": [
+        {
+          "raw_item_id": "2b3215144bbee36b0ddd8675c497561bb7a690ff642f24559216ab3703cc2ba3",
+          "reason": "入门科普，无新增信息"
+        },
+        {
+          "raw_item_id": "006cedfcd37d8455880ca18dccb569c39214edddc4384f7b2a9159cca8e5182d",
+          "reason": "社交媒体营销帖，无干货"
+        },
+        {
+          "raw_item_id": "16fba13c1dc5d62631df74e5325344e913dc0cc5abdf42d5ba5d4bf953a4fd7c",
+          "reason": "无正文，标题党"
+        },
+        {
+          "raw_item_id": "cfc70be29ce200b65dd3b09023f8d2bbfc68b2c05cd5c17442025f44f4a4392e",
+          "reason": "Instagram碎片，无实质内容"
+        },
+        {
+          "raw_item_id": "d397a7c60c75eed885e6345c1fdae2f4e618db839e10ec2bc80dbf5c2812e0cc",
+          "reason": "与e10同文，重复来源"
+        },
+        {
+          "raw_item_id": "0259eab6ad4a95f8f518bc5a07ef0a98ad50f2bfca84bbcee32d3df6298a788e",
+          "reason": "机器口译基准，偏离主题"
+        },
+        {
+          "raw_item_id": "031799753a04613fab9d392d23b1ee9db16850f2d1e38aec1297bd10b01f6aca",
+          "reason": "课程广告，无技术内容"
+        },
+        {
+          "raw_item_id": "7ba56975317530ebba7b371fc9a6cfef4ed1516a691edd514b3ee097bd80e39f",
+          "reason": "Instagram清单，不可验证"
+        },
+        {
+          "raw_item_id": "7e94061c3e428acea58e7377a2ce44f7e66f137a79c0c072e1484e9707f8d4c3",
+          "reason": "与主题无关"
+        },
+        {
+          "raw_item_id": "aaa70ce89f65abd1ba14ec2f18d73e9f146d2df16f0850ab983ffbdc4ea40014",
+          "reason": "招聘信息，非资讯"
+        },
+        {
+          "raw_item_id": "b67858aded67ec5f3fd4c1b2b1192d18fe059ac4f30cf70c05c507780344bc93",
+          "reason": "营销榜单，无证据"
+        },
+        {
+          "raw_item_id": "b6941b99aa3f94db2f713e5a0971ab382a4b499199d645794d147a766d0bd5f4",
+          "reason": "招聘信息，非资讯"
+        },
+        {
+          "raw_item_id": "ee16b8b0a14f33b414a349218155edcabb33e48acd54d4f3b70652f6ce2ed30b",
+          "reason": "内容模糊，无具体信息"
+        },
+        {
+          "raw_item_id": "64f64f32825f3b9486062f721503489fc342314deda0e17df0a54ff12025e452",
+          "reason": "课程聚合，信息单薄"
+        },
+        {
+          "raw_item_id": "b8d1acc53fc943b322ede889d4e6f4e8412d66494a60993eae37b4c769636830",
+          "reason": "金融NLP，偏离核心主题"
+        },
+        {
+          "raw_item_id": "d73a6abc5808a8e9c8cf0f2f4af3a4bb7f72df88f1dc57f2b9195951ba5311c4",
+          "reason": "社交媒体帖，无正文"
+        }
+      ],
+      "scope_note": "仅检查本次已搜索和采集的覆盖，不能证明互联网热点无遗漏。"
+    },
+    "practice": {
+      "window_days": 7,
+      "queries": [
+        {
+          "query": "\"Agent Skills\" SKILL.md implementation workflow repository test",
+          "lane": "skill",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"Model Context Protocol\" production deployment authentication security",
+          "lane": "mcp",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "site:github.com \"MCP server\" installation configuration tools",
+          "lane": "mcp",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"AI coding agent\" testing code review CI workflow repository",
+          "lane": "ai_coding",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"AI agent\" evaluation observability production failure postmortem",
+          "lane": "agent_workflow",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "RAG agent production benchmark latency cost implementation case study",
+          "lane": "rag_eval",
+          "status": "ok",
+          "count": 10
+        }
+      ],
+      "registry": {
+        "returned": 200,
+        "unique_with_repository": 26,
+        "skipped_without_repository": 45,
+        "status": "ok",
+        "candidates": 26
+      },
+      "repository_verification": {
+        "attempted": 12,
+        "verified": 12,
+        "failed": 0
+      },
+      "page_fetch": [
+        {
+          "url": "https://arxiv.org/html/2611.04456",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://sherlock.xyz/post/how-to-write-skills-for-claude-code-and-cowork",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://www.reddit.com/r/ClaudeWorkflows/comments/1xojop9/workflow_automated_web_scraping_with_claude_code",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://docs.databricks.com/aws/en/agent-skills",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://www.facebook.com/groups/vibecodingforbeginners/posts/1661045795577318",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://skillsovermcp.com/connect/trailofbits/skills",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=4pB4mmVdPFA",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://qai.io/skills/addyosmani/agent-skills/code-review-and-quality",
+          "status": "failed",
+          "error": "CollectionError"
+        }
+      ],
+      "limitations": [
+        "MCP Registry 本次最多读取 200 条更新"
+      ],
+      "discovered": 84,
+      "qualification": {
+        "leads": 113,
+        "qualified": 12,
+        "rejected": {
+          "案例缺少工作流、结果或限制": 95,
+          "研究论文不直接充当工程实践": 4,
+          "榜单或清单不作为实践": 2
+        },
+        "stale_disqualified": 101,
+        "history_duplicates": 0
+      }
+    },
+    "generation_fallbacks": [
+      "1 条正文补全失败，仅保留标题线索"
+    ],
+    "generation_models": [
+      "glm-5.3",
+      "typesafe/jev-1.13-20260917"
+    ]
+  },
+  "quality_report": {
+    "passed": true,
+    "hard_failures": [],
+    "warnings": [
+      "1 条正文补全失败，仅保留标题线索",
+      "13 条搜索线索缺少可核验发布日期",
+      "正文补全成功率低于 80%",
+      "来源正文状态未确认: https://docs.nvidia.com/skills/skillevaluator/repository-integration",
+      "来源正文状态未确认: https://www.sophos.com/en-us/blog/killing-ill-willed-skills-sophos-ai-at-bsides-sydney",
+      "来源正文状态未确认: https://pub.towardsai.net/introducing-the-mongodb-vercel-ai-sdk-integration-persistent-memory-for-ai-applications-2c9e2397d178",
+      "来源正文状态未确认: https://aclanthology.org/2026.acl-long.468",
+      "来源正文状态未确认: https://openobserve.ai/docs/integration/ai/frameworks/openai-agents",
+      "来源正文状态未确认: https://learn.microsoft.com/en-us/microsoft-agent-365/admin/connected-platforms",
+      "来源正文状态未确认: https://www.medrxiv.org/content/10.64898/2026.09.24.26363897v4",
+      "来源正文状态未确认: https://www.youtube.com/watch?v=JTptPQg0Tck",
+      "来源正文状态未确认: https://www.facebook.com/groups/web.devs.community/posts/4425040957747376",
+      "Critic 仍有 11 项声明需要人工核验",
+      "Critic 提醒：[item-f236abdce1565b07ae84762cc5d778b9] deep_dive「持续保障」称『核心 security、privacy guardrail 在 Uber 自有与第三方 Agent 上自始部署』，原文为 Core security, safety, and privacy guardrails，漏掉 safety，与本 item「Runtime」一节正确列出的 security、privacy、safety 三类策略不一致。",
+      "Critic 提醒：[item-f236abdce1565b07ae84762cc5d778b9] technical_analysis『以此拦截传统控制管不到的间接 prompt injection』语气强于证据：原文称 prompt provenance 与 evidence chaining 提供的是 additional defense，作者亦自承对新注入手法效果 less predictable，建议改为『防御/降低得逞可能』一类表述而非确定的『拦截』。",
+      "Critic 提醒：[item-f236abdce1565b07ae84762cc5d778b9] deep_dive「开发者采纳」『guardrail 本质上是分布式系统工程问题』丢失原文 as much as a security problem 的并列限定，宜补『同时也是安全问题』。",
+      "Critic 提醒：[item-860399da85365217b6e1a60b8fd86b6f] deep_dive「自纠错实例」首句『研究给出的 dreaming 直接证据』：实际证据仅为 hdatf.com 聚合页一句话转述而非研究原文，建议与 evidence_note 口径统一，改为『聚合页转述的证据』。",
+      "Critic 提醒：[item-860399da85365217b6e1a60b8fd86b6f] dreaming 修正地点笔记一例在 key_facts、summary 与 deep_dive 三度复述，deep_dive 前两句与 summary 高度重叠；该节价值在证据边界分析（corrected 的具体处理方式未知、『失败源于 memory 设计』为聚合方评论），建议压缩复述部分。",
+      "Critic 提醒：[item-ff50878969e7513d8b148883ac32e7fc] key_facts 第 1 条与 summary 中“先决条件仅要求 Claude Code 最新版”易误导：README 的 Prerequisites 还包括导出 ANTHROPIC_API_KEY（及可选 Pandoc/tectonic/Python）；建议改为“对 Claude Code 仅标注 latest、未给最低版本号，另需 API key”。",
+      "Critic 提醒：[item-ff50878969e7513d8b148883ac32e7fc] deep_dive「安装渠道差异」标题与正文“README 只说不同、未做排序/并未对渠道做功能排序”：README 明确将 plugin 安装标注为“(v3.7.0+, recommended)”，存在推荐排序；应限定为“未按控制可用性/功能对渠道排序，仅推荐 plugin 安装方式”。",
+      "Critic 提醒：[item-ff50878969e7513d8b148883ac32e7fc] key_facts 第 6 条与 deep_dive「README 的证据基础」中“六篇 anchor 文献均声明为设计理由”略有过度概括：Ren、Gartenberg、Wang、King & Worthington 四篇有显式 “design rationale, not evidence about ARS output” 声明，Lu 表述为 “built on the premise”、Zh",
+      "Critic 提醒：[item-ff50878969e7513d8b148883ac32e7fc] why_it_matters 中“给出可运行方案”隐含已验证可运行；实际仅 README 自述、安装命令未独立执行（evidence_note 已注明），建议软化为“给出以代码与流程文档形式提供的方案设计”。",
+      "Critic 提醒：[item-ff50878969e7513d8b148883ac32e7fc] 术语提示：“2026-09 牌价”（list prices）在中文技术写作中不自然，建议“官方目录价（list price）”；其余技术名（claim audit、locator、hard gate、NOT_CALIBRATED、formatter 等）保留得当。",
+      "部分趋势没有两个独立来源"
+    ],
+    "metrics": {
+      "item_count": 14,
+      "body_success_rate": 0.3571,
+      "clue_item_count": 9,
+      "event_duplicate_rate": 0.0
+    },
+    "checked_at": "2026-11-07T22:41:15.099459+00:00"
+  }
+}
