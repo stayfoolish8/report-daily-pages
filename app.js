@@ -11,42 +11,71 @@
   ];
   const categoryOf=item=>item.editorial_section==="ai_practice"?"practice":item.type==="product"?"news":item.type;
   const practiceKinds={skill:"Skill",mcp:"MCP",skill_mcp:"Skill + MCP",ai_coding:"AI coding",agent_workflow:"Agent workflow",rag_eval:"RAG / eval"};
-  const skillCategories={coding:"Coding 开发",agent_core:"Agent 核心",engineering_productivity:"工程生产力"};
-  function renderSkillRadar(radar){
-    const box=$("skill-radar"),cards=$("skill-radar-cards"),meta=$("skill-radar-meta");
-    if(!box||!cards||!meta)return;
-    cards.replaceChildren();
-    const slots=[
-      {badge:"累计热度最高",entry:radar?.top_cumulative,prefix:"",accent:"cumulative"},
-      {badge:"过去一天增量最高",entry:radar?.top_daily_growth,prefix:"+",accent:"growth"},
-      {badge:"新锐单日飙升",entry:radar?.top_emerging,prefix:"+",accent:"emerging"}
-    ].filter(s=>s.entry&&typeof s.entry==="object");
-    if(!radar||!slots.length){box.hidden=true;meta.textContent="";return;}
-    box.hidden=false;
-    const scopeLabel=radar.scope==="coding_only"?"仅 Coding 开发":"Coding + Agent 核心/工程生产力";
-    meta.textContent=`${radar.platform||"skills.sh"} · ${scopeLabel} · 已过滤营销与刷屏`;
-    for(const slot of slots){
-      const e=slot.entry;
-      const card=el("article",undefined,"skill-card skill-card-"+slot.accent);
-      const top=el("div",undefined,"skill-card-top");
-      top.append(el("span",slot.badge,"skill-badge"),el("span",skillCategories[e.category]||e.category,"skill-tag"));
-      if(e.is_official)top.append(el("span","Official","skill-official"));
-      card.append(top);
-      const title=el("h3");
-      title.append(link(e.name||e.skill_key,e.url));
-      card.append(title,el("p",e.source||"","skill-source"));
-      const metrics=el("div",undefined,"skill-metrics");
+  const skillCategories={coding:"Coding",agent_core:"Agent 核心",engineering_productivity:"工程生产力"};
+  function renderSkillBoard(title,subtitle,items,mode){
+    const board=el("section",undefined,"skill-board skill-board-"+mode);
+    const head=el("div",undefined,"skill-board-head");
+    head.append(el("h3",title),el("span",subtitle,"skill-board-sub"));
+    board.append(head);
+    if(!items.length){
+      board.append(el("p","暂无符合条件的数据","skill-empty"));
+      return board;
+    }
+    const list=el("ol",undefined,"skill-rank-list");
+    items.forEach((e,idx)=>{
+      const li=el("li",undefined,"skill-rank-item");
+      const rank=el("span",String(idx+1).padStart(2,"0"),idx<3?"skill-rank-num top":"skill-rank-num");
+      const main=el("div",undefined,"skill-rank-main");
+      const titleRow=el("div",undefined,"skill-rank-title");
+      titleRow.append(link(e.name||e.skill_key,e.url));
+      titleRow.append(el("span",skillCategories[e.category]||e.category,"skill-tag"));
+      if(e.is_official)titleRow.append(el("span","Official","skill-official"));
+      main.append(titleRow,el("div",e.source||"","skill-source"));
+      if(e.description)main.append(el("p",e.description,"skill-desc"));
+      const metrics=el("div",undefined,"skill-rank-metrics");
       const val=Number(e.metric_value||0).toLocaleString();
-      metrics.append(el("strong",`${slot.prefix}${val}`),el("span",e.metric_name||"热度"));
-      if(slot.accent==="cumulative"&&e.daily_growth!=null){
+      metrics.append(el("strong",mode==="growth"?`+${val}`:val),el("span",e.metric_name||"热度","skill-metric-label"));
+      if(mode==="cumulative"&&e.daily_growth!=null){
         metrics.append(el("small",`24h +${Number(e.daily_growth).toLocaleString()}`));
-      }else if(slot.accent!=="cumulative"&&e.cumulative_installs!=null){
+      }else if(mode==="growth"&&e.cumulative_installs!=null){
         metrics.append(el("small",`累计 ${Number(e.cumulative_installs).toLocaleString()}`));
       }
-      card.append(metrics);
-      if(e.description)card.append(el("p",e.description,"skill-desc"));
-      cards.append(card);
+      li.append(rank,main,metrics);
+      list.append(li);
+    });
+    board.append(list);
+    return board;
+  }
+  function renderSkillRadar(radar){
+    const box=$("skill-radar"),cards=$("skill-radar-cards"),meta=$("skill-radar-meta"),emergingBox=$("skill-radar-emerging");
+    if(!box||!cards||!meta)return false;
+    cards.replaceChildren();
+    if(emergingBox){emergingBox.replaceChildren();emergingBox.hidden=true;}
+    const cumList=Array.isArray(radar?.top_cumulative_list)&&radar.top_cumulative_list.length
+      ?radar.top_cumulative_list
+      :(radar?.top_cumulative?[radar.top_cumulative]:[]);
+    const growthList=Array.isArray(radar?.top_daily_growth_list)&&radar.top_daily_growth_list.length
+      ?radar.top_daily_growth_list
+      :(radar?.top_daily_growth?[radar.top_daily_growth]:[]);
+    if(!radar||(!cumList.length&&!growthList.length)){box.hidden=true;meta.textContent="";return false;}
+    box.hidden=false;
+    const scopeLabel=radar.scope==="coding_only"?"仅 Coding 开发":"Coding + Agent 核心/工程生产力";
+    meta.textContent=`${radar.platform||"skills.sh"} · ${scopeLabel} · 同源去重并过滤营销与刷屏`;
+    cards.append(
+      renderSkillBoard("累计热度最高",`Top ${cumList.length}`,cumList,"cumulative"),
+      renderSkillBoard("过去一天增量最高",`Top ${growthList.length}`,growthList,"growth")
+    );
+    const emerging=radar.top_emerging;
+    if(emergingBox&&emerging&&typeof emerging==="object"&&!growthList.some(item=>item.skill_key===emerging.skill_key)){
+      emergingBox.hidden=false;
+      emergingBox.append(
+        el("span","新锐单日飙升","skill-badge"),
+        link(emerging.name||emerging.skill_key,emerging.url),
+        el("span",`(${emerging.source||""}) · +${Number(emerging.metric_value||0).toLocaleString()} ${emerging.metric_name||""}`,"skill-emerging-stat")
+      );
+      if(emerging.description)emergingBox.append(el("p",emerging.description,"skill-emerging-desc"));
     }
+    return true;
   }
   function textMinutes(text) {
     const cjk=(text.match(/[\u3400-\u9fff]/g)||[]).length;
@@ -141,7 +170,7 @@
       if(!candidates.length)details.append(el("p","当前没有保存到采集线索。可在运行日志中查看具体步骤；此页面不会触发付费重试。"));
       reportBox.append(details);
     }
-    renderSkillRadar(issue.skill_radar);
+    const hasSkillRadar=renderSkillRadar(issue.skill_radar);
     $("item-count").textContent=issue.items.length+" 篇 / 分类阅读";
     $("stories").replaceChildren();$("contents").replaceChildren();$("filters").replaceChildren();
     const available=categories.filter(c=>issue.items.some(item=>categoryOf(item)===c.id));
@@ -176,6 +205,14 @@
       };
       $("contents").append(jump);
     });
+    if(hasSkillRadar){
+      const jump=el("a",undefined,"category-jump");jump.href="#skill-radar";
+      jump.append(el("span","0"+(available.length+1)),el("b","热门 Skill 收录"));
+      jump.onclick=event=>{
+        if(hostArchive){event.preventDefault();$("skill-radar").scrollIntoView({behavior:"smooth"});}
+      };
+      $("contents").append(jump);
+    }
     const ordered=available.flatMap(c=>issue.items.filter(item=>categoryOf(item)===c.id));
     ordered.forEach((item,index)=>{
       const article=el("article",undefined,"story");article.id="story-"+index;article.dataset.type=categoryOf(item);
