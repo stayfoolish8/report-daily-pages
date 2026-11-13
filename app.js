@@ -11,6 +11,43 @@
   ];
   const categoryOf=item=>item.editorial_section==="ai_practice"?"practice":item.type==="product"?"news":item.type;
   const practiceKinds={skill:"Skill",mcp:"MCP",skill_mcp:"Skill + MCP",ai_coding:"AI coding",agent_workflow:"Agent workflow",rag_eval:"RAG / eval"};
+  const skillCategories={coding:"Coding 开发",agent_core:"Agent 核心",engineering_productivity:"工程生产力"};
+  function renderSkillRadar(radar){
+    const box=$("skill-radar"),cards=$("skill-radar-cards"),meta=$("skill-radar-meta");
+    if(!box||!cards||!meta)return;
+    cards.replaceChildren();
+    const slots=[
+      {badge:"累计热度最高",entry:radar?.top_cumulative,prefix:"",accent:"cumulative"},
+      {badge:"过去一天增量最高",entry:radar?.top_daily_growth,prefix:"+",accent:"growth"},
+      {badge:"新锐单日飙升",entry:radar?.top_emerging,prefix:"+",accent:"emerging"}
+    ].filter(s=>s.entry&&typeof s.entry==="object");
+    if(!radar||!slots.length){box.hidden=true;meta.textContent="";return;}
+    box.hidden=false;
+    const scopeLabel=radar.scope==="coding_only"?"仅 Coding 开发":"Coding + Agent 核心/工程生产力";
+    meta.textContent=`${radar.platform||"skills.sh"} · ${scopeLabel} · 已过滤营销与刷屏`;
+    for(const slot of slots){
+      const e=slot.entry;
+      const card=el("article",undefined,"skill-card skill-card-"+slot.accent);
+      const top=el("div",undefined,"skill-card-top");
+      top.append(el("span",slot.badge,"skill-badge"),el("span",skillCategories[e.category]||e.category,"skill-tag"));
+      if(e.is_official)top.append(el("span","Official","skill-official"));
+      card.append(top);
+      const title=el("h3");
+      title.append(link(e.name||e.skill_key,e.url));
+      card.append(title,el("p",e.source||"","skill-source"));
+      const metrics=el("div",undefined,"skill-metrics");
+      const val=Number(e.metric_value||0).toLocaleString();
+      metrics.append(el("strong",`${slot.prefix}${val}`),el("span",e.metric_name||"热度"));
+      if(slot.accent==="cumulative"&&e.daily_growth!=null){
+        metrics.append(el("small",`24h +${Number(e.daily_growth).toLocaleString()}`));
+      }else if(slot.accent!=="cumulative"&&e.cumulative_installs!=null){
+        metrics.append(el("small",`累计 ${Number(e.cumulative_installs).toLocaleString()}`));
+      }
+      card.append(metrics);
+      if(e.description)card.append(el("p",e.description,"skill-desc"));
+      cards.append(card);
+    }
+  }
   function textMinutes(text) {
     const cjk=(text.match(/[\u3400-\u9fff]/g)||[]).length;
     const words=(text.replace(/[\u3400-\u9fff]/g," ").match(/[a-zA-Z0-9]+/g)||[]).length;
@@ -104,6 +141,7 @@
       if(!candidates.length)details.append(el("p","当前没有保存到采集线索。可在运行日志中查看具体步骤；此页面不会触发付费重试。"));
       reportBox.append(details);
     }
+    renderSkillRadar(issue.skill_radar);
     $("item-count").textContent=issue.items.length+" 篇 / 分类阅读";
     $("stories").replaceChildren();$("contents").replaceChildren();$("filters").replaceChildren();
     const available=categories.filter(c=>issue.items.some(item=>categoryOf(item)===c.id));
@@ -224,6 +262,11 @@
     if(practiceStats?.discovered!=null){
       const qualified=issue.items.filter(item=>item.editorial_section==="ai_practice").length;
       $("selection-detail").append(el("p",`实践发现 ${practiceStats.discovered} 条线索；本期保留 ${qualified} 条通过复现证据筛选的 Skill / MCP 与 AI 工程实践。`));
+    }
+    if(issue.skill_radar){
+      const sr=issue.skill_radar;
+      $("selection-detail").append(el("p",`热门 Skill 收录来自 ${sr.platform||"skills.sh"}（筛选池 ${sr.candidate_pool_size??0} 条，过滤营销/泛娱乐及无关噪音 ${sr.excluded_count??0} 条，并按源仓库去重防刷屏）。`));
+      for(const note of sr.limitations||[])$("selection-detail").append(el("p",note));
     }
     $("selection-detail").append(el("p","阅读时长按中文每分钟约 500 字、英文约 220 词估算，统计正文与编辑解读；深入详情和阅读原文另计。"));
     $("selection-detail").append(el("p","所有条目的摘要、意义和行动建议均可直接阅读；重点分析按阅读预算分配展开，其他分析保留在条目详情中。"));
