@@ -60,7 +60,7 @@
     if(!radar||(!cumList.length&&!growthList.length)){box.hidden=true;meta.textContent="";return false;}
     box.hidden=false;
     const scopeLabel=radar.scope==="coding_only"?"仅 Coding 开发":"Coding + Agent 核心/工程生产力";
-    meta.textContent=`${radar.platform||"skills.sh"} · ${scopeLabel} · 同源去重并过滤营销与刷屏`;
+    meta.textContent=`${radar.platform||"skills.sh"} · ${scopeLabel} · 同源去重、过滤营销并排除累计榜重复`;
     cards.append(
       renderSkillBoard("累计热度最高",`Top ${cumList.length}`,cumList,"cumulative"),
       renderSkillBoard("过去一天增量最高",`Top ${growthList.length}`,growthList,"growth")
