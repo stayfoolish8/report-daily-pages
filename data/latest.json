@@ -1,1866 +1,1462 @@
 {
   "schema_version": "1.0",
-  "issue_date": "2026-11-19",
+  "issue_date": "2026-11-20",
   "revision": 1,
-  "generated_at": "2026-11-18T22:09:46.414229Z",
-  "run_id": "78665425-194d-4ed9-ae3b-5b38019f830f",
+  "generated_at": "2026-11-19T22:09:34.064412Z",
+  "run_id": "ca46d11f-e50f-4d89-96ef-1c81f7758452",
   "window": {
-    "start": "2026-11-17T22:00:00Z",
-    "end": "2026-11-18T22:00:00Z"
+    "start": "2026-11-18T22:00:00Z",
+    "end": "2026-11-19T22:00:00Z"
   },
   "snapshot": {
-    "candidate_count": 16,
+    "candidate_count": 14,
     "frozen": true
   },
   "snapshot_summary": "公共候选池经确定性去重、评分、正文补全后生成。",
   "sections": [
     {
-      "type": "blog",
+      "type": "news",
       "item_ids": [
-        "item-8c14d7fcaa615f15955215a3ca1e8d0d",
-        "item-515cb19ceaa45dc1aac79eac4eba4d80",
-        "item-532861d3a9d25fe182c87d2acd3a0af8",
-        "item-c319c657e3fd5f649cf422714dd61b74",
-        "item-412fcaaf94185d5fa895ca0f5e9f9fac"
+        "item-d2499313e88655fa8d476785495bfa39",
+        "item-5554d4e18275553c89cdb99e59d3e630",
+        "item-b1626b7265d75904821dbe3da21a69fa"
       ]
     },
     {
-      "type": "news",
+      "type": "blog",
       "item_ids": [
-        "item-926da09a56a85340a1e1da2e16d3dbf3",
-        "item-e0af01e85744500eb4909267f890bc6f",
-        "item-9c8eb9b6dd075061871cb70f4b29fe97"
+        "item-3fe806bc5c945492a89b20768a84ffd7",
+        "item-80c1a07bf7ef5dd88630c8b1c1834d27"
+      ]
+    },
+    {
+      "type": "github",
+      "item_ids": [
+        "item-00c49caa37ab56949ef936f0839e45a0",
+        "item-77ba06229a3e51f3b4980f61cdebafd0"
       ]
     },
     {
       "type": "ai_practice",
       "item_ids": [
-        "item-5f41241bea295687804bda8a72037691",
-        "item-45a93446d9655943a467efd9c94ee1f0",
-        "item-5e779f51044a5d3086e3b391cfd9208b"
+        "item-c838687b94e55e74927ba4572012c0e2",
+        "item-675f0741f74d5e5c98e31ee5d1000ba5",
+        "item-37250b6b8a9459a7b87b3c97064003b0",
+        "item-071755d2b7c451909d81d3cb29b31fc9"
       ]
     },
     {
       "type": "paper",
       "item_ids": [
-        "item-59be8e83934055cfa7933b7410b1f564",
-        "item-ad5c786994145bf9b04f8ee0f7b90a77",
-        "item-dd75d7c389d25fe092b40352948023b1",
-        "item-a8c70c3225385ba1955dcc30f50363a5"
-      ]
-    },
-    {
-      "type": "github",
-      "item_ids": [
-        "item-a9f5c4ca24735389871ccdcde1185ac6"
+        "item-6c506508d9295eabbeab3bd1579f1359",
+        "item-807234d7bd505de5bdabcc4860926c36",
+        "item-ab6b7563f23e56eb8961917780ed5afc"
       ]
     }
   ],
   "items": [
     {
-      "item_id": "item-8c14d7fcaa615f15955215a3ca1e8d0d",
-      "event_id": "420c868b-a079-50e4-80fb-522bc5fde52d",
-      "type": "blog",
-      "title": "agent-framework 两个 PyPI 版本被投毒",
-      "source": "research.jfrog.com",
-      "published_at": "2026-11-18T00:00:00Z",
-      "canonical_url": "https://research.jfrog.com/post/agent-framework-hijack",
-      "summary": "2026年11月17日，微软 Agent Framework 的 PyPI 包 agent-framework 出现 1.26.1 与 1.26.2 两个恶意版本，均已被移除。安装 wheel 本身不执行代码，但二者向 site-packages 植入 .pth 启动钩子；之后在该环境每次启动 Python 都会运行凭据窃取程序，即使用户从未 import agent_framework。窃取目标包括 Azure、AWS、GitHub、OpenAI 等云与 CI 凭据。最后干净版本为 1.26.0。",
-      "why_it_matters": "该包月下载约19万次，按微软快速安装说明可能进入 CI 与 Azure 工作负载；安装本身不执行代码，但之后在该环境启动 Python 即可能泄露云身份令牌和 CI 密钥，影响可能超出单个项目。",
+      "item_id": "item-d2499313e88655fa8d476785495bfa39",
+      "event_id": "d94ca254-6ba7-5235-a93f-232bff53db42",
+      "type": "news",
+      "title": "MCP Git服务器修5条命令执行与1条越界读取",
+      "source": "agentopsguide.com",
+      "published_at": "2026-11-19T06:55:05Z",
+      "canonical_url": "https://agentopsguide.com/mcp-server-git-v2-5-0-vulnerabilities",
+      "summary": "MCP 参考服务器 v2.5.0（2026年11月18日）修复 8 个漏洞：mcp-server-git 6 条、filesystem 与 everything 各 1 条。Git 的 6 条中，5 条为 High，涉及仓库配置执行命令；另 1 条 Medium 是 --repository 越界读文件。作者用 MCP stdio 自测：2026.11.11 仍在 git_merge 和只读 git_show 上执行命令，2026.11.18 拒绝；构造 .git/index 还可在旧版越界读取。",
+      "why_it_matters": "只读标注不等于安全：仓库配置本身可让 Git 服务器执行命令。上周修复版仍在受影响列表，且当天 pip-audit 扫不出，团队容易误以为已安全；作者自测显示风险可复现。",
       "key_facts": [
         {
-          "fact": "1.26.1 于 2026-11-17 20:35 UTC 上传 PyPI，1.26.2 于 21:08 UTC 上传；两者随后被移除，最后干净版本为 1.26.0。",
+          "fact": "MCP 参考服务器 v2.5.0 于2026年11月18日发布，共修8个漏洞：6个在 mcp-server-git、1个在 filesystem、1个在 everything。",
           "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-4f4d110e35f7",
-            "ref-88d584cbdd84"
+            "ref-5ec74d122a9a"
           ]
         },
         {
-          "fact": "安装 wheel 本身不执行代码；.pth 在 Python 解释器启动时执行 import 行，因此即使用户不 import agent_framework，下一次启动也会运行窃密代码。",
+          "fact": "六个 Git 漏洞中五个为 High：来源汇总表内四条标 CVSS 7.8，GHSA-h2g3-rwxm-xfm3 仅标 High 未给分数；另有一条 Medium 为 --repository 边界外读文件。受影响版本为 2026.11.11，修复版为 2026.11.18。",
           "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-856171eb7cb9",
-            "ref-dca4e02ce5da"
+            "ref-5ec74d122a9a"
           ]
         },
         {
-          "fact": "窃取范围含环境变量、~/.azure 令牌缓存、.npmrc、.git-credentials、Docker 配置与 Hugging Face token，并请求 Azure 托管身份及 Azure DevOps OIDC 令牌；1.26.2 增加 GitHub Actions OIDC。",
+          "fact": "作者自测（Linux + Git 2.47.3、直接调用工具）确认：2026.11.11 上 git_merge 与只读 git_show 会执行仓库植入的命令，git_diff_unstaged 越界返回仓库外文件；2026.11.18 三例均被拒绝。",
           "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-88d584cbdd84"
+            "ref-5ec74d122a9a"
           ]
         },
         {
-          "fact": "PyPI 上出现维护者账号 vibiret，创建于攻击当天，可发布 agent-framework 及五个相关项目；其是否为上传者尚未获 PyPI 或微软确认。",
+          "fact": "2026年11月19日，六个 Git advisory 均未进入 OSV.dev，pip-audit 对 2026.11.11 报“No known vulnerabilities found”。",
           "ref_ids": [
-            "ref-856171eb7cb9"
+            "ref-5ec74d122a9a"
           ]
         }
       ],
-      "technical_analysis": "这次投放并非攻破微软构建流水线，而是攻击者本地重打包 wheel，并保留 agent-framework-core==1.26.0 依赖，让应用照常 import。执行点被放在 .pth，绕开业务代码导入路径，换来每次 Python 启动即触发的高杠杆；代价是没有持久化、没有蠕虫、也没有二次加载。1.26.2 恢复 __init__.py、把载荷移到 af_runtime_diag，并新增 GitHub Actions OIDC 与 User-Agent，因此仅按 1.26.1 文件名检测会漏。防御应转向 site-packages 启动文件、出口日志与凭据轮换。",
+      "technical_analysis": "根因不是单个参数写错：mcp-server-git 把 Git 跑在客户端选定的仓库里，而 Git 会把多个配置键当作命令执行。v2.4.0 封禁一份已知键名清单，v2.5.0 只是把漏掉的键补进清单；这种黑名单式修补天然落后于攻击面。发布说明还承认 --repository 边界检查在工具写入工作树后未重跑。来源未讨论直接拒绝不可信配置或强制沙箱的可用性代价；编辑推断：只要仍接受不可信仓库配置，同类问题可能重演。",
       "deep_dive": [
         {
-          "heading": "投放窗口与自动化扩散",
-          "content": "JFrog 记录 1.26.1 于 2026-11-17 20:35 UTC 上线，21:06 被隔离；攻击者 21:08 上传 1.26.2，PyPI 到 21:16 移除两者。Renovate 等依赖机器人在 1.26.1 上线后六分钟内已向下游仓库提交升级 PR，说明暴露窗口不以人工安装为限。SafeDep 称 1.26.1 上传 22 分钟后告警，1.26.2 上传 4 分钟后告警。",
+          "heading": "复现方法：用标记文件证明执行，而非看工具回显",
+          "content": "测试用 Python MCP 客户端经 stdio 调用两个版本；测试仓库只提供自身文件与 .git/config，植入命令写标记文件，因此“文件出现”才算证明执行。三条成功路径：设置 gc.recentObjectsHook 配合双 pack 布局，使一次 git_merge 以服务器用户身份执行命令，却回报普通 fast-forward；把 remote 标为 promisor 并指定 uploadpack，让只读 git_show 取缺失对象时执行命令；在 --repository 模式下用构造的 .git/index 指向 ../outside/secret，让 git_diff_unstaged 返回仓库外文件全文。2026.11.18 分别拒绝或报 out-of-tree 错误。",
           "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-856171eb7cb9"
+            "ref-5ec74d122a9a"
           ]
         },
         {
-          "heading": "从环境变量到平台令牌",
-          "content": "除环境变量外，采集器读取最多 300 个 /proc/<pid>/environ，扫描 35 个 glob，1.26.1 最多读 60 个文件，1.26.2 增至 80 个；在 Azure 上通过 IDENTITY_ENDPOINT/MSI_ENDPOINT 或 169.254.169.254 申请 12 个 audience 的令牌，包含 ARM、Key Vault、Storage、Graph 与 Azure DevOps。1.26.2 还读取 ACTIONS_ID_TOKEN_REQUEST_*，在 id-token: write 的 GitHub Actions 作业中换取 Azure 联邦凭据。",
+          "heading": "三周三个版本：黑名单修补为何反复失手",
+          "content": "mcp-server-git 三周连发三个版本，每次都关掉已报告路径、又留下下一批。v2.4.0 修的是一条只读 git_status 经仓库 .git/config 执行程序的路径；v2.5.0 转而把 2026.11.11 列为另外六条路径的受影响版本。发布说明自陈两处未闭合：#5599 是工具写入工作树后未重新执行 --repository 边界检查，#5600 是 filesystem 目录列表在 Windows 上尚未锚定。PyPI 显示该包近一月下载 423,512 次。编辑推断：短期内还会出现同类 advisory，不宜把某一版当作终点。",
           "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-88d584cbdd84",
-            "ref-856171eb7cb9"
+            "ref-5ec74d122a9a"
           ]
         },
         {
-          "heading": "发布差异与账号线索",
-          "content": "正常版本从 1.20.0 到 1.26.0 同时发布 wheel 与 sdist，两个恶意版本只有 wheel；1.26.1 wheel 为 10,402 字节，1.26.0 为 6,681 字节。SafeDep 发现 PyPI 上 agent-framework 有 microsoft 与 vibiret 两个维护者，后者创建于 2026-11-17，并可发布五个相关项目；PyPI 不公开上传者，微软维护者在 GitHub discussion 确认移除并调查，但微软与 PyPI 未确认 vibiret 是否为上传者。编辑推断：若该账号权限未收回，固定 1.26.0 仍可能通过依赖 extra 拉入同账号发布的新版本。",
+          "heading": "扫描器盲区与升级核验",
+          "content": "不要只靠 pip-audit 或 OSV：2026年11月19日六个 Git advisory 均未进入 OSV.dev，按名称与版本区间匹配的扫描器在记录同步前无能为力。升级后要用 pip show mcp-server-git 或 uvx mcp-server-git --version 核对实际安装版本，因为 uvx 可能继续服务缓存中的旧副本；以日期命名的 filesystem 包需显式请求 2.4.0，否则包管理器会把它排在 2025.x/2026.x 之下。同时直接盯 modelcontextprotocol/servers 的 advisory 页与 release notes。",
           "ref_ids": [
-            "ref-856171eb7cb9",
-            "ref-6355d2a9a0e1"
-          ]
-        },
-        {
-          "heading": "清理顺序与取证判读",
-          "content": "JFrog 警告在受感染环境直接运行 pip 会再次触发 .pth，因此清理前先导出 _AF_TEL=1，并用该环境 Python 删除四个文件后再卸载；uv 是编译后的 Rust 二进制，卸载时不执行 .pth，可直接卸载并清缓存。出口日志中向 webhook.site 的 POST 返回 HTTP 200 表示数据已被接收；429 表示被限流。托管身份与联邦 OIDC 令牌没有静态密钥可轮换，只能等过期（最长 24 小时）并回收计算实例。",
-          "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-dca4e02ce5da"
+            "ref-5ec74d122a9a"
           ]
         }
       ],
-      "evidence_note": "读到了 JFrog 研究全文、SafeDep 技术拆解全文，以及 IntelFusions、TrustList、BleepingComputer、techmeasured 的报道或摘要；未获得微软官方正式声明、PyPI 上传日志及两版本实际下载量；techmeasured 引 SecurityWeek 称一名维护者在 GitHub discussion 确认移除并调查，vibiret 与上传行为的关联未确认。",
-      "application": "立即排查锁文件、镜像与 site-packages；先设 _AF_TEL=1 再清理，然后轮换可达凭据并审计 11 月 17 日日志。",
-      "caveats": "发布权限来源未确认；未获微软官方正式声明，vibiret 上传关联未确认；两版本实际下载量未知。",
-      "confidence": 0.85,
+      "evidence_note": "读到完整网页正文，含 TL;DR、八个 advisory 汇总表、复现叙述、FAQ 与操作清单；未获取 v2.5.0/v2.4.0 release notes 原文、八个 GitHub advisory 详情、issue #5599/#5600 内容，也没有第三方独立复现或真实 agent 会话下的注入测试。",
+      "application": "升级 mcp-server-git 到 2026.11.18、filesystem 2.4.0、everything 2.3.1；清理 uvx 缓存并核对版本；把 agent 打开的仓库当不可信代码，写操作保留人工确认。",
+      "caveats": "作者自测仅 Linux+Git 2.47.3、直接调用工具；仅复现三条路径；advisory 原文与 issue #5599/#5600 未读。",
+      "confidence": 0.66,
+      "relevance_tags": [
+        "MCP",
+        "mcp-server-git",
+        "安全漏洞",
+        "Agent 工具链",
+        "供应链扫描"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-5ec74d122a9a",
+          "source_id": "tinyfish-discovery",
+          "url": "https://agentopsguide.com/mcp-server-git-v2-5-0-vulnerabilities",
+          "title": "mcp-server-git v2.5.0: We Retested the Week-Old Fix",
+          "publisher": "agentopsguide.com",
+          "published_at": "2026-11-19T06:55:05Z",
+          "retrieved_at": "2026-11-19T22:00:56.172472Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-5ec74d122a9a"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-5ec74d122a9a"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-5ec74d122a9a"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-5ec74d122a9a"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-3fe806bc5c945492a89b20768a84ffd7",
+      "event_id": "c7cf426a-e546-564f-9dcc-46f58abd2bc1",
+      "type": "blog",
+      "title": "三个MCP服务器曝越界与权限分级漏洞",
+      "source": "i10x.ai",
+      "published_at": "2026-11-19T06:24:27Z",
+      "canonical_url": "https://i10x.ai/news/cve-2026-62964-cve-2026-75612-cve-2026-75518-mcp-server-tool-escapes",
+      "summary": "据 i10X 于 2026年11月19日转述，NVD 在 11月18日公布三个 MCP 服务器 CVE：Gortex 可越界写文件并触发代码执行，yt-mcp 能读取并上传任意文件到 YouTrack，DOMShell 把可改页面的 eval 误标为只读。三者补丁版本分别为 0.55.0、1.18.1、2.0.8；CVSS 与影响范围均来自该转述，未直接核对原始公告。",
+      "why_it_matters": "MCP 把文件、浏览器和 Issue 系统的操作权交给 Agent；路径约束与读写分级只要在写路径或分级上漏检，提示注入就能把工具调用变成主机代码执行或密钥外泄。",
+      "key_facts": [
+        {
+          "fact": "据 i10X 转述，三个 CVE 为 CVE-2026-62964（Gortex，CVSS 7.8）、CVE-2026-75612（yt-mcp，7.5）、CVE-2026-75518（DOMShell，4.8），补丁版本分别为 0.55.0、1.18.1、2.0.8。",
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        },
+        {
+          "fact": "Gortex 的 write_file、edit_file、move_inline 可接受仓库外绝对路径，可能写入启动脚本或 Git hooks 并触发代码执行。",
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        },
+        {
+          "fact": "yt-mcp 的 add_attachment 可读取服务进程可访问的任意文件并上传到 YouTrack Issue；get_project_health 另有路径穿越。",
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        },
+        {
+          "fact": "DOMShell 将可执行任意 JavaScript 的 eval 归为 read-tier，使审批 UI 显示 readOnlyHint: true；2.0.8 改为 write-tier，无 --allow-write 会报错。",
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        }
+      ],
+      "technical_analysis": "三者不是同一根因。Gortex 的写处理器未调用读侧已有的 guardSymlinkWithinRepo，绝对路径又绕过仓库根约束；yt-mcp 的上传路径未做目录限制，修复改为默认禁用 file_path、仅允许显式 allowlist，并用 realpath/commonpath 约束；DOMShell 的问题是 eval 与 js 共用无副作用闸门的 Runtime.evaluate，却被归为 read-tier，导致 MCP 注解、审批 UI 与审计日志失真。i10X 称修复把读侧约束应用到写侧并纠正分级；具体补丁 diff 未读。",
+      "deep_dive": [
+        {
+          "heading": "Gortex：绝对路径如何绕过仓库根约束",
+          "content": "Gortex 0.55.0 之前，write_file、edit_file、move_inline 接受绝对文件路径，却没有检查其是否位于已索引仓库根内。resolveFilePath 把绝对路径排除在 confinement 之外，写处理器也未调用读处理器使用的 guardSymlinkWithinRepo。能影响 MCP 工具参数的调用者（被提示注入的 Agent 或恶意客户端）可写入守护进程用户可访问的任意文件，例如 ~/.zshrc、.git/hooks/pre-commit 或 systemd unit，并在下一次触发时执行代码。",
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        },
+        {
+          "heading": "yt-mcp 与 DOMShell：两种边界失守",
+          "content": "yt-mcp 1.18.0 及更早版本的 add_attachment 只检查 file_path 存在，未限制目录，就能把服务进程可读文件上传到 YouTrack Issue；get_project_health 还把调用者可控的 project 值拼进快照文件名，可向上穿越写 JSON。1.18.1 默认禁用 file_path，改为仅允许 YOUTRACK_ATTACHMENT_ROOTS 显式目录，并用 realpath/commonpath 与大小上限约束。DOMShell 2.0.8 之前，domshell_eval 和 domshell_execute 内的 eval 被列为 read-tier，无需 --allow-write 即可调用，但二者最终都走无副作用闸门的 CDP Runtime.evaluate；2.0.8 将 eval 加入 write-tier，无 --allow-write 会报错。",
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        },
+        {
+          "heading": "补丁之外：MCP 工具权限的验收清单",
+          "content": "以下为编辑建议，不是 i10X 已验证的共同补丁：对每个 MCP 工具构造绝对路径、../、符号链接和同前缀兄弟目录，确认越界请求在写操作前被拒绝；检查工具注解、宿主审批 UI、服务端 tier flag 与审计日志是否一致，尤其警惕“只读”工具实际调用可产生副作用的 API；验证拒绝路径返回正确错误，并迁移依赖旧行为的调用。yt-mcp 的 realpath/commonpath 实现只在该条修复中被描述，不能外推到另两个项目。",
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        }
+      ],
+      "evidence_note": "读到 i10X 全文摘录，含漏洞机制、受影响版本、CVSS 与修复版本；未直接读取 NVD 或 GitHub Advisory 原文，也未获得 PoC、补丁 diff 或独立复现结果。",
+      "application": "核对版本并升级：Gortex 0.55.0、yt-mcp 1.18.1、DOMShell 2.0.8；yt-mcp 升级前别用 add_attachment 的 file_path 模式。",
+      "caveats": "i10X 转述 NVD/Advisory，CVSS 与版本区间未对原文核验；无 PoC/diff/独立复现，具体补丁实现未确认。",
+      "confidence": 0.72,
+      "relevance_tags": [
+        "MCP",
+        "AI Agent 安全",
+        "路径穿越",
+        "权限绕过",
+        "CVE"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-15ae2630cbf0",
+          "source_id": "tinyfish-discovery",
+          "url": "https://i10x.ai/news/cve-2026-62964-cve-2026-75612-cve-2026-75518-mcp-server-tool-escapes",
+          "title": "CVE-2026-62964, CVE-2026-75612, CVE-2026-75518: Three MCP servers let AI agents break out of tool limits",
+          "publisher": "i10x.ai",
+          "published_at": "2026-11-19T06:24:27Z",
+          "retrieved_at": "2026-11-19T22:00:56.172614Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-15ae2630cbf0"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-00c49caa37ab56949ef936f0839e45a0",
+      "event_id": "49b21cf0-57b9-5b50-bee4-3ac11d6e5233",
+      "type": "github",
+      "title": "ruflo 首发 SLSA 证明并锁定安装版本",
+      "source": "ruvnet/ruflo",
+      "published_at": "2026-11-19T21:58:00Z",
+      "canonical_url": "https://github.com/ruvnet/ruflo/releases/tag/v3.79.0",
+      "summary": "ruflo v3.79.0 于 2026-11-19 发布，是该项目首个带 SLSA provenance 的版本：@claude-flow/cli、claude-flow、ruflo 三个包均由 CI 以 npm publish --provenance 产出 v1 证明；ruflo init 改为写入精确版本而非 @latest，并新增 init repin 与 doctor -c provenance。",
+      "why_it_matters": "用 ruflo init 生成 .mcp.json 与 CLAUDE.md 的项目，此前默认跟随 @latest，每次安装可能拉到不同版本；锁定版本加证明校验把这段供应链风险变成可验证项。",
+      "key_facts": [
+        {
+          "fact": "v3.79.0 是 ruflo 首个由 CI 发布并携带 SLSA v1 attestation 的版本，三个包均由 ruvnet/ruflo 的 stable-npm-release.yml 构建，latest 标签在证明与归档 sha512 比对通过后才移动（ADR-545）",
+          "ref_ids": [
+            "ref-dc39b0ec50ab"
+          ]
+        },
+        {
+          "fact": "ruflo init 默认写入 CLI 自身的精确版本（如 npx -y ruflo@3.79.0），--channel latest 保留旧的浮动行为；init repin / init --repin 可把已有项目迁到当前版本，支持 --dry-run 并列出每行改动",
+          "ref_ids": [
+            "ref-dc39b0ec50ab"
+          ]
+        },
+        {
+          "fact": "ruflo doctor -c provenance 校验锁定版本是否带有来自 ruvnet/ruflo、且与完整性哈希匹配的 SLSA 证明；自 3.79.0 起缺失证明直接判定失败",
+          "ref_ids": [
+            "ref-dc39b0ec50ab"
+          ]
+        },
+        {
+          "fact": "修复 #3163：AutoMemory 的 sync 在 Codex 下不再向 stdout 写状态文字，此前会导致每个 Stop hook 报 invalid stop hook JSON output；Claude Code 侧输出不变",
+          "ref_ids": [
+            "ref-dc39b0ec50ab"
+          ]
+        }
+      ],
+      "technical_analysis": "这次改动的核心是把可信发布收窄为 CI 约束：只从 main 经 GitHub Actions 以 --provenance 发布，工作流默认 dry run，显式 dry_run=false 才发包；latest 在 release gate 确认 attestation 与归档 sha512 匹配后移动。编辑推断：init 钉死版本提高可复现性，但升级需主动 repin。doctor -c provenance 从 3.79.0 起把缺失证明判为失败；旧项目若未 repin，运行该检查会失败，不能据此推断一般安装或使用会报错。190 个包 0 漏洞是发布方 npm audit --omit=dev 自测口径。",
+      "deep_dive": [
+        {
+          "heading": "锁定安装涉及哪些文件",
+          "content": "按说明，repin 会重写项目里的 .claude/settings.json、.mcp.json、CLAUDE.md 以及 helpers，把它们从浮动引用迁到当前 CLI 版本；命令支持 --dry-run 并逐行列出变更。编辑推断：.mcp.json 写死版本后，团队成员更可能使用同一版本，但来源只说明 repin 会重写文件，未直接证明 MCP 组件版本一致性；多项目共用同一 CLI 时，需要逐项目 repin，否则版本会分叉。",
+          "ref_ids": [
+            "ref-dc39b0ec50ab"
+          ]
+        },
+        {
+          "heading": "发布门控的实际顺序",
+          "content": "发布流程收窄为 CI-only：只从 main 分支、只经 GitHub Actions、只带 --provenance 发布，本地手工 npm publish 不再是合法路径。工作流默认走 dry run，要真正发包必须把 dry_run 置为 false，相当于给误发布加第二道人为确认。latest 标签并非随发布立即移动，而是在 release gate 逐包确认 attestation 与已验证归档的 sha512 匹配后才推进，这正是 ADR-545 记录的决策。",
+          "ref_ids": [
+            "ref-dc39b0ec50ab"
+          ]
+        },
+        {
+          "heading": "默认 bundle 变化与自查方式",
+          "content": "除供应链外，ruflo-protector 被并入默认 mod bundle（#5046），新装即启用，属于行为层面的默认值变更，升级方需要确认它是否与既有 mod 配置冲突。自查路径在说明中给出两条：npm i ruflo@3.79.0 后执行 npm audit signatures，或访问 /-/npm/v1/attestations/<pkg>@3.79.0 查看证明。编辑推断：这两步只验证证明存在且签名链完整，不能替代对依赖行为的代码审查。",
+          "ref_ids": [
+            "ref-dc39b0ec50ab"
+          ]
+        }
+      ],
+      "evidence_note": "读到 GitHub release 说明全文（含命令、验证方法与 ADR/issue 编号）；未获取 ADR-545 正文、issue 讨论细节、npm attestation 实际内容，也无第三方独立测试。",
+      "application": "先跑 ruflo doctor -c provenance 查现状，再用 init --repin --dry-run 预览版本对齐改动。",
+      "caveats": "仅读 release 说明；SLSA 证明由项目 CI 生成，不证明代码安全；0 漏洞为发布方 npm audit 自测。",
+      "confidence": 0.75,
       "relevance_tags": [
         "supply-chain",
-        "pypi",
-        "agent-framework",
-        "credential-theft",
-        "python",
-        "azure"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-0ddabd84bc84",
-          "source_id": "tinyfish-discovery",
-          "url": "https://research.jfrog.com/post/agent-framework-hijack",
-          "title": "Microsoft's agent-framework Hijacked on PyPI via Silent .pth Startup Hook",
-          "publisher": "research.jfrog.com",
-          "published_at": "2026-11-18T00:00:00Z",
-          "retrieved_at": "2026-11-18T22:02:00.322759Z"
-        },
-        {
-          "ref_id": "ref-4f4d110e35f7",
-          "source_id": "tinyfish-discovery",
-          "url": "https://trustlist.uk/security-advisories/agent-framework-pypi-1-26-1-1-26-2-malicious-releases-credential-stealer-pth-hook",
-          "title": "Malicious agent-framework releases on PyPI steal cloud and CI credentials",
-          "publisher": "trustlist.uk",
-          "published_at": "2026-11-18T00:00:00Z",
-          "retrieved_at": "2026-11-18T22:01:28.191811Z"
-        },
-        {
-          "ref_id": "ref-88d584cbdd84",
-          "source_id": "tinyfish-discovery",
-          "url": "https://intelfusions.com/news/microsoft-agent-framework-pypi-credential-stealer",
-          "title": "Poisoned Microsoft AI package on PyPI hunted Azure secrets",
-          "publisher": "intelfusions.com",
-          "published_at": "2026-11-18T05:41:49Z",
-          "retrieved_at": "2026-11-18T22:01:28.190873Z"
-        },
-        {
-          "ref_id": "ref-856171eb7cb9",
-          "source_id": "tinyfish-discovery",
-          "url": "https://safedep.io/blog/microsoft-agent-framework-pypi-compromise",
-          "title": "Microsoft agent-framework Compromised Twice on PyPI",
-          "publisher": "safedep.io",
-          "published_at": "2026-11-18T00:00:00Z",
-          "retrieved_at": "2026-11-18T22:02:00.323494Z"
-        },
-        {
-          "ref_id": "ref-6355d2a9a0e1",
-          "source_id": "tinyfish-discovery",
-          "url": "https://techmeasured.com/security/microsoft-agent-framework-pypi-1-26-1-1-26-2-credential-stealer-what-to-check-rotate",
-          "title": "Microsoft's agent-framework on PyPI was hijacked: versions 1.26.1 and 1.26.2 stole cloud and CI credentials. W",
-          "publisher": "techmeasured.com",
-          "published_at": "2026-11-18T16:20:00Z",
-          "retrieved_at": "2026-11-18T22:02:00.322492Z"
-        },
-        {
-          "ref_id": "ref-dca4e02ce5da",
-          "source_id": "tinyfish-discovery",
-          "url": "https://bleepingcomputer.com/news/security/microsofts-agent-framework-pypi-package-compromised-to-steal-credentials",
-          "title": "Microsoft’s Agent Framework PyPI package compromised to steal credentials",
-          "publisher": "bleepingcomputer.com",
-          "published_at": "2026-11-18T16:58:42Z",
-          "retrieved_at": "2026-11-18T22:02:00.323017Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-4f4d110e35f7",
-            "ref-88d584cbdd84"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-856171eb7cb9",
-            "ref-dca4e02ce5da"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-0ddabd84bc84",
-            "ref-88d584cbdd84"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-856171eb7cb9"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-926da09a56a85340a1e1da2e16d3dbf3",
-      "event_id": "e9b277a7-73c8-55e2-88d0-ccebbbb4565c",
-      "type": "news",
-      "title": "Codex 沙箱详解：用权限配置约束本机命令",
-      "source": "openai.com",
-      "published_at": "2026-11-18T08:00:00Z",
-      "canonical_url": "https://openai.com/index/inside-the-codex-sandbox",
-      "summary": "OpenAI 于 2026 年 11 月 18 日发布工程博客，详解 Codex sandbox：用 permission profiles 约束 coding agent 在本机执行的命令，控制文件系统与网络访问。内置 :workspace 默认允许写工作区、.git 与 .codex 只读、允许广泛读取、禁用网络，并覆盖 macOS、Linux、Windows；CLI 的 codex sandbox 可把同一机制用于自有工具。stdio MCP server 的启动命令默认不被沙箱化，若要限制权限需手动包裹。",
-      "why_it_matters": "coding agent 直接在本机跑命令，默认权限既决定能否顺畅构建，也决定密钥与代码会不会被读出或外传；企业还能用 managed requirements 限制用户可选 profile。",
-      "key_facts": [
-        {
-          "fact": "OpenAI 于 2026 年 11 月 18 日发布工程博客《Inside the Codex sandbox》，说明用 permission profiles 控制 Codex 会话的文件系统与网络限制。",
-          "ref_ids": [
-            "ref-10adb220dbdd"
-          ]
-        },
-        {
-          "fact": "内置 `:workspace` 允许在工作区写入，但 `.git`、`.codex` 等目录只读；允许广泛读取，默认禁用网络。",
-          "ref_ids": [
-            "ref-10adb220dbdd"
-          ]
-        },
-        {
-          "fact": "沙箱通过 macOS、Linux、Windows 的平台机制实现，harness 用统一 API `spawn_command_under_sandbox()` 启动命令，子进程继承限制。",
-          "ref_ids": [
-            "ref-10adb220dbdd"
-          ]
-        },
-        {
-          "fact": "CLI 提供 `codex sandbox` 命令；stdio MCP server 的启动命令默认不被沙箱化，若要沙箱化需手动包裹。",
-          "ref_ids": [
-            "ref-10adb220dbdd"
-          ]
-        }
-      ],
-      "technical_analysis": "Codex 没有把任务搬进容器或 VM，而是调用各平台原生沙箱，在开发者现有环境里限制进程树；好处是保留 iOS 构建等本机工具链，代价是宿主文件仍可被广泛读取，默认断网也会阻断依赖下载。模型可申请额外权限或提权，但是否授予由 harness 按用户偏好决定；博客也承认，写入 node_modules 的恶意代码可能在编辑器保存时逃出沙箱，因此仍强调训练与对齐的纵深防御。",
-      "deep_dive": [
-        {
-          "heading": "默认 profile 的细粒度边界",
-          "content": "`:workspace` 除把 `.git`、`.codex` 设为只读外，还继承 `.agents`、`.aws` 只读规则；自定义 profile 可在 `:workspace_roots` 下按根目录写规则，例如把 `.devcontainer`、`.vscode` 设为 read，把 `**/*.env` 与 `secrets` 设为 deny。文件系统条目支持 read、write、deny 三档，规则会对每个 workspace root 分别生效，这也是它比单一“工作区可写”更细的地方。",
-          "ref_ids": [
-            "ref-10adb220dbdd"
-          ]
-        },
-        {
-          "heading": "网络代理与配置分层",
-          "content": "网络有三档：全关、全开、经代理按域名放行。域名规则支持精确名与通配符，显式 deny 优先于 allow；若 profile 只允许有限网络，调用方必须提供 network_proxy 来执行限制。配置按 config.toml 分层合并，表递归合并、数组整体替换，因此权限条目适合用表。企业可用 requirements.toml 的 allowed_permission_profiles 约束可选 profile，云端要求优先于系统文件。",
-          "ref_ids": [
-            "ref-10adb220dbdd"
-          ]
-        },
-        {
-          "heading": "harness 如何执行 exec_command",
-          "content": "shell 工具 `exec_command` 原本直接调用 `subprocess.Popen()`；加沙箱后改为 `spawn_command_under_sandbox()`，传入命令、cwd、环境变量、permission_profile 与可选的 network_proxy。子进程继承父进程约束，命令派生的整个进程树都受限。模型可在单次调用里选 `use_default`、`with_additional_permissions` 或 `require_escalated`，后者可附 justification（并非必填），由 harness 决定弹窗询问还是走 auto-review。",
-          "ref_ids": [
-            "ref-10adb220dbdd"
-          ]
-        },
-        {
-          "heading": "MCP server 不在默认沙箱内",
-          "content": "对 config.toml 里的 stdio MCP server，Codex 不会自动沙箱化启动命令，因为无法可靠推断该 server 需要哪些文件和网络服务，套默认 profile 可能直接弄坏配置。博客示例中 `npx @modelcontextprotocol/server-memory` 以用户权限运行，可写文件、可联网；建议自定义 `memory-mcp` profile，再用 `codex sandbox --permission-profile memory-mcp` 包裹原命令。该示例在证据中截断，完整参数未读到。",
-          "ref_ids": [
-            "ref-10adb220dbdd"
-          ]
-        }
-      ],
-      "evidence_note": "实际读到的是 OpenAI 工程博客正文，但末尾在 MCP server 示例处截断；未获得完整示例、跨平台强制机制细节、性能数据和独立测试。",
-      "application": "先用 codex sandbox 验证 profile 拦截效果，再设为默认；stdio MCP server 默认不沙箱化，若要限制权限需手动包裹。",
-      "caveats": "证据为博客正文且末尾截断，缺跨平台强制细节、性能开销与独立绕过测试；默认广泛读仍可能暴露含 API key 的配置文件。",
-      "confidence": 0.87,
-      "relevance_tags": [
+        "SLSA",
+        "npm",
         "coding agent",
-        "Codex",
-        "sandbox",
-        "permission profile",
-        "MCP",
-        "Agent 安全"
+        "release",
+        "MCP"
       ],
       "related_item_ids": [],
       "sources": [
         {
-          "ref_id": "ref-10adb220dbdd",
-          "source_id": "openai-news",
-          "url": "https://openai.com/index/inside-the-codex-sandbox",
-          "title": "Inside the Codex sandbox",
-          "publisher": "openai.com",
-          "published_at": "2026-11-18T08:00:00Z",
-          "retrieved_at": "2026-11-18T22:01:02.476103Z"
+          "ref_id": "ref-dc39b0ec50ab",
+          "source_id": "github:ruvnet/ruflo",
+          "url": "https://github.com/ruvnet/ruflo/releases/tag/v3.79.0",
+          "title": "v3.79.0 — SLSA provenance, pinned installs, Anatole by default",
+          "publisher": "ruvnet/ruflo",
+          "published_at": "2026-11-19T21:58:00Z",
+          "retrieved_at": "2026-11-19T22:00:38.939438Z"
         }
       ],
       "claim_refs": [
         {
           "claim_index": 0,
           "ref_ids": [
-            "ref-10adb220dbdd"
+            "ref-dc39b0ec50ab"
           ]
         },
         {
           "claim_index": 1,
           "ref_ids": [
-            "ref-10adb220dbdd"
+            "ref-dc39b0ec50ab"
           ]
         },
         {
           "claim_index": 2,
           "ref_ids": [
-            "ref-10adb220dbdd"
+            "ref-dc39b0ec50ab"
           ]
         },
         {
           "claim_index": 3,
           "ref_ids": [
-            "ref-10adb220dbdd"
+            "ref-dc39b0ec50ab"
           ]
         }
       ]
     },
     {
-      "item_id": "item-e0af01e85744500eb4909267f890bc6f",
-      "event_id": "178951af-8678-576a-9d54-45a6b8b02a0d",
+      "item_id": "item-c838687b94e55e74927ba4572012c0e2",
+      "event_id": "3ec11fa3-cd30-5a98-9494-afea2da3418c",
       "type": "news",
-      "title": "Gemini 4 Neon发布：主打长任务Agent",
-      "source": "blog.google",
-      "published_at": "2026-11-18T21:00:00Z",
-      "canonical_url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-neon",
-      "summary": "2026年11月18日，Google发布Gemini 4 Neon，定位在Carbon与Hydrogen之间，面向复杂软件工程、知识工作和科研的端到端任务。官方称其在xhigh thinking档的Artificial Analysis Intelligence Index得61、总榜第3；Agent Arena Index得1336、排名第2，覆盖4200多场真实Agent会话，但未说明该评测所用thinking档。定价为每百万输入token 3美元、缓存输入0.15美元、输出15美元，支持100万token上下文。",
-      "why_it_matters": "值得关注的是它把前沿级能力压到更低单任务成本：官方称默认high档比Carbon低32%，并在其Coding Agent Index排名第1，可能影响长任务Agent的模型选型与成本计算。",
+      "title": "AI SAST 接入 PR：差分扫描按判定阻断合并",
+      "source": "www.endorlabs.com",
+      "published_at": null,
+      "canonical_url": "https://www.endorlabs.com/learn/ai-sast-in-ci-cd-and-pull-requests",
+      "summary": "Endor Labs 于 2026-11-18 发布实操指南，说明如何在 CI/CD 与 pull request 中运行 AI SAST：diff-aware PR 扫描只报告变更引入的问题，却会跨文件追踪全仓库数据流；目标分支须先建立 baseline，否则 PR 扫描无法产出结果。指南还给出 PR 评论应包含位置、证据、判定与修复建议，并主张按 triage 判定设置合并门禁，而非只按严重级别。",
+      "why_it_matters": "SusVibes benchmark 中 61% 功能正确但仅 10.5% 安全，说明测试通过不等于安全；PR 是每个变更必经关口。将门禁绑到 triage 判定并用评论给出证据与修复，是厂商主张的降噪路径，仍需独立验证。",
       "key_facts": [
         {
-          "fact": "Gemini 4 Neon于2026年11月18日发布，支持100万token上下文，定价为每百万输入token 3美元、缓存输入0.15美元、输出15美元。",
+          "fact": "指南标注发布于 2026-11-18，覆盖 PR 扫描位置、diff 与 baseline 关系、PR 评论、合并门禁、凭据安全和效果指标。",
           "ref_ids": [
-            "ref-22e8b2cf6b10"
+            "ref-bd67beef52d9"
           ]
         },
         {
-          "fact": "官方称在xhigh thinking档，Artificial Analysis Intelligence Index得分61、总榜第3；Agent Arena Index得分1336、排名第2，覆盖4200多场真实Agent会话，但未说明该评测所用thinking档。",
+          "fact": "diff-aware PR 扫描只报告变更引入的问题，但会跨文件追踪全仓库数据流；目标分支必须先有 AI SAST baseline，PR 扫描才能产出结果。",
           "ref_ids": [
-            "ref-22e8b2cf6b10"
+            "ref-bd67beef52d9"
           ]
         },
         {
-          "fact": "官方称在Artificial Analysis Coding Agent Index排名第1（58.6）；SWE-sweep在mini-SWE harness为12.8%，在Google Antigravity中升至39.0%。",
+          "fact": "合并门禁按 triage 判定设置：阻断已确认的 true positive（达到约定严重级别），unknown 只评论并转 AppSec，false positive 不阻断。",
           "ref_ids": [
-            "ref-22e8b2cf6b10"
+            "ref-bd67beef52d9"
           ]
         },
         {
-          "fact": "官方称默认high档单任务成本比Carbon低32%，high档在Vals和Agent Arena位于Pareto前沿，单任务成本比头部竞品低约50%–80%；xhigh档比竞品最高档低36%以上，原文未称xhigh位于Pareto前沿。",
+          "fact": "GitHub Actions 示例使用 pull_request 触发、contents:read/pull-requests:write/id-token:write 最小权限，并用 concurrency 取消过期运行。",
           "ref_ids": [
-            "ref-22e8b2cf6b10"
+            "ref-bd67beef52d9"
           ]
         }
       ],
-      "technical_analysis": "Neon的核心是四档thinking形成的成本曲线：默认high档平衡推理深度与token开销，xhigh面向最难工程与科研任务。官方给出的SWE-sweep在同一模型上从mini-SWE harness的12.8%升至Google Antigravity的39.0%，说明须把模型与harness一起评估。编辑推断：官方博客汇总第三方基准与Google内部评测，缺少独立复现；且成本优势是cost per task口径，与每百万token定价不是同一度量。",
+      "technical_analysis": "指南主张分层运行 AI SAST：pre-commit、IDE/coding agent loop、PR、merge-to-main baseline 与 scheduled full scan 各司其职，PR 是 backstop，而非把定期全扫整体换成 PR。diff-aware PR 扫描只报告变更引入的问题，但推理依赖全仓 baseline 与 Code API 的调用图/数据流。编辑推断：上下文与流水线时延、成本需要权衡；按 triage verdict 阻断比只看 severity 更精准，但依赖判定质量与争议流程。厂商称可减少误报与阻断，仍需独立验证。",
       "deep_dive": [
         {
-          "heading": "编码与长任务：harness决定上限",
-          "content": "官方给出的Antigravity演示包括：用/swarm驱动Blender MCP生成3D实验台；从零写WebGL2滑雪模拟器，含10,200行自定义shader、120Hz物理与零预制资产；把单张图片转成10万单元格、50多万条实时公式的Google Sheet。编辑推断：这些案例强调长会话中的上下文压缩、并行Hydrogen subagent与工具调用稳定性，而非单轮代码生成；它们不能替代在自有仓库上的可复现评测。",
+          "heading": "差分扫描为何仍要全仓基线",
+          "content": "指南用 export 端点举例：PR 只新增 20 行 handler，把 URL 的 orderId 和 query 的 sortBy 传给旧 helper；diff-only 扫描看不到 helper 里的 SQL 拼接与缺失的归属校验，因此可能零报告。跨全仓库/跨文件追踪则能从 req.query.sortBy 追到 db/orders.js 的 ORDER BY 拼接，识别 SQL 注入与 IDOR。Endor Labs 要求目标分支先跑 `endorctl scan --ai-sast --path=... -n <namespace>` 建立 baseline，PR 再用 `--pr --pr-baseline=<target-branch>` 扫描并去重。",
           "ref_ids": [
-            "ref-22e8b2cf6b10"
+            "ref-bd67beef52d9"
           ]
         },
         {
-          "heading": "成本结构与Pareto定位",
-          "content": "Neon设四档thinking。官方称默认high档的单任务成本比Carbon低32%，且在Vals与Agent Arena的high档位于Pareto前沿，单任务成本比头部竞品低约50%–80%；xhigh档只给出“比竞品最高档低36%以上”，未称其位于Pareto前沿。定价为每百万输入token 3美元、缓存输入0.15美元、输出15美元。编辑推断：单任务成本依赖任务长度、缓存命中与harness重试，采购前应按自身流量重算，并与每百万token定价区分。",
+          "heading": "PR 评论与门禁的落地规则",
+          "content": "指南建议评论包含位置、自然语言描述、数据流路径、verdict 与 suggested fix；同一根因只发一条，后续提交更新而非堆叠，修复后 resolve。enforcement 分 comment-only、fail check、block merge 三级；block 只针对已确认 true positive 且达到约定 severity，unknown 转 AppSec，false positive 不阻断。rollout 分三阶段：全仓 comment-only；在少数试点仓库对 confirmed critical 让检查失败（fail check），并非阻断合并；再在高价值仓设为 required check，并保留从 PR 发起争议的通道。",
           "ref_ids": [
-            "ref-22e8b2cf6b10"
+            "ref-bd67beef52d9"
           ]
         },
         {
-          "heading": "安全、可控与Cyber版本",
-          "content": "安全侧，官方称Neon在Terminal-Bench 4.0的拒答率为1.98%，在Terminal-Bench Science的拒答率为0%（该模型在Terminal-Bench Science的得分为70.5%，两者不是同一指标）；编码作弊评测仅2.45%，agentic安全套件的不当行动率0.09%，agent honesty通过率99.2%。在Gray Swan IPI基准、最高thinking加实时防护下，官方称攻击成功率为0%。Cyber版本称AutoBaxBench hard档达76%、WebExploitBench v1.2为51.26%、SEC-bench Pro为90.5%。这些均为官方口径，需独立红队复核。",
+          "heading": "CI 安全边界：fork、权限与凭据",
+          "content": "AI review step 会发评论并调用外部服务，指南要求按部署任务标准收紧权限：使用 `pull_request` 触发 fork PR，避免 `pull_request_target` 把 base 仓权限交给不可信代码；作业只给 contents:read、pull-requests:write、id-token:write，优先 OIDC/keyless，长期 token 放 secret store 并轮换；GitHub Actions 固定到完整 commit SHA。还需记录 AI 步骤把哪些文件发往何处处理，纳入威胁模型。",
           "ref_ids": [
-            "ref-22e8b2cf6b10"
+            "ref-bd67beef52d9"
           ]
         },
         {
-          "heading": "发布范围与验证路径",
-          "content": "发布首日覆盖Gemini API付费层、Google AI Studio、Android Studio、Gemini for business与Google Antigravity；付费Pro/Ultra订阅者可在Antigravity选用，全部Pro/Ultra可在AI Studio与Gemini app选用；Cyber版先向Fairwind计划防御者开放。建议验证：在同一仓库对比Neon high与Carbon的完成率、token与单任务成本；构造长会话检查context compaction；用间接prompt injection样本测防护。上述为建议测试，非已复现结论。",
+          "heading": "五项指标与厂商声明",
+          "content": "指南给出 blocked PR rate、time to fix in PR、fix rate before merge、dismissal rate、findings reaching main 五项指标，并强调合读趋势：dismissal 下降且 blocked 稳定，说明开发者信任检查；fix rate 上升且修复时间缩短，说明评论可执行。Endor Labs 自称客户看到 blocked PR 减少 83%、修复快 6 倍，AI SAST 最高降低 95% 误报；这些是厂商客户数据，不是独立 benchmark，应结合自身仓库基线验证。",
           "ref_ids": [
-            "ref-22e8b2cf6b10"
+            "ref-bd67beef52d9"
           ]
         }
       ],
-      "evidence_note": "读到Google官方博客全文，含基准、定价与发布范围；未获得独立第三方复现、完整模型卡、各benchmark评测配置与失败案例。",
-      "application": "建议先用自有长任务与工具调用集做A/B，重点比较单任务成本、上下文压缩和回退表现；生产关键路径暂保留双模型回退。",
-      "caveats": "官方发布口径，含第三方基准与内部评测，未有独立复现；Cyber版仅Fairwind受邀防御者。",
-      "confidence": 0.86,
+      "evidence_note": "读到指南正文摘录，含 TL;DR、命令示例、GitHub Actions 配置、门禁阶段与指标；页面在误报段落处截断，未获得独立测试、完整客户数据与全部语言支持细节。",
+      "application": "可先在低风险仓库以 comment-only 运行 PR 扫描，积累判定与修复数据，再对确认的 critical/high 设为 required check，并保留争议通道。",
+      "caveats": "厂商指南；83% 阻断下降、6x 修复、95% 误报下降未独立复核；未覆盖全部语言与成本。",
+      "confidence": 0.76,
       "relevance_tags": [
-        "Gemini 4 Neon",
-        "Google DeepMind",
-        "Agent",
-        "coding agent",
-        "benchmark",
-        "模型发布"
+        "AI SAST",
+        "CI/CD",
+        "pull request",
+        "GitHub Actions",
+        "code security",
+        "coding agent"
       ],
       "related_item_ids": [],
       "sources": [
         {
-          "ref_id": "ref-22e8b2cf6b10",
-          "source_id": "google-gemini",
-          "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-neon",
-          "title": "Introducing Gemini 4 Neon",
-          "publisher": "blog.google",
-          "published_at": "2026-11-18T21:00:00Z",
-          "retrieved_at": "2026-11-18T22:01:02.364647Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-22e8b2cf6b10"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-22e8b2cf6b10"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-22e8b2cf6b10"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-22e8b2cf6b10"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-5f41241bea295687804bda8a72037691",
-      "event_id": "9de2fcd1-e7bd-5f82-aa34-0d2e3b841261",
-      "type": "blog",
-      "title": "GTIG称发现疑似pilot补丁转exploit流水线",
-      "source": "labs.cloudsecurityalliance.org",
-      "published_at": "2026-11-18T13:49:51Z",
-      "canonical_url": "https://labs.cloudsecurityalliance.org/research/csa-research-note-gtig-exploit-agent-patch-diffing-20261118",
-      "summary": "CSA 2026-11-18笔记解读GTIG 2026-11-16报告：exploit_agent从暴露的staging server恢复，被配置为持续diff热门Web应用的补丁前后代码、定位漏洞并自动执行exploit；配置注释称其为pilot，GTIG未公布成功率、受害规模或具体CVE。",
-      "why_it_matters": "CSA判断，厂商补丁发布正成为漏洞细节的实际公开时点；其引用的受控研究显示，Firefox源码补丁后约一小时可产出working exploit。若企业仍按周修复互联网资产，暴露窗口可能与利用窗口重叠。",
-      "key_facts": [
-        {
-          "fact": "GTIG 2026-11-16报告称首次发现威胁行为者用LLM框架端到端自动化漏洞发现与利用，无人在环；exploit_agent从暴露staging server恢复。",
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "fact": "exploit_agent被配置为持续diff热门Web应用的补丁/未补丁版本，识别漏洞、起草并自动执行exploit；配置注释称其为pilot，GTIG未公布成功率、受害规模或具体CVE。",
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "fact": "GTIG 2026-09 tracker尚称未观察到野外全自动流水线，Q4报告改称已发现，两份报告相隔约十周。",
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "fact": "Project Zero 2026-11-13取消独立patch soak time；Anthropic 2026-06受控研究称模型在Firefox源码补丁后约一小时产出working exploit，Windows提权链约2,000美元/条。",
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        }
-      ],
-      "technical_analysis": "CSA笔记补上机制：exploit_agent持续对补丁前后代码做diff，定位漏洞并起草、自动执行exploit，目标集中在源码可见、补丁频繁的Web应用及插件。GTIG称自动化攻击流量更易被行为检测捕获，但工具仍能达成目标；配置注释仅标pilot，且未公布成功率、受害规模与具体CVE，因此这是能力与意图证据，不是规模化结论。CSA还判断授权类缺陷常集中于单个函数，可能更适合LLM分析。",
-      "deep_dive": [
-        {
-          "heading": "GTIG发现的工作流",
-          "content": "CSA笔记复述GTIG 2026-11-16报告：exploit_agent从暴露staging server恢复，配置为持续diff热门Web应用补丁前后代码、识别漏洞、起草并自动执行exploit。GTIG 2026-09 tracker尚称未观察到野外全自动流水线，Q4报告改称已发现；两份报告相隔约十周。报告未公布内部Agent分工、模型分配、成功率或具体CVE。编辑推断：该发现的价值在于展示端到端能力，而非已证明规模。",
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "heading": "实验室与政策侧的时间线",
-          "content": "Anthropic Frontier Red Team 2026-06报告称，模型在Mozilla源码补丁落地公共仓库后约一小时产出可工作的Firefox exploit；该exploit早于用户可安装的浏览器发布版约18天。研究还对21个Windows内核提权漏洞生成8条完整利用链，API成本15,700美元。Project Zero 2026-11-13取消独立patch soak time，称在攻击者可几乎立即从补丁判断bug细节的环境里已无意义。编辑推断：这些是受控或政策证据，不能直接证明野外规模。",
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "heading": "为什么目标是Web应用与插件",
-          "content": "热门开源Web平台及插件源码公开、补丁频繁、常部署在互联网侧且由站点管理员手动更新，给自动differ提供小而明确的输入；GTIG称n-day武器化对攻击者更高效，因为可聚焦有限源码。报告用Spectra（Ultimate Addons for Gutenberg）2.19.25的访问控制例程说明agent如何检查REST权限逻辑，但未说明该漏洞是否被成功利用。CSA判断授权类缺陷常集中在单个函数，可能更适合LLM分析。",
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "heading": "防御侧数据的不对称",
-          "content": "Mandiant M-Trends 2026估计平均利用时间约-7天，意味着利用常早于补丁发布；该指标覆盖大量零日，不能直接等同补丁diff速度。Verizon DBIR 2026（经Tenable转述）称漏洞利用占初始入侵31%，企业修补中位时间从32天升至43天，CISA KEV目录仅26%被成功修复。Project Zero旧“90+30”模型曾假设补丁adoption有30天缓冲。编辑推断：口径不同，不宜并排比较；但共同指向修复与利用的剪刀差扩大。",
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        }
-      ],
-      "evidence_note": "读到CSA 2026-11-18研究笔记全文（含GTIG引述、对照表与建议），未直接读取GTIG Q4 2026 AI Threat Tracker原文；缺少成功率、受害规模、具体CVE、exploit_agent内部Agent分工与模型分配。",
-      "application": "立即盘点互联网暴露的CMS、插件与Web应用，把高危修复SLA改为按厂商补丁发布时间计时，并预置WAF/虚拟补丁。",
-      "caveats": "GTIG未公布成功率、受害规模与具体CVE，Agent分工未披露；pilot仅是配置注释，不能据此判断已规模化。",
-      "confidence": 0.84,
-      "relevance_tags": [
-        "Agent",
-        "漏洞管理",
-        "exploit_agent",
-        "GTIG",
-        "补丁diff"
-      ],
-      "related_item_ids": [
-        "item-64f3a1fafd145ce38ba80376b71dd241"
-      ],
-      "sources": [
-        {
-          "ref_id": "ref-c57cc9f9e173",
+          "ref_id": "ref-bd67beef52d9",
           "source_id": "tinyfish-discovery",
-          "url": "https://labs.cloudsecurityalliance.org/research/csa-research-note-gtig-exploit-agent-patch-diffing-20261118",
-          "title": "Patch-to-Exploit Without Humans: GTIG’s exploit_agent and the Grace Period",
-          "publisher": "labs.cloudsecurityalliance.org",
-          "published_at": "2026-11-18T13:49:51Z",
-          "retrieved_at": "2026-11-18T22:01:27.252536Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-c57cc9f9e173"
-          ]
-        }
-      ],
-      "editorial_section": "ai_practice",
-      "practice_profile": {
-        "practice_id": "url:https://labs.cloudsecurityalliance.org/research/csa-research-note-gtig-exploit-agent-patch-diffing-20261118",
-        "kind": "agent_workflow",
-        "evidence_level": "detailed_case",
-        "reproducibility_score": 83,
-        "version": "",
-        "proof_points": [
-          {
-            "point": "CSA笔记复述GTIG工作流：持续对补丁前后代码做differential analysis、识别漏洞、起草并执行exploit，无需人工。",
-            "ref_ids": [
-              "ref-c57cc9f9e173"
-            ]
-          },
-          {
-            "point": "报告给出Spectra 2.19.25的访问控制例程作为agent检查授权逻辑的示例，但未说明该漏洞是否被成功利用。",
-            "ref_ids": [
-              "ref-c57cc9f9e173"
-            ]
-          },
-          {
-            "point": "暴露服务器环境文件含俄语注释，称其为“exploit_agent pilot”；同一服务器还有受害者数据与webshell脚本。",
-            "ref_ids": [
-              "ref-c57cc9f9e173"
-            ]
-          }
-        ],
-        "try_it": [
-          "按厂商补丁发布时间，而非CVE发布或KEV收录时间，设定互联网资产修复SLA",
-          "盘点互联网暴露的Web应用、CMS与插件，优先启用自动更新或纳入小时级应急路径",
-          "对暂不能修补的资产预置WAF规则、虚拟补丁或限制管理/REST接口访问"
-        ],
-        "requirements": [
-          "互联网暴露资产与版本清单",
-          "厂商补丁发布时间数据",
-          "WAF/虚拟补丁与应急变更、回滚流程"
-        ],
-        "limitations": [
-          "建议基于单一GTIG报告与CSA解读，未独立复现",
-          "成功率、受害规模、具体CVE未公开",
-          "行为检测优势可能随工具进化减弱"
-        ]
-      }
-    },
-    {
-      "item_id": "item-45a93446d9655943a467efd9c94ee1f0",
-      "event_id": "8ba0d92f-06db-5712-90e2-570f71304530",
-      "type": "news",
-      "title": "GitHub 发布 SKILL.md 技能复用指南",
-      "source": "github.blog",
-      "published_at": "2026-11-12T22:54:52Z",
-      "canonical_url": "https://github.blog/ai-and-ml/build-once-run-on-any-agent-a-practical-guide-to-agent-skills",
-      "summary": "GitHub 于 2026 年 11 月 12 日发布 Andrea Griffiths 的实践指南，介绍如何用 SKILL.md 把重复任务写成可版本化、可共享的 agent skill。文章记录她与 Procore 的 Shishir Tewari 在 GitHub Universe 2026 的 live session，以 Proof Agent 和 Data Forge 为例，说明多个 skill 如何共享项目上下文、把项目配置放入 manifest、在流程中设置人工审批，并用打包脚本生成 Claude Code、Cursor、GitHub Copilot 客户端文件；skill 只给指令，工具与权限仍由环境提供。",
-      "why_it_matters": "文章称其价值在边界：skill 只封装指令，不提供工具、凭据或权限，跨客户端复用仍需逐项验证；对团队把重复流程沉淀为可审查资产是一个可参考做法，但文章未给出独立复现或采用效果评估。",
-      "key_facts": [
-        {
-          "fact": "GitHub 博客在 2026 年 11 月 12 日发布 Andrea Griffiths 的实践指南；她与 Procore 数据工程高级经理 Shishir Tewari 在 GitHub Universe 2026 做 live session，并非共同作者。文章把 agent skill 定义为以 SKILL.md 为核心的版本化目录，描述何时以及如何执行可重复任务。",
-          "ref_ids": [
-            "ref-fd42783d8f0e"
-          ]
-        },
-        {
-          "fact": "Data Forge 案例用 forge-init 发现源表和命名约定并写入 resolved manifest，forge-builder 从 issue 协调到 pull request，forge-dbx 读取 manifest 选择 Databricks 或 DuckDB 适配器，forge-lint 套用团队标准；流程共七个阶段，每个阶段设有人工检查点，schema 变更前需批准。",
-          "ref_ids": [
-            "ref-fd42783d8f0e"
-          ]
-        },
-        {
-          "fact": "Proof Agent 把原始请求和代码改动交给独立 verifier，但不提供 coding agent 自己的评估；verifier 返回 PASS、FAIL 或 PARTIAL，并须引用改动文件中的证据。其 GitHub Action 只对 diff 做静态审查，不执行代码或测试。",
-          "ref_ids": [
-            "ref-fd42783d8f0e"
-          ]
-        },
-        {
-          "fact": "文章把 skills/*/SKILL.md 作为源文件，用打包脚本生成 .claude-plugin/plugin.json、.cursor-plugin/plugin.json 和 .github/agents/*.agent.md，分别面向 Claude Code、Cursor 与 GitHub Copilot；脚本提供 node scripts/package.mjs --check 供 CI 检查同步状态。",
-          "ref_ids": [
-            "ref-fd42783d8f0e"
-          ]
-        }
-      ],
-      "technical_analysis": "核心变化不是让 skill 直接获得执行能力，而是把“何时做、怎么做、找谁批准”写成可版本化指令，并把项目差异移到 manifest。这样多个 skill 可共享同一执行路径，单一环节变更无需重写全部流程。编辑推断：代价是宿主环境必须提供工具、凭据和权限，且多客户端在模型、工具与权限上存在差异，安装后需确认能识别任务、加载引用并返回所需证据；文章也明确复杂状态、审计与外部权限控制更适合交给 application。",
-      "deep_dive": [
-        {
-          "heading": "多 skill 协作与 manifest 分层",
-          "content": "Data Forge 的 support-desk 案例先用 forge-init 发现源表、命名约定等信息，写入 resolved manifest；manifest 示例含 project.name、store_name、platform.engine、pipeline_framework、duckdb_dir。forge-builder 从 issue 协调到 pull request，forge-dbx 读取 manifest 选择 Databricks 或 DuckDB 适配器，forge-lint 在生成代码前套用团队规则。文章强调把发现的配置与团队标准分开：仓库中发现的模式不自动成为必须保留的规则，需要人工确认。这样某个步骤变化时只改一个 skill，其余复用同一项目上下文。",
-          "ref_ids": [
-            "ref-fd42783d8f0e"
-          ]
-        },
-        {
-          "heading": "独立验证与审批点",
-          "content": "Proof Agent 的 SKILL.md frontmatter 定义 name 与 description，When to Verify 段落规定触发条件；GitHub Actions 工作流把原始请求和代码改动交给独立 verifier，但不提供 coding agent 自己的评估。verifier 返回 PASS、FAIL 或 PARTIAL，并须引用改动文件中的证据；Action 只对 diff 做静态审查，不执行代码或测试。演示中 block-on-fail 设为 false，使结论仅作提示；默认情况下 FAIL 会让检查失败，若该检查被设为必需项则阻止合并。Data Forge 的七个阶段各设人工检查点，schema 变更前需批准。",
-          "ref_ids": [
-            "ref-fd42783d8f0e"
-          ]
-        },
-        {
-          "heading": "多客户端打包与安装后验证",
-          "content": "文章把 skills/*/SKILL.md 作为唯一源文件，用打包脚本生成 .claude-plugin/plugin.json、.cursor-plugin/plugin.json 与 .github/agents/*.agent.md，分别面向 Claude Code、Cursor 和 GitHub Copilot；脚本还提供 node scripts/package.mjs --check 供 CI 检查文件是否同步。安装后要逐项确认客户端能识别目标任务、加载引用、调用所需工具并返回 skill 要求的证据。不同客户端的模型、工具、凭据与权限不同，不能假设一次打包即可等价运行。",
-          "ref_ids": [
-            "ref-fd42783d8f0e"
-          ]
-        }
-      ],
-      "evidence_note": "实际读到 github.blog 文章全文 Markdown，包含 frontmatter、manifest、配置示例与演示流程；未获得仓库代码、打包脚本实际输出、CI 运行日志或跨客户端实测数据。文章作者为 Andrea Griffiths，Shishir Tewari 是 GitHub Universe 2026 live session 对谈者。",
-      "application": "先选一个反复解释的受限任务，写清输入、输出、停止条件和审查证据；用 manifest 抽离项目配置，再在第二个 Agent 客户端验证识别、工具调用与证据返回。",
-      "caveats": "GitHub 自述实践指南与演示，未提供独立复现或采用效果评估；skill 不授予访问权限，客户端差异需自行验证。",
-      "confidence": 0.8,
-      "relevance_tags": [
-        "agent skills",
-        "SKILL.md",
-        "GitHub Copilot",
-        "Claude Code",
-        "Cursor",
-        "CI",
-        "agent workflow"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-fd42783d8f0e",
-          "source_id": "tinyfish-discovery",
-          "url": "https://github.blog/ai-and-ml/build-once-run-on-any-agent-a-practical-guide-to-agent-skills",
-          "title": "Build once, run on any agent: A practical guide to agent skills",
-          "publisher": "github.blog",
-          "published_at": "2026-11-12T22:54:52Z",
-          "retrieved_at": "2026-11-18T22:02:08.327825Z"
-        },
-        {
-          "ref_id": "ref-7c33162d8abd",
-          "source_id": "tinyfish-discovery",
-          "url": "https://github.blog/ai-and-ml/github-copilot/build-once-run-on-any-agent-a-practical-guide-to-agent-skills",
-          "title": "Build once, run on any agent: A practical guide to agent skills",
-          "publisher": "github.blog",
+          "url": "https://www.endorlabs.com/learn/ai-sast-in-ci-cd-and-pull-requests",
+          "title": "How to run AI SAST in CI/CD and on pull requests",
+          "publisher": "www.endorlabs.com",
           "published_at": null,
-          "retrieved_at": "2026-11-18T22:02:08.327968Z"
+          "retrieved_at": "2026-11-19T22:01:59.101362Z"
         }
       ],
       "claim_refs": [
         {
           "claim_index": 0,
           "ref_ids": [
-            "ref-fd42783d8f0e"
+            "ref-bd67beef52d9"
           ]
         },
         {
           "claim_index": 1,
           "ref_ids": [
-            "ref-fd42783d8f0e"
+            "ref-bd67beef52d9"
           ]
         },
         {
           "claim_index": 2,
           "ref_ids": [
-            "ref-fd42783d8f0e"
+            "ref-bd67beef52d9"
           ]
         },
         {
           "claim_index": 3,
           "ref_ids": [
-            "ref-fd42783d8f0e"
+            "ref-bd67beef52d9"
           ]
         }
       ],
       "editorial_section": "ai_practice",
       "practice_profile": {
-        "practice_id": "url:https://github.blog/ai-and-ml/build-once-run-on-any-agent-a-practical-guide-to-agent-skills",
-        "kind": "skill",
-        "evidence_level": "detailed_case",
-        "reproducibility_score": 75,
-        "version": "",
-        "proof_points": [
-          {
-            "point": "文章展示 SKILL.md frontmatter 与 Proof Agent 的 When to Verify 段落，说明触发条件和审查证据要求。",
-            "ref_ids": [
-              "ref-fd42783d8f0e"
-            ]
-          },
-          {
-            "point": "Data Forge 的 manifest 示例包含 project.name、store_name、platform.engine、pipeline_framework、duckdb_dir，说明项目配置如何外置。",
-            "ref_ids": [
-              "ref-fd42783d8f0e"
-            ]
-          },
-          {
-            "point": "打包脚本示例 node scripts/package.mjs --check，用于 CI 检查客户端文件同步。",
-            "ref_ids": [
-              "ref-fd42783d8f0e"
-            ]
-          },
-          {
-            "point": "文章说明 GitHub Action 仅静态审查 diff，不执行代码或测试；skill 不授予数据库访问权限。",
-            "ref_ids": [
-              "ref-fd42783d8f0e"
-            ]
-          }
-        ],
-        "try_it": [
-          "选一个边界清晰、重复出现的任务，先写 SKILL.md 的 name、description 与触发条件。",
-          "把项目名、数据库、引擎等差异放入 manifest，让相关 skill 读取同一份配置。",
-          "用打包脚本生成目标客户端文件，并在第二个 Agent 客户端检查任务识别、工具调用与证据输出。"
-        ],
-        "requirements": [
-          "可用的 Agent 客户端（如 Claude Code、Cursor、GitHub Copilot）",
-          "项目 manifest",
-          "所需工具与凭据由宿主环境提供"
-        ],
-        "limitations": [
-          "文章未提供定量结果或独立复现；skill 不管理权限，跨客户端能力受模型、工具、凭据与权限差异限制；复杂状态、审计或外部权限控制应改用 application。"
-        ]
-      }
-    },
-    {
-      "item_id": "item-515cb19ceaa45dc1aac79eac4eba4d80",
-      "event_id": "0d082955-37f2-5130-9732-33e45c2d6dda",
-      "type": "blog",
-      "title": "MCP 工具投毒：遵从最高72.8%，脆弱单元22.9%",
-      "source": "edufabtech.com",
-      "published_at": "2026-11-18T06:08:39Z",
-      "canonical_url": "https://edufabtech.com/blog/mcp-tool-poisoning-benchmarks-2026",
-      "summary": "两项 2026 年可得的基准给出不同口径结果：MCPTox（2025 年 8 月首发、2026 年 9 月修订）在 20 个 Agent 配置上记录最高 72.8% 的投毒指令遵从率、平均 36.5%；Dynatrace（2026 年 11 月）跨 12 个框架、18 个模型实测，9,215 个可评估单元中 2,113 个脆弱，总体攻击成功率 22.9%，仅 12.1% 的脆弱单元确认秘密外泄（约合全部可评估单元的 2.8%）。差异源于“模型遵从”与“真实执行”的测量不同。",
-      "why_it_matters": "它把 MCP 供应链风险变成可比较数字，但数字必须连同口径阅读：工具描述是不可信输入；评估厂商安全声明时，先问测的是模型遵从、工具调用，还是 canary 确认外泄。",
-      "key_facts": [
-        {
-          "fact": "MCPTox 基于 45 个真实 MCP 服务器、353 个工具生成 1,348 个测试用例，在 20 个 Agent 配置中最高攻击成功率 72.8%（o1-mini），平均 36.5%；72.8% 是最高观测值，不是理论上限。",
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        },
-        {
-          "fact": "Dynatrace 跨 12 个框架、18 个模型、45 个场景评估 9,215 个单元，2,113 个脆弱，总体攻击成功率 22.9%；最敏感模型达 49.7%，仅 12.1% 脆弱单元确认秘密外泄（约合全部可评估单元的 2.8%）。",
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        },
-        {
-          "fact": "Dynatrace 测得 9/12 框架成功率在 23%–26%（χ²=3.30，p=0.91）；代码审计另称 12 个框架均将工具描述原样传入模型上下文、没有验证层；正则扫描拦 20/45 场景，误报率 7.2%。",
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        },
-        {
-          "fact": "MCPTox 中 Claude-3.7-Sonnet 拒答率最高仍不足 3%，作者称现有安全对齐对“用合法工具做未授权操作”无效。",
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        }
-      ],
-      "technical_analysis": "Dynatrace 的 χ² 结果显示 9/12 框架成功率集中在 23%–26%（p=0.91），作者据此认为这些框架成功率相近；另有代码审计称 12 个框架都把工具描述原样送入模型上下文、没有验证层，二者应分开看。Pydantic AI 因拒绝重名工具降至 16.6%，smolagents 因代码式表示扩大到 34.4%；模型差异更大（0.4%–49.7%），正则扫描仅拦下 20/45 个场景且误报率 7.2%。",
-      "deep_dive": [
-        {
-          "heading": "两套基准的测量对象",
-          "content": "MCPTox 把攻击分为显式触发、隐式触发和参数篡改三类，基于 45 个在线 MCP 服务器、353 个真实工具生成 1,348 个用例，观察 20 个 Agent 配置是否按恶意描述发出工具调用；72.8% 是其中最高观测值（o1-mini），不是理论上限。Dynatrace 则用 mcpvenom 构造 9,720 格矩阵，以 canary HTTP 回执作第二判据，并把脆弱单元分层：64.9% 仅发出攻击者工具调用，23.0% 联系端点，12.1% 确认外泄。22.9% 是 9,215 个可评估单元中 2,113 个脆弱的总体攻击成功率，不是确认外泄率。",
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        },
-        {
-          "heading": "责任归属与披露结果",
-          "content": "更值得关注的是防御责任无人认领。Dynatrace 代码审计称 12 个框架都把工具描述原样送入模型上下文，没有验证层；χ² 结果则显示 9/12 框架成功率在 23%–26%（p=0.91），作者据此认为这些框架成功率相近，但这是统计结果，不是内容校验结论。研究者向四家厂商做了五次协同披露，均被拒绝：MCP SDK 维护者称校验交给框架，LangChain 称库按规范原样传递，AutoGen 与 Haystack 维护者则假设 MCP 服务器可信。MCP 官方安全最佳实践虽覆盖 confused deputy、token 透传等，却尚未把工具描述投毒列为已缓解威胁。",
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        },
-        {
-          "heading": "建议验证的审计路径",
-          "content": "若要在自建 Agent 上复核，可先固定一组第三方 MCP 服务器，记录工具名称与描述快照，再用双判据区分“模型生成调用”与“数据实际外发”：前者看工具调用参数，后者用 canary secret 与可控 HTTP 端点。随后对描述做规则扫描，并记录误报率；Dynatrace 的正则扫描只覆盖 20/45 场景、误报 7.2%，只能作为纵深防御的一层。建议验证：测试框架是否拒绝重名工具；高风险操作是否强制人工确认属于编辑建议，原研究未讨论。",
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        }
-      ],
-      "evidence_note": "读到 edufabtech 博客全文，含两篇论文的摘述、数字表格与来源链接；未获取 arXiv 全文、攻击样例、逐模型明细及 MCP 官方文档原文。22.9% 口径已按原文校正为总体攻击成功率/脆弱单元占比。",
-      "application": "接入第三方 MCP 服务器前，把工具描述视为不可信输入；对高风险操作加人工确认与出站审计，不要只依赖框架默认防护或模型拒答。",
-      "caveats": "二手博客摘述两篇预印本，未读全文；模型代际与任务不同，数字不可直接相减或横比。",
-      "confidence": 0.74,
-      "relevance_tags": [
-        "MCP",
-        "Agent安全",
-        "工具投毒",
-        "benchmark",
-        "模型对齐"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-9b4b1f2d702b",
-          "source_id": "tinyfish-discovery",
-          "url": "https://edufabtech.com/blog/mcp-tool-poisoning-benchmarks-2026",
-          "title": "MCP Tool Poisoning: What Two 2026 Benchmarks Measured",
-          "publisher": "edufabtech.com",
-          "published_at": "2026-11-18T06:08:39Z",
-          "retrieved_at": "2026-11-18T22:01:34.980900Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-9b4b1f2d702b"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-9c8eb9b6dd075061871cb70f4b29fe97",
-      "event_id": "c9435959-3563-570d-b0e7-601897aaf7a3",
-      "type": "news",
-      "title": "四框架12项实验：Agent默认不强制执行授权边界",
-      "source": "dev.to",
-      "published_at": "2026-11-18T00:09:52Z",
-      "canonical_url": "https://dev.to/mech_app_ai/authorization-boundaries-in-agentic-orchestration-how-identity-trust-and-instruction-propagation-5hil",
-      "summary": "dev.to 2026年11月18日文章汇总 Tennessee Tech 与 Purdue 的研究：用 gpt-4o-mini 在 LangChain、LangGraph、AutoGen、OpenClaw 上做12项实验，发现基线配置下提示注入可诱发越权工具调用、工具链绕过能力边界、共享 Memory 中毒和跨 Agent 委派传播恶意指令；受保护配置需手工策略，非默认。",
-      "why_it_matters": "若系统涉及多 Agent、共享 Memory 或工具链，框架默认把“有工具权限”当成“每次调用都合规”，身份与指令跨边界时不重评授权，组合攻击就可能绕过安全边界。",
-      "key_facts": [
-        {
-          "fact": "研究覆盖 LangChain、LangGraph、AutoGen、OpenClaw，共12项实验，统一使用 gpt-4o-mini，并映射 OWASP Top 10 for Agentic Applications。",
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "fact": "基线配置下，对抗输入可诱导越权工具调用；被授予只读文件访问的 Agent 在“总结后清理”提示下触发删除工具，框架未在调用时重评授权。",
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "fact": "工具链可先读含 shell 命令的文件再执行；共享 Memory 写入的指令会被另一 Agent 当可信状态执行；委派请求原样传播、未沙箱化。",
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "fact": "受保护配置依赖显式授权、文件系统隔离、命令 allowlist 和 Memory 来源标签，均需手工定义，且不能泛化到所有攻击向量。",
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        }
-      ],
-      "technical_analysis": "核心变化是把安全边界从“Agent 能否访问工具”移到“这次调用是否被授权”。能力分配只回答静态权限，无法覆盖工具组合、过期决策和跨 Agent 指令；参考架构用调用时策略求值、信任链传播和 Memory 来源标签补洞。权衡是受保护配置需手工定义策略并改编排层，来源未量化延迟、日志或沙箱成本；这些配置只拦截已知向量、不自动泛化。编辑推断：默认安全应先于功能丰富度。",
-      "deep_dive": [
-        {
-          "heading": "实验设置与攻击示例",
-          "content": "研究固定 gpt-4o-mini 以隔离模型差异，在四个编排框架上跑12项实验并映射 OWASP Top 10 for Agentic Applications；攻击面分身份表示、操作授权、指令传播三类。文章列出的攻击示例包括：只读 Agent 被“总结后清理”提示诱导调用删除工具；读文件后再执行文件中的 shell 命令；把 base64/hex 指令写入共享 Memory 供另一 Agent 读取；Agent A 向 Agent B 委派任务时携带指令。基线配置未在调用时重评授权。文章未给论文标题、框架版本、提示集和逐项成功率。",
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "heading": "框架差异与默认值",
-          "content": "文章对比表显示：LangChain 只传 Agent 身份、采用能力分配、Memory 无标签、委派无沙箱；LangGraph 身份可配置但仍以能力分配为主；AutoGen 传用户+Agent 身份，委派有部分沙箱；OpenClaw 支持按操作授权、Memory 标签和委派沙箱，但均为 opt-in。四者默认都不强制执行授权边界。编辑推断：选型时不能只看是否“支持”，要看默认值与开启成本；文章未给开启这些选项的配置代码或成本数据。",
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "heading": "参考架构与代价",
-          "content": "文章给出的 OrchestrationContext 参考实现把授权判断放到编排层：authorize_tool_call 对 principal、agent、tool、args 和 trust_chain 用 policy_engine 重新求值；delegate_to_agent 先 sandbox_instructions，并把上游 Agent 追加进信任链；write_to_memory 附 author_agent、author_user、timestamp、trust_level；read_from_memory 按 trust policy 过滤。它把“能力分配”改成“每次操作可审计的授权决策”，代价是策略维护和编排层改造；来源未量化延迟、日志或沙箱成本。",
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "heading": "观测项与建议验证",
-          "content": "文章要求至少记录四类日志：授权决策（主体、Agent、工具、参数、结果）、信任链轨迹、Memory 来源与读取信任判断、带完整上下文的工具调用。建议验证（非来源要求）：在自己的栈构造只读 Agent 删除诱导、读文件+执行命令、跨 Agent 委派注入和 Memory 投毒四类用例，再对比开启调用时授权与来源标签前后的拦截率。来源只给实验覆盖项，未给逐项成功率，因此不能据此认定可复现。",
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        }
-      ],
-      "evidence_note": "实际读到 dev.to 全文，含实验摘要、框架对比表、参考架构代码和落地建议；未获得原始论文、框架版本、样本量、提示集和逐项结果。",
-      "application": "多 Agent、共享 Memory 或工具链系统，先加调用时授权、委派信任链和 Memory 来源标签；单 Agent 只读场景可暂缓。",
-      "caveats": "仅 dev.to 二次解读，未给论文标题、DOI、框架版本、样本量和逐项结果；结论强度需查原文。",
-      "confidence": 0.64,
-      "relevance_tags": [
-        "Agent 安全",
-        "多 Agent 编排",
-        "授权边界",
-        "Memory 安全",
-        "LangGraph",
-        "AutoGen"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-a00af7c49447",
-          "source_id": "tinyfish-discovery",
-          "url": "https://dev.to/mech_app_ai/authorization-boundaries-in-agentic-orchestration-how-identity-trust-and-instruction-propagation-5hil",
-          "title": "Authorization Boundaries in Agentic Orchestration: How Identity, Trust, and Instruction Propagation Create Security Gaps",
-          "publisher": "dev.to",
-          "published_at": "2026-11-18T00:09:52Z",
-          "retrieved_at": "2026-11-18T22:02:04.488149Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-a00af7c49447"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-532861d3a9d25fe182c87d2acd3a0af8",
-      "event_id": "cb271537-759e-5bda-a659-5857018f6ac6",
-      "type": "blog",
-      "title": "CodeRabbit 定价页记录：API/MCP 纳入全套餐",
-      "source": "pricingsaas.com",
-      "published_at": "2026-11-18T07:02:19Z",
-      "canonical_url": "https://pricingsaas.com/news/article/coderabbit-included-api-and-mcp-server-access-on-every-plan",
-      "summary": "PricingSaaS 2026年11月18日记录，CodeRabbit 定价页新增 FAQ：API 与 MCP server 访问已包含在每个套餐，调用受套餐功能限制；Enterprise 对比表把“API access and usage metrics”改为“Admin APIs and usage metrics”，覆盖用户、席位、角色、审计日志和指标管理。MCP 仅云托管组织可用。据该二手记录，通用 API 访问移到 FAQ 单独说明，但来源未说明配额、限流或额外计费。",
-      "why_it_matters": "对准备把 CodeRabbit 接入 CI、内部 Agent 或工具链的团队，据该二手记录，API/MCP 正从 Enterprise 卖点变成基础连接层；但治理类 API 仍被 Enterprise 保留，自托管组织需先确认是否可用。",
-      "key_facts": [
-        {
-          "fact": "定价页新增 FAQ 称，API 与 MCP server 访问包含在每个套餐，每次调用按该套餐已覆盖的功能执行。",
-          "ref_ids": [
-            "ref-e97703c37e38"
-          ]
-        },
-        {
-          "fact": "Enterprise 对比表把“API access and usage metrics”改为“Admin APIs and usage metrics”，覆盖用户、席位、角色、审计日志和指标管理；通用 API 访问移到 FAQ 单独说明。",
-          "ref_ids": [
-            "ref-e97703c37e38"
-          ]
-        },
-        {
-          "fact": "MCP server 仅适用于云托管组织，不适用于自托管 CodeRabbit 部署或自托管 Git provider。",
-          "ref_ids": [
-            "ref-e97703c37e38"
-          ]
-        }
-      ],
-      "technical_analysis": "这次变化的重点是打包边界，而非新功能发布：把原始 API/MCP 连接性下沉为所有套餐的基础能力，可降低审查工具嵌入 CI 与 Agent 工作流的门槛；据该二手记录，Admin APIs 仍由 Enterprise 门控，是更可辩护的访问边界。来源未说明调用配额、限流或额外计费，且 MCP 的工具范围仍受套餐功能约束。对企业采购者，真正需要谈判的是管理权限与合规能力，而不是能否连上 API。",
-      "deep_dive": [
-        {
-          "heading": "变更节奏与采购风险",
-          "content": "PricingSaaS Pulse 记录，过去 365 天 CodeRabbit 定价页有 16 次真实变化，近 90 天 8 次，自 2026-05-18 跟踪以来平均约每 12 天一次。此前 2026-10-10 把 Agent 产品更名为 CodeRabbit Engineer 并取消按分钟超额费率；2026-09-01 把 Pro/Pro Plus 改为 Essentials/Team 并新增 Advanced 档；2026-09-21 把用量计费评论折叠进 On-demand 产品区。据该二手记录，当前套餐边界更像快照而非长期承诺；采购前可把价格保护与变更通知写进合同（编辑建议）。",
-          "ref_ids": [
-            "ref-e97703c37e38"
-          ]
-        },
-        {
-          "heading": "Enterprise 管理 API 与 MCP 边界",
-          "content": "定价页 FAQ 新增“哪些套餐包含 API 与 MCP server”，答每个套餐都包含，调用按该套餐已覆盖功能执行。Enterprise 对比表原“API access and usage metrics”改为“Admin APIs and usage metrics”，覆盖用户、席位、角色、审计日志和指标管理，通用 API 访问移到 FAQ 单独说明。PricingSaaS 称 CodeRabbit 未公布改名原因，并追问 Admin APIs 是否会有独立价格或席位限制。编辑建议：向销售确认独立价格或席位限制；调用配额属额外待确认项。来源未说明配额、限流或额外计费。",
-          "ref_ids": [
-            "ref-e97703c37e38"
-          ]
-        }
-      ],
-      "evidence_note": "实际读到 PricingSaaS 博客全文，含变更说明、FAQ 摘要和常见问题；未直接读取 CodeRabbit 官方定价页或公告；缺少官方确认、套餐价格、API/MCP 配额与限流。",
-      "application": "计划接入 CI 或 Agent 的团队，先在云托管组织验证 MCP 与套餐功能边界；自托管团队暂缓依赖，等待更多配额与计费说明。",
-      "caveats": "仅见 PricingSaaS 二手记录，未获 CodeRabbit 官方公告；API/MCP 配额、限流及额外计费未说明。",
-      "confidence": 0.72,
-      "relevance_tags": [
-        "CodeRabbit",
-        "MCP",
-        "API",
-        "AI code review",
-        "定价策略"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-e97703c37e38",
-          "source_id": "tinyfish-discovery",
-          "url": "https://pricingsaas.com/news/article/coderabbit-included-api-and-mcp-server-access-on-every-plan",
-          "title": "Coderabbit included API and MCP server access on every plan",
-          "publisher": "pricingsaas.com",
-          "published_at": "2026-11-18T07:02:19Z",
-          "retrieved_at": "2026-11-18T22:01:20.072922Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-e97703c37e38"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-e97703c37e38"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-e97703c37e38"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-c319c657e3fd5f649cf422714dd61b74",
-      "event_id": "b50d8eb6-8f3b-5ab2-a724-15e39f703405",
-      "type": "blog",
-      "title": "Amazon转述：疑似ARTEX借盗取网关密钥自筹推理",
-      "source": "labs.cloudsecurityalliance.org",
-      "published_at": "2026-11-18T13:50:20Z",
-      "canonical_url": "https://labs.cloudsecurityalliance.org/research/csa-research-note-self-funding-agents-ai-gateway-key-harvest",
-      "summary": "CSA 2026-11-18研究笔记转述Amazon Threat Intelligence 2026-11-13的披露：MadPot诱饵在2026-10-03至11-05捕获疑似运行于开源ARTEX的AI Agent作业记录。诱饵伪装成LLM推理API，Agent将任务上下文、工具历史与活动发现发给它；最突出的活动据称把盗取的AI提供商密钥放入框架自建模型网关，用于支付继续搜寻密钥的推理成本。",
-      "why_it_matters": "AI网关集中多家提供商密钥，攻破一个即可触及上游凭据；默认口令、未完成安装和旧CVE仍是入口。若自筹闭环成立，推理成本可转给受害者，并可能压缩响应窗口，但这些结果尚未被Amazon直接确认。",
-      "key_facts": [
-        {
-          "fact": "Amazon Threat Intelligence于2026-11-13报告，MadPot诱饵网络在2026-10-03至11-05捕获了AI代理的凭据窃取与欺诈活动记录，最可能运行在开源ARTEX框架上。",
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "fact": "据Amazon转述，最突出的活动把盗取的AI提供商密钥放入框架自己的模型网关，用来支付搜寻更多密钥所需的推理成本。",
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "fact": "目标优先选择持有多家提供商密钥的AI网关和应用构建器，包括LiteLLM、One API、New API、Dify、Langflow、RAGFlow、Open WebUI和Ollama。",
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "fact": "Amazon无法直接观察或确认代理记录的结果，对相关中国背景团体的归因仅为中等置信度。",
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        }
-      ],
-      "technical_analysis": "核心变化被Amazon描述为速度与持续性，而非新漏洞：Agent把盗来的密钥用于自身模型调用。CSA的解释性判断是边际推理成本可能趋近于零，每次验证成功又增加搜刮能力；这不是Amazon已确认的事实。诱饵奏效在于攻击者依赖第三方推理，模型请求携带规划、工具输出和共享记忆；防守方可用推理型诱饵收集情报，但须区分代理自报成功与真实入侵。",
-      "deep_dive": [
-        {
-          "heading": "入口技术与目标集中度",
-          "content": "Amazon记录的目标类包括LLM网关/代理（One API、New API、Veloera、Sub2API、LiteLLM）与AI应用构建器（Dify、FastGPT、Langflow、RAGFlow、Open WebUI、LobeChat、Ollama）。入口并非新0day：LiteLLM默认master key、One API家族isCliRequest头认证绕过、未初始化安装可被首个访问者认领，以及Langflow CVE-2025-3248（1.3.0修复）和RAGFlow CVE-2026-28797（SSTI，默认开自注册提高风险）。报道还称One API绕过无公开受影响版本与修复，网络隔离是临时主控。",
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "heading": "自筹闭环如何排序凭据",
-          "content": "捕获提示显示代理按L1线索、L2可工作的API调用、L3可量化影响（可读数据或可消费余额）给凭据分级，并把公开暴露超过30天的凭据视为低价值库存；持有云凭据时优先看托管模型服务、密钥库和应用身份，偏好前沿模型而非更广云权限。发现面覆盖互联网扫描、证书透明日志、包仓库、容器层与notebook；提示还要求排除中国大陆目标和政府域名、出站走代理。这里的分级与偏好来自Amazon转述的代理记录，属于待独立核验的行为描述。",
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "heading": "并行欺诈与外围佐证",
-          "content": "另一组诱饵记录显示至少四个并发会话分工研究套现、清理余额、搭建deepfake与绕过KYC，通过跨会话工具共享发现；deepfake管线在单块消费级GPU上达11.5帧/秒，最佳尝试面部距目标7像素内，但交易所服务端判定在每次记录中都拒绝。外围报道显示ARTEX原仓库2026-10-08撤下时已有逾1.2万fork，FBI称截至11月初有1600多个公开暴露控制台，Microsoft记录代理从GitHub搜索到Azure Key Vault外泄约5分钟。它们佐证ARTEX活跃与AI凭据优先级，但不直接证明自筹机制。",
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "heading": "防御动作与证据边界",
-          "content": "建议验证：部署OpenAI兼容的推理型canary或诱饵提供商密钥，观察是否收到代理工作记忆；留存前评估法律与隐私。立即动作应覆盖影子IT中的公网网关：改默认口令与LiteLLM master key、完成或下线未初始化实例、管理端点不暴露公网、Langflow≥1.3.0、RAGFlow关自注册并核实报道提及的v0.25.0（官方advisory未列修复版本，网络限制仍是临时控制）、LiteLLM修CVE-2026-40217；任何曾满足上述暴露条件的上游密钥按已泄露轮换，并查AI账单异常与Cloudflare中artex-* Worker脚本。以上部分为编辑推断与建议验证，不是已复现结论。",
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        }
-      ],
-      "evidence_note": "实际读到CSA研究笔记接近全文，结尾在建议处截断；未获得Amazon原始报告全文、完整IOC、受影响版本范围及独立复现。",
-      "application": "立即盘点公网AI网关与低代码构建器，替换默认凭据、完成未初始化实例、限网并修补Langflow/LiteLLM；RAGFlow先关自注册并按报道评估v0.25.0。",
-      "caveats": "自筹闭环与结果主要基于Amazon转述，未获直接观察或独立复现；归因仅中等置信。",
-      "confidence": 0.74,
-      "relevance_tags": [
-        "AI安全",
-        "Agent",
-        "AI网关",
-        "凭据窃取",
-        "ARTEX"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-33d7b1b1ecd7",
-          "source_id": "tinyfish-discovery",
-          "url": "https://labs.cloudsecurityalliance.org/research/csa-research-note-self-funding-agents-ai-gateway-key-harvest",
-          "title": "Self-Funding Agents: ARTEX Campaigns Harvesting AI-Gateway Keys",
-          "publisher": "labs.cloudsecurityalliance.org",
-          "published_at": "2026-11-18T13:50:20Z",
-          "retrieved_at": "2026-11-18T22:01:28.191949Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-33d7b1b1ecd7"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-59be8e83934055cfa7933b7410b1f564",
-      "event_id": "21940b5d-da81-5ac0-8535-171fb62f5ed0",
-      "type": "paper",
-      "title": "Vibe coding安全综述：六级自治与五条信任边界",
-      "source": "arxiv.org",
-      "published_at": "2026-11-18T01:13:48Z",
-      "canonical_url": "https://arxiv.org/pdf/2611.21822",
-      "summary": "一篇来自纽卡斯尔大学的arXiv综述（v1标注2026-11-16）按开发工作流整合vibe coding安全研究：提出参考架构、六级Agent自治、五条信任边界，并将风险归为9类21项威胁，另列11项研究挑战。作者称现有防御多依赖模型判断、只覆盖孤立威胁，且术语、威胁假设与评估仍缺共识。",
-      "why_it_matters": "随着coding agent获得执行命令、安装依赖和访问云资源的权限，风险从生成不安全代码扩展到真实操作。该综述提供按自治级别和信任边界盘点权限的参考架构与威胁模型，但作者明确指出术语、威胁假设和评估仍缺共识，不能当作已验证的共同框架。",
-      "key_facts": [
-        {
-          "fact": "综述提出vibe coding参考架构、六级Agent自治、五条信任边界，并将威胁归为9类21项，另列11项研究挑战。",
-          "ref_ids": [
-            "ref-eae3fdf4f9f0"
-          ]
-        },
-        {
-          "fact": "其结构化检索从1211篇初检文献筛至142篇主研究，覆盖2021年至2026年8月的文献。",
-          "ref_ids": [
-            "ref-eae3fdf4f9f0"
-          ]
-        },
-        {
-          "fact": "综述转述一项审计：200个vibe-coded应用中超过90%至少存在一个漏洞。",
-          "ref_ids": [
-            "ref-eae3fdf4f9f0"
-          ]
-        }
-      ],
-      "technical_analysis": "综述把Agent权限当作风险尺度，而非只列漏洞：L3开始执行命令，L4不再逐步批准，事故可从本机或构建服务器扩散到生产。作者提出五条信任边界以覆盖端到端攻击；编辑推断，这有助于定位跨阶段风险，但分类依赖纳入的142篇研究。评估方法碎片化、需要共享benchmark，这是作者呼吁；未据此断言多数防御未在同一benchmark比较。",
-      "deep_dive": [
-        {
-          "heading": "六级自治的关键门槛",
-          "content": "论文按“Agent可自行做什么、人类还必须批准什么”分L0-L5：L0只补全当前文件，L2可提出跨文件diff，L3能运行命令、测试和安装包，L4可规划、实现、测试并提交PR或部署，L5自行启动维护任务。作者强调同一coding agent因使用方式不同可在L2或L4运行，评估对象应是工作流而非产品。L3和L4是安全转折点：前者让缺陷影响本机或构建服务器，后者让未逐项审核的改动进入共享基础设施。编辑推断：这为按权限分级测试提供可操作边界。",
-          "ref_ids": [
-            "ref-eae3fdf4f9f0"
-          ]
-        },
-        {
-          "heading": "证据如何被筛选",
-          "content": "综述检索ACM Digital Library、IEEE Xplore、USENIX、Scopus、Google Scholar与arXiv，时间范围为2021年至2026年8月；初检1211篇，筛到546篇读摘要、123篇全文，再经前后向雪球法得到142篇主研究。它还转述两项观察：开发者使用AI助手时可能写出更不安全的代码却更自信，模型会推荐不存在的软件包。未获得这些引用研究的原文，故只能把相关数字视为综述转述，而非独立复核结果。",
-          "ref_ids": [
-            "ref-eae3fdf4f9f0"
-          ]
-        }
-      ],
-      "evidence_note": "实际读到arXiv PDF的标题、摘要、部分引言/方法、表2和部分2.2，文本存在截断；未获得完整威胁分类、逐篇防御评估、benchmark结果与结论。",
-      "application": "团队可先用六级自治与五条信任边界盘点现有coding agent权限，暂不据此宣称已安全；优先限制L3以上的命令执行、依赖安装和云访问。",
-      "caveats": "证据为预印本部分文本；142篇纳入研究的覆盖质量、审计数字与防御效果未独立复核。",
-      "confidence": 0.62,
-      "relevance_tags": [
-        "vibe coding",
-        "coding agent",
-        "Agent 安全",
-        "威胁模型",
-        "供应链安全"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-eae3fdf4f9f0",
-          "source_id": "tinyfish-discovery",
-          "url": "https://arxiv.org/pdf/2611.21822",
-          "title": "Threat Landscape of Vibe Coding and the Road to Secure Autonomy",
-          "publisher": "arxiv.org",
-          "published_at": "2026-11-18T01:13:48Z",
-          "retrieved_at": "2026-11-18T22:01:27.251468Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-eae3fdf4f9f0"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-eae3fdf4f9f0"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-eae3fdf4f9f0"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-ad5c786994145bf9b04f8ee0f7b90a77",
-      "event_id": "b3571f1b-43b3-52af-86ab-0fe43e7f55ac",
-      "type": "paper",
-      "title": "测量选择可反转Agent代码存活结论",
-      "source": "arxiv.org",
-      "published_at": "2026-11-18T01:10:01Z",
-      "canonical_url": "https://arxiv.org/pdf/2611.21784",
-      "summary": "研究重审AIDev数据集中854,139行Agent代码，构建88种分析规格，系统改变九类测量选择。对Copilot等人类监督型Agent，选择只改变效应大小；对完全自主的Devin，结论随规格反转——按仓库聚类标准误后，多数“更早被修改”结果不再显著。作者据此认为，Agent代码存活结论由测量与代码共同决定，至少部分文献分歧来自operationalization。",
-      "why_it_matters": "Agent代码合并后是否更易腐化，现有研究结论互相矛盾；该研究显示不少分歧至少部分来自测量口径，不能完全归因于Agent行为。团队评估AI编码工具时，应报告单位、跟踪方式与标准误。",
-      "key_facts": [
-        {
-          "fact": "研究覆盖AIDev数据集中2,802个已合并PR、215个仓库的854,139行代码，去除vendored与generated代码后为644,177行。",
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        },
-        {
-          "fact": "88种规格、九类测量选择、三种方差估计与标签置换检验显示：人类监督型Agent结论方向稳定，Devin结论由规格决定。",
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        },
-        {
-          "fact": "跨仓库分析中，Devin代码按行独立时22个规格有15个报告更早被修改，按仓库聚类标准误后仅3个，与置换标签结果相当。",
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        },
-        {
-          "fact": "LLM意图分类器与人工标签一致性κ=0.69–0.72，关键词规则仅0.38；五种已发表设计各自仅改一个选择即改变结果。",
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        }
-      ],
-      "technical_analysis": "核心变化是把“结论”当作测量管道输出：同一批行，按location还是identity跟踪、按line/hunk/PR加权、是否保留vendored代码、是否聚类标准误，都会改变HR。规格曲线用于诊断结论对测量选择的敏感性，不能给出唯一真值；聚类标准误更保守但会损失功效，Devin仅31个仓库同时含人代码，可检出阈值极宽。",
-      "deep_dive": [
-        {
-          "heading": "规格曲线如何构造",
-          "content": "作者从早先研究的854,139行出发，按行identity跟踪至2025年底，并去除vendored与generated代码，得到644,177行、2,794个PR。九类选择包括：跟踪方式、文件过滤、分析单位与权重、修改定义、意图推断、比较范围、方差估计、观察窗口、修改者识别。每个选择组合成一个specification，汇总为88个生存分析，并在三种方差估计与标签置换下检验。这样做的目的不是寻找一个“正确”HR，而是看verdict在多大范围内稳定。",
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        },
-        {
-          "heading": "Copilot稳定、Devin翻转",
-          "content": "人类监督型Agent的效应大小会变，但方向稳定；仓库内比较中，Copilot的HR=0.65（95% CI 0.46–0.95），即约低三分之一修改风险。Devin则更敏感：按line为0.90、按PR为1.19、按hunk为1.56，因为单个PR占其41.7%的行；要求八个月随访后行级估计升至1.70。仓库内没有规格能检出Devin差异，但只有31个仓库同时含Devin与人类代码，可检出范围被限制在HR<0.32或>3.13。",
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        },
-        {
-          "heading": "意图分类与复跑已发表设计",
-          "content": "作者对5,303个修改提交做意图分类，并以618个手工标注提交验证。LLM分类器与人工的一致性接近两名人类标注者之间的一致性，κ为0.69–0.72；关键词规则仅0.38，且两者对“为何修改”给出不同verdict。更关键的是，五个已发表设计在本数据上重跑时，各自只需改动一个测量选择，结果就会变化。这说明文献间的分歧至少部分来自operationalization，测量与代码共同决定结论，不能排除Agent行为差异。",
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        }
-      ],
-      "evidence_note": "实际读到的是arXiv论文的摘要与引言全文摘录，含研究问题与部分结果；未获得完整方法、表格、复现材料与同行评审版本。arXiv v1正文标注16 Nov 2026；来源元数据发布日为2026-11-18，引用需注明日期来源与版本。",
-      "application": "阅读此类存活研究时先查其单位、跟踪方式与标准误；内部评估Agent代码维护成本，应固定口径并报告多规格结果。",
-      "caveats": "证据仅来自论文摘要与引言，未见完整方法、数据和复现包；结论限于AIDev数据集与截至2025年底的观察窗口。",
-      "confidence": 0.72,
-      "relevance_tags": [
-        "coding agent",
-        "code survival",
-        "measurement validity",
-        "empirical software engineering",
-        "AIDev",
-        "Devin",
-        "Copilot"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-6525d9a55d84",
-          "source_id": "tinyfish-discovery",
-          "url": "https://arxiv.org/pdf/2611.21784",
-          "title": "Revisiting the Survival of Agent-Attributed Code: How Measurement Choices Decide the Verdict",
-          "publisher": "arxiv.org",
-          "published_at": "2026-11-18T01:10:01Z",
-          "retrieved_at": "2026-11-18T22:01:13.715945Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-6525d9a55d84"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-412fcaaf94185d5fa895ca0f5e9f9fac",
-      "event_id": "8c9a0f18-d5c3-55fe-8c9b-8e08c9ea859e",
-      "type": "blog",
-      "title": "Transformers PR #50717：MoE 专家 SSD 流式加载",
-      "source": "Hugging Face",
-      "published_at": "2026-11-18T00:00:00Z",
-      "canonical_url": "https://huggingface.co/blog/moe-expert-streaming",
-      "summary": "2026年11月18日 Hugging Face 博客中，作者在 32GB 内存的 MacBook M5 上，用 PR #50717 的 experts_offload 尝试 Qwen3.8-Flash-Next：FP8 下121GB的专家权重量化到3bit后约49GB放SSD，按路由流式读入12GiB缓存，解码13.9 tok/s，约为 Strata 14.8 tok/s 的94%；两者专家量化格式不同。",
-      "why_it_matters": "作者单机自测显示，32GB 消费级机器跑 180B 级 MoE 已接近专用推理引擎；但 6K prompt 峰值 25.4GiB 已接近上限，剩余约6%差距主要来自主机往返，容量仍是约束。",
-      "key_facts": [
-        {
-          "fact": "作者用 huggingface/transformers#50717 的 experts_offload，把 device_map 中标记为 \"disk\" 的专家走流式路径：加载器跳过这些张量，MoE 层切换到 offload 实现，未命中由 8 个 I/O 线程各读一个专家。",
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "fact": "Qwen3.8-Flash-Next 有 48 层、每层 512 个专家（激活 10 个），FP8 下为 121GB；专家量化到 3bit 后为 49GB，设备缓存 12GiB，另有 51GB n-gram 表留在磁盘。",
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "fact": "同一台 M5、同一组 prompt 下最终为：解码 200 token 13.9 对 Strata 14.8 tok/s，4K prefill 228 对 220 tok/s，6K 文档后解码 12.4 对 13.7 tok/s；Strata 使用 IQ3_XXS 专家，量化格式不同。",
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "fact": "在单张 A10G 上跑 Qwen3.6-35B-A3B 时，Transformers+Accelerate 仅 0.16 tok/s，Strata Q8_0 为 82–88 tok/s，vLLM 只 offload 专家并开 FP8 为 20.1 tok/s。",
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        }
-      ],
-      "technical_analysis": "关键改动是让缓存直接复用现有kernel：预分配设备张量作为所有层共享slot pool，加上每层“专家id→slot”映射表，使路由输出重映射到槽位，专家池像常规expert bank，grouped_mm原样跑。代价转到主机同步与量化质量：改用Strata的GGUF权重后单个专家读取从2.15MB降到1.75MB，但这是权重来源变化，不是3bit量化本身；3bit专家质量损失未评估；约10ms/token主机往返仍难消除。",
-      "deep_dive": [
-        {
-          "heading": "三条 offload 路线的取舍",
-          "content": "作者的对比框架是三个问题：专家放在哪、专家矩阵乘在哪跑、每个 token 搬什么。llama.cpp 用 mmap 映射 GGUF，可把专家留在 CPU 并在 CPU 上计算（--cpu-moe、-ot \"exps=CPU\"），只有激活过 PCIe；专家装不进 RAM 时 page cache 会抖动，新加的 --moe-cache-mib 还会把图从每 token 2 次切分变成 50 次，即使全部装下也损失约 10%。vLLM 的 --cpu-offload-gb 把权重放 pinned RAM 由 kernel 经 PCIe 原地读，不缓存，热专家每 token 重读；默认还包含每 token 都读的 dense 层，加 --cpu-offload-params experts 才只 offload 专家。Transformers 经 Accelerate 按 module offload，MoE 里一个 module 是整层专家库，于是每 token 把所有专家搬上 GPU 只为用其中 8–10 个。",
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "heading": "从小模型验证到 32GB 落地",
-          "content": "作者先在能装进内存的 OLMoE-1B-7B 上做逐 token 对照：第一版磁盘专家加设备 LRU、Python 循环逐个跑专家只有 10.1 tok/s，而原版约 32，因为原版用 grouped_mm 一个 kernel 跑整层专家；改成 slot pool 后到 34.6，原版 38.1。之后才上 Qwen3.8-Flash-Next：转换脚本耗时约 5 小时，产出 dense 权重、3bit 专家和 n-gram 表；加载后占用约 18GiB，6K prompt 峰值 25.4GiB，已接近 32GB 上限，需关掉浏览器否则 macOS 开始 swap。dense 层用 8bit 约 5.4GB，困惑度比 BF16 高 0.2%。",
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "heading": "最后 6% 差在栈的哪一层",
-          "content": "提升最大的几项并非专家本身：PyTorch 在 MPS 上会把小 kernel 攒到下次同步，作者在每个 block 后强制 commit 得到约 10%；为 macOS 上没有快路径的 Gated DeltaNet 与 hyper-connections 写了 Metal kernel；改用 Strata 的 GGUF 权重后 dense 权重的每 token 流量从 5.4GB 降到 3.9GB，单个专家从 2.15MB 降到 1.75MB，并为不同专家尺寸分别设缓存池；prefill 通过更大 chunk 和边算当前层边读下一层专家从 68 提到约 228 tok/s。作者尝试用 kernel 轮询 CPU 写入的标志来模拟 Metal shared event，结果 GPU 从一秒到永远看不到写入，故放弃；真正的修法需要在 PyTorch MPS stream 上加原生 op，但有挂死风险。Strata 0.1.60 使用 IQ3_XXS 专家，Transformers 侧为 3bit 量化专家，两者不是同质量等价对比。",
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "heading": "复现与未覆盖的验证",
-          "content": "复现路径在证据中很明确：从 PR 分支装 Transformers，snapshot_download 作者发布的 dense/3bit 专家仓库，用 device_map={\"\": \"mps\", \"experts.*\": \"disk\"} 加 experts_offload 的 cache_bytes 与 quantized_experts 加载；基准脚本在 Space，细节页有完整设置与原始结果，运行环境为 M5 32GB、greedy 解码、关闭 thinking/MTP/投机草稿、prefill chunk 1024。作为对照，vllm-metal 虽也做有界缓存的专家流式，但只流式专家、n-gram 表留在内存，32GB 上跑不动该模型。项目没有 C++ 扩展，只有 Python 和用 torch.mps.compile_shader 运行时编译的 Metal kernel，并改为从 Hub 加载已发布 kernel。缺少的是 PR 评审状态、第三方复现，以及量化后质量评测。",
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        }
-      ],
-      "evidence_note": "读到的是 Hugging Face 博客 Markdown 全文，含作者自测表格、代码片段与内存数据；未获得 PR #50717 的 diff 与维护者结论、第三方独立复现，以及 3bit 专家量化后的质量 benchmark。博客称 API 仍在讨论。",
-      "application": "暂不用于生产，先等 PR #50717 的 API 定稿；想在 32GB Apple 机器试，可按 Space 步骤复现，并自测 3bit 专家质量与内存余量。",
-      "caveats": "单作者单机自测，非独立评测；3bit 专家质量未测，API 未定稿；与 Strata 量化格式不同，速度仍不够用于 coding agent。",
-      "confidence": 0.82,
-      "relevance_tags": [
-        "MoE",
-        "expert-streaming",
-        "Transformers",
-        "本地推理",
-        "Apple Silicon",
-        "量化",
-        "推理引擎"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-3d1ffa1c0a11",
-          "source_id": "huggingface-blog",
-          "url": "https://huggingface.co/blog/moe-expert-streaming",
-          "title": "180B Parameters, 32GB of RAM: Pushing MoE Inference to the Limit with Transformers",
-          "publisher": "Hugging Face",
-          "published_at": "2026-11-18T00:00:00Z",
-          "retrieved_at": "2026-11-18T22:01:02.950215Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-3d1ffa1c0a11"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-5e779f51044a5d3086e3b391cfd9208b",
-      "event_id": "93baa1c3-f5e3-5e96-b2e3-7967aff2b847",
-      "type": "news",
-      "title": "126篇文献系统综述：Agent架构分类解耦",
-      "source": "link.springer.com",
-      "published_at": "2026-11-18T00:00:00Z",
-      "canonical_url": "https://link.springer.com/article/10.1007/s10791-026-10743-4",
-      "summary": "2026-11-18 发布的 PRISMA 2020 系统综述纳入 126 篇 Scopus 同行评审期刊论文（2023 年至 2026 年 6 月，其中 122 篇发表于 2025—2026 年），提出将单 Agent、协作多 Agent、层级监督三种协调拓扑，与角色分工、工具增强、混合 Memory、human-in-the-loop 治理分层解耦的分类法。57 项实证研究中，协作多 Agent 在 27 项中为可识别的主要拓扑，占 47.4%。作者称在软件工程、医疗、网络安全与机器人等领域，多数报告的实现仍是受控研究原型；筛选由单一评审完成。",
-      "why_it_matters": "它把常被混谈的协调拓扑与功能角色拆开，便于团队对照自身 Agent 架构做描述性盘点；但这是架构分类而非性能比较，不能据此推断多 Agent 更优或更差。",
-      "key_facts": [
-        {
-          "fact": "系统综述遵循 PRISMA 2020，纳入 2023 年至 2026 年 6 月的 126 篇 Scopus 同行评审期刊论文，其中 122 篇发表于 2025—2026 年。",
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        },
-        {
-          "fact": "提出多层分类法，将单 Agent、协作多 Agent、层级监督三种协调拓扑与角色分工、工具增强、混合 Memory、human-in-the-loop 治理严格解耦。",
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        },
-        {
-          "fact": "57 项实证研究中，协作多 Agent 在 27 项中为可识别的主要拓扑，占 47.4%；作者称在软件工程、医疗、网络安全与机器人等领域，多数报告的实现仍是受控研究原型，且缺少标准化轨迹级 benchmark；筛选由单一评审完成。",
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        }
-      ],
-      "technical_analysis": "核心变化是把“系统长什么样”与“承担什么角色”分开：三种协调拓扑只描述组织方式，角色分工、工具增强、混合 Memory 与 human-in-the-loop 则作为可叠加维度。这样能描述混合实现，避免把多 Agent 强行归入单一类别。编辑推断：维度更多会带来更高的标注与横向比较成本，但来源未直接评估该成本。拓扑占比不等于性能优势；作者强调复合错误传播、间接 prompt injection、Memory 污染与轨迹级 benchmark 缺失，并把“多数报告仍是受控研究原型”限定在软件工程、医疗、网络安全和机器人等领域。",
-      "deep_dive": [
-        {
-          "heading": "证据基线与增长节奏",
-          "content": "综述按 PRISMA 2020 筛选 Scopus 同行评审期刊论文，最终纳入 126 篇；年度分布为 2023 年 1 篇、2024 年 3 篇、2025 年 39 篇、2026 年上半年 83 篇，其中 122 篇发表于 2025—2026 年。57 篇为实证研究，协作多 Agent 在其中 27 篇中是可识别的主要拓扑，占实证子集 47.4%、全语料 21.4%。作者明确这些是描述性计数，未将其表述为跨领域比较后的“前所未有”；筛选由单一评审完成，因此编码一致性仍需全文数据表核验。",
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        },
-        {
-          "heading": "架构演进是叠加而非替代",
-          "content": "引言把 LLM Agent 的发展拆成多段：CoT、Self-Consistency、Least-to-Most 提供中间推理；ToT、Graph-of-Thoughts 扩展候选路径；RAG 与 Toolformer 把外部知识和工具调用引入；ReAct 把推理与行动交替，AutoGPT 展示连续任务执行；AutoGen 推动多 Agent 协作，LangGraph、OpenHands、LlamaIndex 则强调显式状态、编排与生产可用性。作者明确这些范式继续共存并常被组合，并非线性替代；这也解释了为何分类法需要把拓扑与功能角色分开。",
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        },
-        {
-          "heading": "安全与评测为何卡住生产化",
-          "content": "综述把风险放在 pipeline 层面，而非单次模型输出：复合错误会沿多步轨迹放大，间接 prompt injection 可借外部内容进入执行链，Memory 污染会影响后续检索与决策；同时缺少标准化的轨迹级 benchmark，使任务成功率、鲁棒性、时延和成本难以横向比较。作者称在软件工程、医疗、网络安全与机器人等领域，多数报告的实现仍是受控研究原型，并据此把长程评测、能力边界安全架构和受控自我演化列为优先方向；该判断不应外推到全部 126 篇文献。",
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        },
-        {
-          "heading": "采用前的核验清单（建议验证）",
-          "content": "建议验证：先用该三层拓扑给现有流程做标签，记录角色分工、工具调用、Memory 与人工复核点；再选一条多步任务，对照复合错误传播与 prompt injection 场景做红队测试，并保留轨迹级日志，以便比较成功率、时延与成本。不要把“协作多 Agent 占 27/57”当作性能证据；若无法获得全文中的各研究效应量与评测口径，应把结论限定为架构描述而非选型排名。",
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        }
-      ],
-      "evidence_note": "实际读到 Springer 页面摘要与第 1 节引言（含 1.1 节），未获得全文方法细节、质量评估表、各研究数据抽取表与独立复现；无法核验 126 篇的逐篇编码一致性及 27 项多 Agent 研究的效应量。",
-      "application": "先按拓扑、角色、工具与 Memory 分层盘点现有 Agent 流程，再判断是否引入多 Agent；暂勿把综述中的占比当作性能排名。",
-      "caveats": "仅读到摘要与引言；筛选由单一评审，未获全文数据表、各研究效应量与独立复现；原型结论限于四个应用领域。",
-      "confidence": 0.72,
-      "relevance_tags": [
-        "Agent",
-        "multi-agent",
-        "系统综述",
-        "评测",
-        "安全"
-      ],
-      "related_item_ids": [],
-      "sources": [
-        {
-          "ref_id": "ref-1e96b6bf0270",
-          "source_id": "tinyfish-discovery",
-          "url": "https://link.springer.com/article/10.1007/s10791-026-10743-4",
-          "title": "Agentic workflows in large language models: a comprehensive review of architectures, planning strategies, and real-world applications",
-          "publisher": "link.springer.com",
-          "published_at": "2026-11-18T00:00:00Z",
-          "retrieved_at": "2026-11-18T22:02:04.488268Z"
-        }
-      ],
-      "claim_refs": [
-        {
-          "claim_index": 0,
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        },
-        {
-          "claim_index": 1,
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        },
-        {
-          "claim_index": 2,
-          "ref_ids": [
-            "ref-1e96b6bf0270"
-          ]
-        }
-      ],
-      "editorial_section": "ai_practice",
-      "practice_profile": {
-        "practice_id": "url:https://link.springer.com/article/10.1007/s10791-026-10743-4",
-        "kind": "rag_eval",
+        "practice_id": "url:https://www.endorlabs.com/learn/ai-sast-in-ci-cd-and-pull-requests",
+        "kind": "mcp",
         "evidence_level": "detailed_case",
         "reproducibility_score": 83,
         "version": "",
         "proof_points": [
           {
-            "point": "给出可观察计数：57 项实证研究中 27 项以协作多 Agent 为主要拓扑（47.4%），全语料占比 21.4%",
+            "point": "指南公开完整 GitHub Actions 工作流：pull_request 触发、最小 permissions、concurrency 取消旧运行，并调用 endorctl PR 扫描。",
             "ref_ids": [
-              "ref-1e96b6bf0270"
+              "ref-bd67beef52d9"
             ]
           },
           {
-            "point": "公开多层分类：协调拓扑与角色分工、工具增强、混合 Memory、human-in-the-loop 治理分离",
+            "point": "指南给出 baseline 与 PR 扫描的 endorctl 命令、PR 评论结构和三级门禁配置。",
             "ref_ids": [
-              "ref-1e96b6bf0270"
+              "ref-bd67beef52d9"
             ]
           },
           {
-            "point": "明确实际问题：复合错误传播、间接 prompt injection、Memory 污染与轨迹级 benchmark 缺失",
+            "point": "指南列出 fork PR 的权限边界、OIDC keyless 认证与固定 SHA 等安全要求。",
             "ref_ids": [
-              "ref-1e96b6bf0270"
-            ]
-          },
-          {
-            "point": "披露限制：在软件工程、医疗、网络安全与机器人等领域，多数报告的实现仍为受控研究原型；筛选由单一评审完成",
-            "ref_ids": [
-              "ref-1e96b6bf0270"
+              "ref-bd67beef52d9"
             ]
           }
         ],
         "try_it": [
-          "用单 Agent/协作多 Agent/层级监督三档标注现有工作流，再单列角色、工具、Memory 与人工复核。",
-          "选一条多步任务，按复合错误、间接 prompt injection、Memory 污染三类风险设计红队用例并记录轨迹日志（建议验证）。",
-          "对照任务成功率、时延与成本做前后比较，不把综述中的拓扑占比当作性能基线。"
+          "在目标分支运行 baseline：`endorctl scan --ai-sast --path=/path/to/code -n <namespace>`",
+          "在 PR 流水线运行：`endorctl scan --ai-sast --pr --pr-baseline=main --path=. -n $NAMESPACE`",
+          "按示例配置 GitHub Actions 的 pull_request 触发、最小权限与 concurrency，先设为 comment-only"
         ],
         "requirements": [
-          "获取全文与补充材料",
-          "清晰的系统边界与人工复核角色",
-          "可记录轨迹的日志环境"
+          "Endor Labs 命名空间与 endorctl 安装、认证",
+          "目标分支已有 AI SAST baseline",
+          "CI 允许 pull-requests:write 与 id-token:write（或等价凭据）"
         ],
         "limitations": [
-          "语料仅限 Scopus 同行评审期刊",
-          "筛选由单一评审完成",
-          "缺少统一轨迹级 benchmark",
-          "原型结论限于软件工程、医疗、网络安全与机器人等领域"
+          "指南为厂商材料，效果数字未独立复核",
+          "fork PR 不应获得 scanner token，需维护者审批",
+          "扫描时延与成本取决于全仓基线和 Code API 支持范围"
         ]
       }
     },
     {
-      "item_id": "item-dd75d7c389d25fe092b40352948023b1",
-      "event_id": "80147ad8-06e3-5c37-abb6-4a481b04e398",
-      "type": "paper",
-      "title": "运维Agent综述：22个系统仅2个能写操作",
-      "source": "arxiv.org",
-      "published_at": "2026-11-18T01:00:39Z",
-      "canonical_url": "https://arxiv.org/pdf/2611.21620",
-      "summary": "浙江大学团队的综述审计了 22 个语言模型驱动的运维系统：14 个仍是 copilot，6 个只读调查，仅 2 个可写操作，且都在受限动作信封内，均无 E4 生产结果证据。文章据此提出能力—权限—证据三维框架、四平面参考架构和受控采用路径。",
-      "why_it_matters": "它把运维 Agent 的讨论从“模型能否诊断”推进到“系统凭什么改生产”，并给出可核验的证据分级；对准备让 Agent 接告警、执行 restart 或 scale 的团队，这是一张权限与验证清单。",
+      "item_id": "item-675f0741f74d5e5c98e31ee5d1000ba5",
+      "event_id": "7dd71459-951a-5eae-8a3a-a6a1695e06a4",
+      "type": "news",
+      "title": "用CDK部署Claude工具桥到ECS（非完整MCP）",
+      "source": "medium.com",
+      "published_at": null,
+      "canonical_url": "https://medium.com/@dineshshuttler/mcp-unlocked-building-a-claude-ready-ai-agent-server-with-aws-cdk-and-node-js-15c2eb9f142f",
+      "summary": "一篇教程展示如何用 Node.js 22、TypeScript 和 Express 搭建面向 Claude 的自定义 HTTP 工具桥（非完整 MCP 服务端）：通过 AWS Bedrock 调用模型，用 Docker 打包并推送到 ECR，再由 AWS CDK 部署到 ECS Fargate 和 ALB。示例提供 POST /mcp 接口，接收 tool_name 与 arguments；作者称预期响应包含模型结果、模型信息与 token 用量，但文中未给实际响应样例。作者同时提醒这还不是完整 MCP 协议实现。",
+      "why_it_matters": "它把工具服务的容器化、Bedrock 接入和 IaC 部署串成参考样例，可作评估 Claude Agent 后端落地成本的起点，也能看清自定义 HTTP 桥与完整 MCP 在协议和运维上的差距；作者未给实测成本或延迟。",
       "key_facts": [
         {
-          "fact": "综述审计 22 个语言模型驱动的运维系统：14 个停留在 copilot 层，6 个为只读调查者，仅 2 个行使写权限；两者都使用受限动作信封，且均无 E4 生产结果证据。",
+          "fact": "教程用 Node.js 22、Express、TypeScript 构建 /mcp POST 接口，请求包含 tool_name 和 arguments，经 AWS Bedrock 调用 Claude；作者称预期响应含模型结果与 token 用量，但未展示实际响应样例。",
           "ref_ids": [
-            "ref-4193732a8ee7"
+            "ref-1429700cb81a"
           ]
         },
         {
-          "fact": "综述提出四平面参考架构、E0—E4 证据等级、评估阶梯与受控采用路径，用于区分实验环境能支持何种运维主张。",
+          "fact": "部署链路为 Docker 多阶段构建、ECR 镜像仓库、ECS Fargate 服务、ALB 暴露 8080 端口，基础设施由 AWS CDK 定义。",
           "ref_ids": [
-            "ref-4193732a8ee7"
+            "ref-1429700cb81a"
           ]
         },
         {
-          "fact": "审计按系统实际被评估的行为而非宣称的自主性分类，并将“推荐诊断”“收集新证据”“改变生产状态”视为不同权限。",
+          "fact": "作者说明示例只是自定义 HTTP 工具桥；若要声称完整 MCP 兼容，还需实现官方 MCP 的传输、初始化、能力发现和工具调用要求。",
           "ref_ids": [
-            "ref-4193732a8ee7"
+            "ref-1429700cb81a"
+          ]
+        },
+        {
+          "fact": "DockerImageAsset 可能出现源码改动未进镜像的问题，教程用 BUILD_NUMBER 构建参数强制重建。",
+          "ref_ids": [
+            "ref-1429700cb81a"
           ]
         }
       ],
-      "technical_analysis": "核心变化是把运维系统按“能做什么、被允许做什么、有何证据”拆开，而不是按任务或模型分类，从而暴露一种常见错配：benchmark 或沙箱成功率被当作生产自主性的证据。来源未比较只读与可写系统的副作用或恢复收益；两套写权限系统都只在受限工具或事务信封内运行，分别由用户研究和交互式测试床支持，且均无 E4 生产结果证据。编辑推断：评估应把权限等级与证据等级绑定，避免用离线准确率替代生产验证。",
+      "technical_analysis": "核心变化不是模型能力，而是把工具调用从提示词文本转成结构化 HTTP 请求：tool_name/arguments 先被 TypeScript 约束和运行时校验，再交给 Bedrock。这样便于复用和拆分服务，但文章只定义了自定义协议，MCP 的会话初始化、能力协商和传输层都未覆盖；ECS Fargate 常驻服务会带来固定资源成本，ALB 公网暴露还需自行补认证授权（作者列为缺口）。编辑推断：若按完整 MCP 改造，接口契约和部署单元都要调整。",
       "deep_dive": [
         {
-          "heading": "审计口径：按行为而非自主性标签",
-          "content": "综述把 agentic 拆成四个可观察属性：明确运维目标、持续调查状态或假设、迭代选择观测或工具、基于新证据做出停止/升级/行动决定；系统至少满足两项才纳入。审计不按作者宣称的自主级别，而按论文实际评估的行为分类，并把“推荐诊断”“收集新证据”“改变生产状态”视为不同权限。范围也划了边界：通用 coding agent 不在运维语料内，只有从运维证据出发、且变更需用运维结果检验时才纳入，如 OrcaRepair；SWE-bench、SWE-agent、Agentless 仅用于界定评估边界。",
+          "heading": "请求契约与代码结构",
+          "content": "教程把请求结构定义为 McpRequest：tool_name 为字符串，arguments 为键值对象；server.ts 负责接收请求、校验 payload、构造 Bedrock 调用并返回模型响应。实现提到用 BedrockClient 与 InvokeModelCommand 访问 Claude，并用 TypeScript 的 satisfies 保持对象结构受约束。编辑推断：这种“工具名+参数”的扁平契约适合少量固定工具，但工具发现、版本化和权限粒度都要额外设计，否则调用方仍要硬编码工具清单。",
           "ref_ids": [
-            "ref-4193732a8ee7"
+            "ref-1429700cb81a"
           ]
         },
         {
-          "heading": "证据阶梯：E0到E4各自能证明什么",
-          "content": "证据分级把“系统更强”和“证据更硬”分开。E0 只是概念或未验证架构；E1 是公开或构造的离线数据（含故障注入），只能说明比较准确率，不能说明有机故障下的行为；E2 用历史生产事故或遥测做离线回放，增加真实分布但仍带后见之明；E3 是用户研究、影子流程或生产组件部署，证明有人使用，不证明结果改善；E4 才是前瞻性 canary 或生产对照，测量恢复效果与负面影响。作者还强调证据只适用于被评估的组件：生产数据采集器不会把离线诊断抬升为生产证据。",
+          "heading": "CDK 与容器化部署细节",
+          "content": "部署部分从 cdk init app --language typescript 开始，并要求对每个 account/region 执行 cdk bootstrap。镜像用 node:22-alpine 多阶段构建，构建阶段 npm ci --omit=dev 后编译，运行阶段只复制 dist 与 node_modules。CDK 栈创建 ECR、ECS Fargate 服务与 ALB，示例任务配置为 cpu 512、memory 1024 MiB、容器端口 8080；作者用 BUILD_NUMBER 构建参数规避 DockerImageAsset 缓存导致源码未更新。",
           "ref_ids": [
-            "ref-4193732a8ee7"
+            "ref-1429700cb81a"
           ]
         },
         {
-          "heading": "写权限的现状与采用边界",
-          "content": "写权限并不等于全自动。被审计的两个可写系统都运行在受限工具或事务信封内，一个有人类用户研究支持，另一个靠交互式测试床，均未达到 E4。综述据此提出四平面参考架构，把证据、推理、工具、验证与安全控制分层，并要求每次状态变更通过单一治理闸门。建议验证：先只读接入告警与拓扑，跑影子调查；再在测试床验证 restart/scale/rollback 的工具信封；最后做小流量 canary，预先定义恢复指标与负面效应停止条件。编辑推断：这套路径的瓶颈不是模型能力，而是权限与证据链的工程化。",
+          "heading": "验证方式与新增边界",
+          "content": "验证脚本构造 {tool_name:\"search\", arguments:{query:\"latest CDK patterns\"}}，POST 到 ALB 的 /mcp，检查 HTTP 响应并打印返回 JSON。作者称预期响应含模型结果、模型信息与 token 用量，但文中未展示实际响应样例或日志。作者在 What's Next 列认证授权、CloudWatch 监控与结构化日志、ECS 自动扩缩、CI/CD、请求校验等缺口；未提限流。建议验证：先测无认证公网暴露、Bedrock 超时与重试、并发下 Fargate 成本，再决定是否升级为共享工具服务。",
           "ref_ids": [
-            "ref-4193732a8ee7"
+            "ref-1429700cb81a"
           ]
         }
       ],
-      "evidence_note": "实际读到 arXiv 摘要与引言，含贡献、审计计数、agentic 定义、E0—E4 证据等级和四平面架构概述；未获得全文的 22 系统逐项审计表、四平面完整设计、评估阶梯与 adoption path 细节，无法核验具体系统名单与实验数字。来源元数据日期为 2026 年 11 月 18 日，内文标注 v1 为 2026 年 9 月 6 日。",
-      "application": "先盘点现有 AIOps 中哪些环节只读、哪些会改状态；对写操作设独立审批与回滚，别用离线准确率替代生产验证。",
-      "caveats": "读到的是论文摘要与引言，未获得 22 个系统的完整审计表、四平面细节及 E4 实验设计；来源日期元数据与内文 v1 日期不一致。",
-      "confidence": 0.78,
+      "evidence_note": "实际读到教程正文摘取与代码片段；未获得独立复现、成本或延迟数据、实际响应样例和完整 MCP 协议实现细节。发布日期仅显示相对时间，未获得绝对日期。",
+      "application": "可先按教程搭建 /mcp 最小链路，验证 Bedrock 调用与 CDK 部署；生产前补 MCP 协议兼容、认证授权，不要直接公网暴露。",
+      "caveats": "个人教程，无实测性能/成本；示例非完整 MCP，缺少认证授权、CloudWatch 监控与自动扩缩等生产项。",
+      "confidence": 0.74,
       "relevance_tags": [
-        "AIOps",
-        "Agent",
-        "LLM",
-        "运维自动化",
-        "评估证据",
-        "SRE"
+        "MCP",
+        "Claude",
+        "AWS CDK",
+        "ECS Fargate",
+        "Bedrock",
+        "Agent部署"
       ],
       "related_item_ids": [],
       "sources": [
         {
-          "ref_id": "ref-4193732a8ee7",
+          "ref_id": "ref-1429700cb81a",
           "source_id": "tinyfish-discovery",
-          "url": "https://arxiv.org/pdf/2611.21620",
-          "title": "From AIOps Pipelines to Agentic Service Operations: A Survey of Capability, Authority, and Evidence",
-          "publisher": "arxiv.org",
-          "published_at": "2026-11-18T01:00:39Z",
-          "retrieved_at": "2026-11-18T22:02:04.488630Z"
+          "url": "https://medium.com/@dineshshuttler/mcp-unlocked-building-a-claude-ready-ai-agent-server-with-aws-cdk-and-node-js-15c2eb9f142f",
+          "title": "Building a Claude-Ready AI Agent Server with AWS CDK and Node.js",
+          "publisher": "medium.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-19T22:00:44.507381Z"
         }
       ],
       "claim_refs": [
         {
           "claim_index": 0,
           "ref_ids": [
-            "ref-4193732a8ee7"
+            "ref-1429700cb81a"
           ]
         },
         {
           "claim_index": 1,
           "ref_ids": [
-            "ref-4193732a8ee7"
+            "ref-1429700cb81a"
           ]
         },
         {
           "claim_index": 2,
           "ref_ids": [
-            "ref-4193732a8ee7"
-          ]
-        }
-      ]
-    },
-    {
-      "item_id": "item-a9f5c4ca24735389871ccdcde1185ac6",
-      "event_id": "28268479-9784-536a-a923-4d1ca9b19f61",
-      "type": "github",
-      "title": "langchain-openai 1.8.2 分离异步客户端",
-      "source": "langchain-ai/langchain",
-      "published_at": "2026-11-18T16:53:05Z",
-      "canonical_url": "https://github.com/langchain-ai/langchain/releases/tag/langchain-openai%3D%3D1.8.2",
-      "summary": "langchain-openai 发布 1.8.2，相对 1.8.1 列出三项变更：不再让不同模型共用同一个异步 HTTP client；新增对 GPT-6.2 Astra 与 Sol 的支持；客户端开始发送 langsmith_gateway 请求头。发布页仅给出 commit 标题与 2026-11-18 发布日期；本次抓取内容未包含 diff、PR 描述、迁移指引或测试结果，具体行为需查对应 PR。",
-      "why_it_matters": "多模型混跑时，若此前共享异步 client，连接复用、超时与凭据隔离可能相互影响；该变更若按标题生效，可收窄故障域。但发布说明未展开机制，实际收益需结合代码与回归验证。",
-      "key_facts": [
-        {
-          "fact": "1.8.2 的 fix(openai) 变更标题为「don't share the async HTTP client between models」（#41944）",
-          "ref_ids": [
-            "ref-0b1a28c9bdd9"
+            "ref-1429700cb81a"
           ]
         },
         {
-          "fact": "新增 feat(openai)「support GPT-6.2 Astra and Sol」（#41922）",
+          "claim_index": 3,
           "ref_ids": [
-            "ref-0b1a28c9bdd9"
-          ]
-        },
-        {
-          "fact": "客户端新增发送 langsmith_gateway 请求头（#41901）",
-          "ref_ids": [
-            "ref-0b1a28c9bdd9"
-          ]
-        },
-        {
-          "fact": "发布页标注发布于 2026-11-18",
-          "ref_ids": [
-            "ref-0b1a28c9bdd9"
+            "ref-1429700cb81a"
           ]
         }
       ],
-      "technical_analysis": "三项变更分别涉及资源生命周期、新模型声明和请求头。发布说明只给出 commit 标题：#41944 称不再在不同模型间共享异步 HTTP client，但未解释此前共享的具体范围、关闭语义或连接池行为；#41901 新增 langsmith_gateway 头，未说明取值、可关闭性与代理兼容性；#41922 仅写支持 GPT-6.2 Astra 与 Sol，未给出模型 ID、上下文或参数差异。编辑推断：若旧代码确实依赖跨模型复用连接，升级需回归连接创建/关闭与凭据隔离；但这属于待验证推断，不是发布说明的事实。",
-      "deep_dive": [],
-      "evidence_note": "实际读到 GitHub release 页的变更列表（三条 commit 标题、发布日期），页面标签/资源区加载报错。本次抓取未获得 diff、PR 描述、测试结果、模型文档及独立复现信息。",
-      "application": "升级前排查是否有代码依赖跨模型共享 client 的连接复用；在多模型并发场景回归连接创建/关闭与凭据隔离。",
-      "caveats": "仅见三条 commit 标题；本次抓取未获 diff、PR 与测试；官方变更声明不等于独立复现，具体机制待验证。",
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://medium.com/@dineshshuttler/mcp-unlocked-building-a-claude-ready-ai-agent-server-with-aws-cdk-and-node-js-15c2eb9f142f",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 77,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "教程给出 cdk bootstrap、cdk init 与 Dockerfile 多阶段构建步骤，构成可执行启动路径。",
+            "ref_ids": [
+              "ref-1429700cb81a"
+            ]
+          },
+          {
+            "point": "包含 McpRequest 接口、/mcp POST 示例和测试 payload（tool_name: search, query: latest CDK patterns）。",
+            "ref_ids": [
+              "ref-1429700cb81a"
+            ]
+          },
+          {
+            "point": "What's Next 明确列出认证授权、CloudWatch 监控、自动扩缩与 CI/CD 等待补边界。",
+            "ref_ids": [
+              "ref-1429700cb81a"
+            ]
+          }
+        ],
+        "try_it": [
+          "安装 AWS CDK CLI 并执行 cdk bootstrap（每个 account/region 都要做）。",
+          "按教程创建 Node.js/TypeScript Express 服务与 Dockerfile，构建镜像并推送到 ECR。",
+          "用 CDK 部署 ECS Fargate 与 ALB，再用 Node 脚本 POST /mcp 验证 Bedrock 返回。"
+        ],
+        "requirements": [
+          "AWS 账户与 CDK bootstrap 权限",
+          "Bedrock Claude 模型访问权限",
+          "Node.js 22、Docker、AWS CLI/CDK CLI"
+        ],
+        "limitations": [
+          "示例不是完整 MCP 协议实现",
+          "缺少认证授权、CloudWatch 监控与自动扩缩等生产项",
+          "Fargate/ALB 会产生常驻云成本，文章未给成本数据"
+        ]
+      }
+    },
+    {
+      "item_id": "item-6c506508d9295eabbeab3bd1579f1359",
+      "event_id": "e72a0a3d-aa7e-5ab6-b069-5e3533aaf4b0",
+      "type": "paper",
+      "title": "给coding agent加运行时事务层",
+      "source": "arxiv.org",
+      "published_at": "2026-11-19T01:00:18Z",
+      "canonical_url": "https://arxiv.org/pdf/2611.23234",
+      "summary": "论文提出用五层 runtime transaction schema（Identity & Session、Task Context、Routing、Execution、Outcome Link）补 artifact 数据集的盲区：commit、PR 和 benchmark 只记录结果，结构上漏掉失败重试、fallback 和 abandoned 会话。作者用 local-first 原型 Atm 在 key-mode 下合并网关记录与本地 transcript，并主张不把 prompt 内容外传；但未测对齐启发式误匹配率，也未给干预效果数据。",
+      "why_it_matters": "作者认为成本与可靠性常藏在重试和 fallback 中，最终 patch 不体现；缺少 outcome link 时，“每请求降价”可能等于“每完成任务更贵”，论文用 8K token 路由策略示例说明。",
+      "key_facts": [
+        {
+          "fact": "artifact 数据集只覆盖 commit、PR、通过测试与 benchmark 结果；没有产出 artifact 的会话不会留下可采集痕迹，因而形成 survivorship bias（幸存者偏差）。",
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "fact": "schema 分五层；其中 cross-tool session_id、task_id、task_type、stage 与 outcome_link 在作者考察的现有工具中没有默认对应字段，outcome_type 包含 merged_pr、committed_patch、abandoned 等枚举。",
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "fact": "Atm 是 local-first 设计探针：以 key-mode 本地代理拦截网关流量，并读取 ~/.claude/、~/.codex/ 等 transcript；靠时间窗口、模型名和 token 数一致对齐，作者尚未测量该启发式的误匹配率。",
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "fact": "作者列出三个待解问题：没有共享 request id 时的 trace 对齐、跨异步系统的 outcome linking、干预因果性。",
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        }
+      ],
+      "technical_analysis": "核心变化是把分析单元从 span/request 换成 task，并把 outcome link 作为成本与成功率指标的分母，否则 token 数无法区分成功重构、失败重试与被策略拦截。采集侧权衡：作者主张 local-first 不把 prompt 内容外传，并称可避免源码 payload 外流；代价是集中式跨团队对比更难（编辑推断）。key-mode 合并网关记录与 transcript 条目；subscription-mode 从构造上只能 transcript-only。对齐启发式未测误差，意味着下游漏斗和成本归因都可能系统性偏移。",
+      "deep_dive": [
+        {
+          "heading": "哪一层真正缺字段",
+          "content": "论文把 Execution 层（request_ts、token、status）对应到 OpenTelemetry GenAI span 属性与 Langfuse observation 字段，把 policy_id、resolved_model、fallback_chain、cost_usd 对应到 LiteLLM、Helicone 的网关元数据，说明请求级成本与路由并非空白。真正的缺口集中在两侧：跨工具 session_id 与 task_id/task_type/stage 在作者考察的现有工具中没有默认可写位置，Outcome 层则在网关与 transcript 中都缺席，因此连“每个 accepted patch 的成本”都算不出来。作者据此认为，这不是分析方法不够，而是缺少数据基座。",
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "heading": "Atm 的对齐逻辑与已知盲区",
+          "content": "Atm 以本地后台进程运行，在 key-mode 下用本地代理截获网关请求，同时读取各 agent 各自的 transcript 目录，每条记录带时间戳、token 计数和会话边界标记。task_type 靠把项目目录手工映射到 systems、ml-research、writing 三个标签，粒度很粗。对齐规则是时间落在小窗口内且模型名与 token 数一致才合并网关记录与 transcript 条目；订阅模式下没有网关记录，只能标为 transcript-only。作者明确表示未测该启发式的 false-match、missed-match、ambiguous-match 率，并把在标注样本上报告这三项列为信任任何回路的前提。",
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "heading": "三个回路各自卡在哪一层",
+          "content": "Loop 1 工程辅导依赖 identity：作者在单次小规模部署中观察到，同样产出 accepted patch 的开发者，有人 token 消耗约为同伴五倍；只有运行时 trace 能看出上下文过宽、缺计划步骤、无新信息的重试，但跨工具 session id 无人默认记录。Loop 2 工作流优化依赖粒度：阶段与 action 序列缺失，导致可以看单条失败 transcript，却无法回答哪个阶段最常预测放弃。Loop 3 路由策略最接近可行，网关已有大部分字段，只缺 outcome join；没有它，按请求成本与按完成任务成本可能背离（编辑推断）。",
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "heading": "编辑推断：可先验证的最小实验",
+          "content": "以下为编辑推断，非论文结论。若要判断该 schema 是否值得落地，可先做一件很窄的事：在自己团队固定一种 agent 工具，采集一周网关与 transcript，人工标注数百条请求的匹配真值，算出三类匹配错误率与 outcome 覆盖率，再 backsolve 成本归因的误差带。建议验证：当对齐误差超过阈值时，路由策略 A/B 的结论是否会翻转。论文本身只提供了字段清单与对齐思路，没有任何准确率、召回率或干预前后对比数字，不能据此宣称回路已能改善产出。",
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 arXiv PDF 提取的摘要与部分正文：含图1架构说明、表1五层 schema 字段表、第3至5节论证、第6节 Atm 方法开头。第6节部署规模与后续段落被截断，未获得实验数据、匹配错误率、相关工作全貌与结论部分。来源元数据日期为 2026-11-19，PDF 首页标 2026-08-11，日期不一致，未核清版本/发布时间。",
+      "application": "先在小范围采集网关与 transcript，人工标注样本测对齐准确率，再谈路由策略 A/B。",
+      "caveats": "仅是 design probe 与单次小规模部署的存在性证据，无匹配错误率与干预效果数据；预印本正文未读全，元数据日期与 PDF 首页不一致。",
       "confidence": 0.55,
       "relevance_tags": [
-        "langchain",
-        "openai",
-        "SDK 发布",
-        "async client",
-        "Agent 基础设施"
+        "coding-agent",
+        "AgentOps",
+        "runtime-observability",
+        "routing-policy",
+        "arxiv"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-eba276f64a5b",
+          "source_id": "tinyfish-discovery",
+          "url": "https://arxiv.org/pdf/2611.23234",
+          "title": "Tracing the Messy Middle: A Runtime Transaction Schema for AI Coding Agents",
+          "publisher": "arxiv.org",
+          "published_at": "2026-11-19T01:00:18Z",
+          "retrieved_at": "2026-11-19T22:00:50.245323Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-eba276f64a5b"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-37250b6b8a9459a7b87b3c97064003b0",
+      "event_id": "a18d1b69-e1ba-59dc-b99d-90f86524031b",
+      "type": "news",
+      "title": "RAG 生产架构：检索前先授权，引用须可验证",
+      "source": "dev.to",
+      "published_at": "2026-11-19T14:18:41Z",
+      "canonical_url": "https://dev.to/quokkalabs/rag-architecture-in-2026-retrieval-reranking-access-control-citations-and-evaluation-5g2n",
+      "summary": "Quokka Labs 于 2026 年 11 月 19 日在 dev.to 发布企业 RAG 生产蓝图，把系统拆成摄取与查询两条链路：先用混合检索取 30–50 个授权候选，再 rerank；评测用 nDCG@5 比较 rerank 后 top-5 与基线，伪代码则取前 6 条证据。检索前按租户与文档级权限过滤，生成侧要求引用可定位到章节并对齐证据，不足则弃答；另给出含 Recall@20、nDCG@5、测试集中越权暴露零观测的发布评分卡。",
+      "why_it_matters": "企业 RAG 的上线阻断点常不只是检索不准：越权检索和看似有据、实则编造的引用同样会让系统无法交付。这套把授权前置、引用对齐与分层指标写进验收的做法，可直接借用为自查清单。",
+      "key_facts": [
+        {
+          "fact": "文章主张企业 RAG 必须在检索前完成用户身份认证与文档级权限过滤，检索后还要复核所选证据的读权限，并防止共享缓存跨用户泄露。",
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        },
+        {
+          "fact": "文章给出混合检索 + cross-encoder rerank 的流程：先取 30–50 个授权候选；评测以 nDCG@5 对比 rerank 后 top-5 与基线，伪代码则 rerank(...)[:6]，两处口径不同，且候选区间是实验值而非通用配置。",
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        },
+        {
+          "fact": "据原文称，2026 年 EMNLP 的 EvidenT 行业研究在约 500 条企业查询上，gold-source hit rate 比 prompting 基线平均提升 29%；该研究在文中仅一句转述。",
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        },
+        {
+          "fact": "发布评分卡列出 Recall@20、nDCG@5、Unauthorized exposure 在测试套件中零观测、claim-support 率、p95 延迟与单次回答成本，并建议用含冲突文档与越权请求的版本化数据集做回归。",
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        }
+      ],
+      "technical_analysis": "文章把 RAG 从“向量检索 + 拼 prompt”改为带证据门的架构：权限过滤前置到检索前，引用绑定文档版本与章节，无法对齐就弃答。编辑推断：检索前按 ACL 过滤可能压缩召回，引用校验与弃答可能提高 p95 延迟；原文只要求权限前置和引用可核验，未给这些权衡的实测。cross-encoder rerank 原文称会增加算力成本，延迟影响属外推。30–50 候选、top-6 进上下文依赖语料与 chunk 粒度，只能作自测起点。",
+      "deep_dive": [
+        {
+          "heading": "摄取链路：每个 chunk 要带的元数据",
+          "content": "文章把摄取定义为“文档 → 解析 → 切分 → 元数据 + ACL → 索引”，并明确每个索引块要保留 document ID、tenant ID、访问策略、来源位置、版本和更新时间。原文强调缺少这些元数据会使检索质量与安全难以验证，生产实现还要处理权限撤销与带策略版本的缓存。编辑推断：没有 tenant ID 很难在查询时做租户隔离；权限撤销后到重新索引前，旧索引可能出现“已撤权但仍可检索”的窗口。",
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        },
+        {
+          "heading": "Retrieval Failure Ladder 与混合检索诊断",
+          "content": "文章引用 Quokka Labs 自有的 Retrieval Failure Ladder，把证据消失或失真的位置划成八个阶段，覆盖索引、检索、排序、上下文与生成；其工程规则是“先诊断证据为什么没出现，再考虑换 LLM”。配套例子是查询“policy SEC-204 是否允许导出客户审计日志”：dense 向量容易找到语义相近的安全指引，BM25 能命中精确编号，两者用 Reciprocal Rank Fusion 合并候选。对关系型问题文章另提 graph retrieval，但未给出对照数据。",
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        },
+        {
+          "heading": "五类对抗测试、放行规则与引用校验",
+          "content": "文章列出值得自动化的五类测试：请求用户无权访问的文档；在索引后撤销权限并重复查询；放入同一策略的冲突版本；在检索到的文档里注入恶意指令；提出无法回答的问题并检查是否弃答。配套放行规则是：发布引入越权暴露或伪造引用就阻断部署。文章引用 LangSmith 的评测指引时，只区分离线回归测试与线上持续监控，未给出“前者防回归、后者才能发现新失效”的因果结论。引用校验的增量口径是 claim-to-evidence 对齐，例如“保留 90 天 [Policy SEC-204, Section 4.2]”只有在 Section 4.2 确实写明保留期时才成立。",
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到 dev.to 文章全文（含流程图、伪代码、评分卡与检查清单），非摘要。未获得 EvidenT 原始论文、2026 年 10 月 RAG 安全 benchmark 的具体结论、延迟/成本实测，也无开源实现可核验。",
+      "application": "先自查检索是否做了权限前置过滤、引用是否可对齐证据，再补基线和回归集；候选数不要照搬。",
+      "caveats": "来源为厂商博客自述架构，无开源代码或第三方复现；EvidenT 29% 仅一句转述，参数与权衡多需自测。",
+      "confidence": 0.6,
+      "relevance_tags": [
+        "RAG",
+        "检索增强生成",
+        "access control",
+        "evaluation",
+        "enterprise architecture"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-c90889e3be88",
+          "source_id": "tinyfish-discovery",
+          "url": "https://dev.to/quokkalabs/rag-architecture-in-2026-retrieval-reranking-access-control-citations-and-evaluation-5g2n",
+          "title": "RAG Architecture in 2026: Retrieval, Reranking, Access Control, Citations, and Evaluation",
+          "publisher": "dev.to",
+          "published_at": "2026-11-19T14:18:41Z",
+          "retrieved_at": "2026-11-19T22:01:05.235117Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-c90889e3be88"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://dev.to/quokkalabs/rag-architecture-in-2026-retrieval-reranking-access-control-citations-and-evaluation-5g2n",
+        "kind": "rag_eval",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 87,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "文章公开了摄取与查询两条链路的完整流程，以及带权限过滤与弃答的 answer() 伪代码。",
+            "ref_ids": [
+              "ref-c90889e3be88"
+            ]
+          },
+          {
+            "point": "给出分层发布评分卡：Recall@20、nDCG@5、测试集中越权暴露零观测、claim-support 率、p95 延迟、单次回答成本。",
+            "ref_ids": [
+              "ref-c90889e3be88"
+            ]
+          },
+          {
+            "point": "明确安全边界：检索前按 tenant/user/group 过滤，证据二次复核，处理权限撤销与缓存隔离。",
+            "ref_ids": [
+              "ref-c90889e3be88"
+            ]
+          }
+        ],
+        "try_it": [
+          "在现有索引的每个 chunk 上补 tenant ID、ACL、来源位置与版本，再检查查询是否真的按权限过滤。",
+          "取 30–50 个授权候选做混合检索 + rerank，用 nDCG@5 对比无 rerank 基线的 top-5。",
+          "把五类对抗测试（越权、撤权、冲突版本、注入、不可答）写进回归集，越权或伪造引用即阻断发布。"
+        ],
+        "requirements": [
+          "可用的身份与文档级权限系统（文章引用 Microsoft 的文档级访问控制指引）",
+          "支持 BM25 与向量混合检索及 rerank 的检索栈",
+          "含真实支持问题、冲突文档与越权请求的版本化评测集",
+          "可观测的 p95 延迟与单次回答成本统计"
+        ],
+        "limitations": [
+          "来源为厂商博客自述架构，无开源代码或第三方复现",
+          "30–50 候选、top-6 等参数为经验值，无跨语料验证",
+          "未提供 rerank 带来的延迟与成本增量数据",
+          "EvidenT 的 29% 仅一句转述，测试设置不明"
+        ]
+      }
+    },
+    {
+      "item_id": "item-80c1a07bf7ef5dd88630c8b1c1834d27",
+      "event_id": "ceece0b3-3890-57a1-9a7b-e356d0cf6c25",
+      "type": "blog",
+      "title": "Agent平台银行bakeoff：三层结果与光环效应",
+      "source": "ai-tokens.cn",
+      "published_at": "2026-11-19T00:00:00Z",
+      "canonical_url": "https://ai-tokens.cn/news/news-86372f2bdab0f1e3.html",
+      "summary": "一家全球银行创新实验室对 10 个 Agent 平台开展 bakeoff，覆盖开源框架、商业产品与超大规模云生态；跨职能评审团按 9 个能力维度、3 个金融业务负载（对手方信用风险、RAG、流程自动化）打分。摘要称平台分为三层且在替代权重下稳定，并显示汇总分数掩盖的负载特定优势；二次分析发现维度间 Cronbach's alpha=0.98，九个中八个与总分秩相关≥0.93，作者称光环效应。",
+      "why_it_matters": "企业采购 Agent 平台常依赖厂商演示；该摘要提示演示评分可能同时测到呈现水平。三层结果与 gate-then-score 协议可作为选型讨论起点，但需等待全文与分项数据。",
+      "key_facts": [
+        {
+          "fact": "据摘要，一家全球银行创新实验室对 10 个 Agent 平台开展 bakeoff，覆盖开源框架、商业产品与超大规模云生态，评审团按 9 个能力维度、3 个金融负载评分。",
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        },
+        {
+          "fact": "据摘要，评分将平台分为三层，且在替代权重下保持稳定，并显示被总分掩盖的负载特定优势。",
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        },
+        {
+          "fact": "据摘要的二次分析，九个名义上不同的维度间 Cronbach's alpha=0.98；九个维度中有八个与总分的秩相关≥0.93，作者称其为光环效应。",
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        },
+        {
+          "fact": "作者提出四层 gate-then-score 协议：capability、execution reliability、governance gates、business value，并配套重复运行 trace 级可靠性指标、autonomy-readiness 量表与复现协议。",
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        }
+      ],
+      "technical_analysis": "评测对象从固定 harness 中的模型转为含编排、Memory、治理与工具层的集成 Agent 平台。摘要的主结果是平台分为三层且在替代权重下稳定，同时汇总分数掩盖负载特定优势；光环效应来自二次分析：维度间 alpha=0.98、多数维度与总分高度相关，说明演示评分区分度不足。作者据此提出四层 gate-then-score：capability、execution reliability、governance gates、business value，并配套重复运行 trace 级指标、autonomy-readiness 量表与复现协议。",
+      "deep_dive": [
+        {
+          "heading": "三层结果与负载差异（摘要）",
+          "content": "摘要显示，bakeoff 覆盖 10 个平台，类型横跨开源框架、商业产品与超大规模云生态，由跨职能评审团围绕 9 个能力维度打分；三类负载为对手方信用风险、RAG 与流程自动化。总分把平台分为三层，且换用不同权重后分层仍稳定。摘要还称汇总分数会掩盖负载特定优势，但没有披露平台名称、各维度分数和权重。编辑示意：某平台可能在信用风险上更强、总排名却未必体现——这只是说明“汇总掩盖差异”的示意，不是摘要给出的实例。因此无法判断具体哪类平台在哪类负载领先。",
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        },
+        {
+          "heading": "光环效应与四层评测协议",
+          "content": "摘要给出的关键统计是：九个名义上不同的能力维度之间 Cronbach's alpha=0.98，九个维度中有八个与总分的秩相关不低于 0.93。作者据此判断，基于厂商演示的评分存在光环效应，测到的不仅是能力，也包括呈现水平；这是二次分析结论，不是摘要主结果。为此提出 gate-then-score：第一层 capability，第二层 execution reliability，第三层 governance gates，第四层 business value；可靠性要用重复运行得到的 trace 级指标估计，并配套 autonomy-readiness 量表与复现协议。编辑推断：这套框架把评审从结构化判断推向测量，但前提是评审流程能获得可追溯日志与足够重复次数。",
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        }
+      ],
+      "evidence_note": "实际经 ai-tokens.cn 转载页读到 arXiv 摘要；未直接访问 arXiv，未获得 PDF 全文、平台清单、分项得分、权重、评测时间与复现材料。hackobar 页面正文为空，其标题与转载页不同，疑为同一摘要的另一标题。",
+      "application": "采购团队可先用四层 gate-then-score 拆解需求，要求供应商提供重复运行的 trace 级可靠性数据；不要把演示分数直接作为选型依据。",
+      "caveats": "仅读到转载摘要；平台名单、分项得分、权重、评测时间与复现材料均缺，三层结果与 alpha=0.98 均为作者自述，未独立核验。",
+      "confidence": 0.74,
+      "relevance_tags": [
+        "Agent评测",
+        "企业采购",
+        "受监管行业",
+        "benchmark",
+        "AI治理"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-f5f23ea39f5a",
+          "source_id": "tinyfish-discovery",
+          "url": "https://ai-tokens.cn/news/news-86372f2bdab0f1e3.html",
+          "title": "A Capability Framework for Evaluating Agentic AI Platforms in Regulated Enterprises",
+          "publisher": "ai-tokens.cn",
+          "published_at": "2026-11-19T00:00:00Z",
+          "retrieved_at": "2026-11-19T22:01:43.853157Z"
+        },
+        {
+          "ref_id": "ref-edf6c077245d",
+          "source_id": "tinyfish-discovery",
+          "url": "https://hackobar.com/item/arxiv-a-capability-framework-for-evaluating-agentic-ai-platforms-i-97af",
+          "title": "Industrial Evaluation of Agentic AI Platforms in Banking",
+          "publisher": "hackobar.com",
+          "published_at": "2026-11-19T05:00:00Z",
+          "retrieved_at": "2026-11-19T22:01:43.853838Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-f5f23ea39f5a"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-5554d4e18275553c89cdb99e59d3e630",
+      "event_id": "bdebf818-318d-5663-b72b-a593c1cc5052",
+      "type": "news",
+      "title": "Gemini Mac 版：computer use 后台代操作",
+      "source": "blog.google",
+      "published_at": "2026-11-19T17:00:00Z",
+      "canonical_url": "https://blog.google/innovation-and-ai/products/gemini-app/computer-use-mac",
+      "summary": "2026年11月19日，Google 为 Mac 版 Gemini 应用加入 computer use：用户描述多步任务后，Gemini 在隔离的后台窗口完成点击、输入、菜单与表单填写，覆盖本地文件、桌面应用和网页。用户可选择可访问应用、观看实时预览、随时暂停，并在关键操作前审批。发布时为英语、美国地区，需 Apple Silicon Mac 与 macOS Sequoia 15.0+，面向 18 岁以上个人账号，限 Google AI Plus、Pro、Ultra 订阅。",
+      "why_it_matters": "桌面自动化进入直接操作 UI：本地文件与桌面软件都成为 Agent 可触达范围。官方只给出功能描述，未提供准确率、失败率或企业账号支持，应用权限与关键操作审批因此是采用时应先验证的风险边界。",
+      "key_facts": [
+        {
+          "fact": "Gemini 在 Mac 上以隔离的后台窗口执行任务，主屏和光标保持可用，聊天中提供实时预览。",
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        },
+        {
+          "fact": "用户可选择 Gemini 可访问的应用、随时暂停，并在关键操作发生前审批。",
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        },
+        {
+          "fact": "发布时为英语、美国地区，需 Apple Silicon Mac 与 macOS Sequoia 15.0+，面向 18 岁以上个人 Google 账号，限 Google AI Plus、Pro、Ultra 用户。",
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        }
+      ],
+      "technical_analysis": "官方把执行放在隔离后台窗口，并给出实时预览、暂停、应用权限选择与关键操作审批；这是一种可监督的半自动执行形态。它降低了主屏干扰，也把风险边界交给用户选择的应用范围。发布说明没有给出准确率、耗时或失败率，也未说明审批粒度与断点续跑，因而尚不能据此判断长流程任务的实际吞吐与可靠性（编辑推断：这两项是评估生产可用性的关键）。",
+      "deep_dive": [
+        {
+          "heading": "隔离窗口与控制手段",
+          "content": "官方描述的执行方式是把任务放在独立的后台窗口里跑，聊天界面同步给出实时预览，主屏与光标不被占用。控制手段包括：事先选择 Gemini 可访问的应用；过程中随时暂停；关键动作在执行前需用户批准。页面中的 AI 生成摘要曾写 approving every action，但正文为 approve key actions，且 AI 摘要标注为实验性，本文采用正文措辞。发布说明未展开审批粒度、暂停后能否从中断点续跑（编辑推断：这两点直接影响长流程任务可用性）。",
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        },
+        {
+          "heading": "官方列举的试用场景",
+          "content": "Google 给出四类例子：在设计软件中批量调色或搭建复杂 3D 场景；从本地 PDF 提取重量、尺寸与地址，填写多箱运费报价单；从多个地区实时 dashboard 抓取指标与截图，在 Google Slides 生成演示文稿；分析本地文件夹中的衣物照片，查价、记录商品信息并准备/暂存商品上架信息（stage listings）。共同点是读取本地文件并把结果落到另一界面；官方未说明这些场景与 API 集成方案的关系，也未给出成功率和耗时。",
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        },
+        {
+          "heading": "可用范围与未披露项",
+          "content": "发布时为英语、美国地区；需 Apple Silicon Mac 与 macOS Sequoia 15.0+；面向 18 岁以上个人 Google 账号；限 Google AI Plus、Pro、Ultra 用户。工作区/企业账号是否覆盖、其他语言与地区何时跟进、订阅档位间功能差异，来源均未提及。官方也未说明如何处理登录凭据、如何审计操作记录（编辑推断：这些空白会影响团队级采用与安全评审）。",
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是一篇 Google 官方产品博客页面全文，含功能描述、示例场景与脚注式前置条件；页面 AI 生成摘要写 approving every action，正文为 approve key actions，且 AI 摘要标为实验性。未获得独立测试、性能指标、定价细节、安全白皮书或企业版说明。",
+      "application": "符合机型与订阅的用户可用非关键任务试跑，先只授权单个应用并对关键操作审批；其他用户暂不必为尝鲜升级硬件。",
+      "caveats": "仅官方博客：无准确率、耗时、失败率；未说明企业账号、非英语上线与凭据处理；AI摘要与正文审批口径有差异。",
+      "confidence": 0.76,
+      "relevance_tags": [
+        "computer-use",
+        "Gemini",
+        "macOS",
+        "Agent",
+        "桌面自动化",
+        "权限控制"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-073459acfffb",
+          "source_id": "google-gemini",
+          "url": "https://blog.google/innovation-and-ai/products/gemini-app/computer-use-mac",
+          "title": "Let Gemini tackle repetitive chores on your Mac",
+          "publisher": "blog.google",
+          "published_at": "2026-11-19T17:00:00Z",
+          "retrieved_at": "2026-11-19T22:00:26.511101Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-073459acfffb"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-807234d7bd505de5bdabcc4860926c36",
+      "event_id": "a221d4b9-b083-5dac-aca6-09d4a7a647cf",
+      "type": "paper",
+      "title": "ML生产监控综述：78项中仅9项经真实生产评估",
+      "source": "arxiv.org",
+      "published_at": "2026-11-19T01:04:17Z",
+      "canonical_url": "https://arxiv.org/pdf/2611.23293",
+      "summary": "据摘要与引言，一篇多源文献综述（multivocal literature review）梳理94个来源（37篇学术、57篇灰色文献），构建监控对象、技术、工具与评估分类法。作者发现监控集中于推理环节，无来源覆盖完整生产ML系统；78个提出方法或工具的来源中，45个无正式评估，24个仅离线/受控评估，仅9个在真实生产环境评估。生成式AI证据多来自灰色文献与厂商声明。",
+      "why_it_matters": "它用可核验的分母提醒团队：生产监控的正式评估稀缺，真实生产验证仅9/78。选型与投入应按分层覆盖和生产证据校准，而不能把厂商声明当作已成熟。",
+      "key_facts": [
+        {
+          "fact": "据摘要与引言，综述纳入94个来源：37篇学术文献、57篇灰色文献，并建立覆盖监控对象、技术、工具、自动化与评估的分类法。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "fact": "78个提出方法或工具的来源中，45个无正式评估，24个仅做离线或受控评估，只有9个在真实生产环境评估。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "fact": "监控集中在推理环节，没有任何来源覆盖完整生产ML系统；配置、调查与响应仍需大量人工参与。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "fact": "生成式AI的监控证据以灰色文献和厂商声明为主。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        }
+      ],
+      "technical_analysis": "据摘要与引言，综述的贡献是把“生产监控”拆成对象、技术、信号、工具、自动化、频率、评估与挑战等维度，并据此指出流程不均衡：观测、检测与沟通已有较广自动化，配置、调查与响应仍需大量人工参与。监控集中在推理层，跨层根因诊断缺少覆盖；在78个提出方法/工具的来源中，45个无正式评估，24个仅离线/受控，9个真实生产。编辑分析：proxy validation 与面向生产的评估应成为设计约束，而非事后补充。",
+      "deep_dive": [
+        {
+          "heading": "五层对象框架的出处与细节边界",
+          "content": "论文在引言/背景第2.3节给出五层对象框架，用于跨组件分析生产 ML 系统；该节只展开前两层定义：预处理层覆盖数据摄取、校验、连接、转换与特征工程，关注 schema 一致性、完整性、新鲜度、训练—服务偏差与特征漂移；推理层覆盖从输入到模型输出以及模型选择与版本。摘要未给出其余三层定义，本文不补全。编辑分析：分层意图是把根因定位从单点指标扩展到跨层传播，但仅凭摘要与引言无法核验完整分类法。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "heading": "自动化分布与人工参与",
+          "content": "综述结论不是“监控全自动”：现有方法对观察系统行为、检测问题和沟通发现提供较广且大体自动化的支持；监控配置、问题调查与响应仍需大量人工参与。作者把组织实践列为六个改进方向之一，说明工具能力不能替代职责与流程设计。编辑分析：告警数量不是主要瓶颈，值班者能否获得上下文、明确升级路径并执行回滚或修复，才决定监控是否闭环。离线评估通常难以覆盖数据漂移、反馈回路与跨组件故障传播。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "heading": "正式评估的分母",
+          "content": "在78个提出方法或工具的来源中，45个没有正式评估，24个只做离线或受控评估，只有9个在真实生产环境评估。若以有正式评估的33个为分母，24个是离线/受控、9个是真实生产。这个分布说明多数证据停留在方法可行性与受控指标，而非线上故障检出、误报成本和处置收益。生成式 AI 部分更偏灰色文献与厂商声明，缺少可复现的生产对照；编辑推断：选型时应把“真实生产评估”单列，而不是只看离线 benchmark。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "heading": "六个方向作为评审清单",
+          "content": "作者提出六个方向：改进 monitor 设计、跨层诊断、proxy validation、纠正性响应、面向生产的评估，以及组织实践。前四项偏技术，后两项偏流程与证据标准。编辑建议：团队可把“跨层诊断”和“生产评估”写进监控方案评审——每个告警是否能回溯到预处理、推理与其他层，是否有线上验证而非仅离线回放。这比增加仪表盘数量更能检验监控是否可用。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "heading": "系统边界与静默失败",
+          "content": "论文把 ML 系统定义为模型加数据管道、软件组件、服务基础设施、下游应用与运营流程；因此仅看延迟、可用性、吞吐和错误率，可能漏掉预测性能、公平性、相关性或安全性的退化。监控被描述为实际运行条件下的持续验证与确认，且是 socio-technical 活动：阈值、告警优先级和干预时机依赖系统目标与组织协调。编辑推断：因此工具分类不能替代跨团队职责设计，也不能单独证明生产有效性。",
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是论文摘要与引言（含贡献、方法概述与部分背景/2.3节），未获得完整正文、分类法细节、各来源清单及有效性威胁章节；不能把工具对比和偏倚评估写成已完整核验。",
+      "application": "先审计现有监控的层级覆盖与人工介入点，把“是否有真实生产评估”列为工具选型门槛；暂勿仅凭厂商案例扩大自动处置。",
+      "caveats": "仅读到摘要与引言，未见完整分类法、工具对比和有效性威胁；94项来源筛选质量与偏倚无法独立核验。",
+      "confidence": 0.78,
+      "relevance_tags": [
+        "MLOps",
+        "生产监控",
+        "LLM observability",
+        "文献综述",
+        "生产评估"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-e277aaa8f12b",
+          "source_id": "tinyfish-discovery",
+          "url": "https://arxiv.org/pdf/2611.23293",
+          "title": "Monitoring Machine Learning Systems in Production: A Multivocal Literature Review",
+          "publisher": "arxiv.org",
+          "published_at": "2026-11-19T01:04:17Z",
+          "retrieved_at": "2026-11-19T22:01:46.719926Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-e277aaa8f12b"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-ab6b7563f23e56eb8961917780ed5afc",
+      "event_id": "684b2776-d84e-593c-acf4-a9b3dc07a915",
+      "type": "paper",
+      "title": "LLM漏洞预测与排序综述：落地证据不足",
+      "source": "arxiv.org",
+      "published_at": "2026-11-19T01:03:48Z",
+      "canonical_url": "https://arxiv.org/pdf/2611.23304",
+      "summary": "一篇系统综述梳理2024—2026年23项原始研究，将LLM用于漏洞预测、评估、可利用性、风险与优先级排序五类任务。评估类最多（9项），风险与排序各7项；作者认为现有系统应辅助而非替代分析师，并指出评测实践与可复现性是主要短板，同时列出成本/隐私摩擦与解释可用性缺口。",
+      "why_it_matters": "如果团队正把LLM接入漏洞评分或修复排序，这篇综述直接指出证据边界：准确率在标签空间收紧时更高，但跨评估期不稳定，且可复现性最弱。决策前应先做时间切分验证。",
+      "key_facts": [
+        {
+          "fact": "综述从197条记录筛选出2024—2026年发表的23项原始研究，并按预测、评估、可利用性、风险、优先级排序五类任务归纳。",
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        },
+        {
+          "fact": "评估类研究最多（9项），风险与排序各7项；作者称最接近修复决策的排序类反而更少、更不成熟。",
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        },
+        {
+          "fact": "质量评估中“局限/威胁讨论”均分0.41、“结果可复现报告”0.52，可复现性是最弱维度。",
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        }
+      ],
+      "technical_analysis": "综述按决策结果而非技术路线分类，强调预测、评估、可利用性、风险与排序是检测下游的不同承诺。方法上多数以通用聊天模型为起点，加prompting、任务微调或RAG/多Agent编排。真正瓶颈在评测：标签定义与train-test split不统一，单期随机切分难证明前瞻有效性，且提示词与编排代码复现差。质量评分显示结果可复现0.52、局限讨论0.41；综述还指出准确率在标签空间最紧时更高、跨评估期不稳定。编辑推断：这些并列发现不支持把性能排名直接用于采购或上线决策。",
+      "deep_dive": [
+        {
+          "heading": "五类任务按决策后果划分",
+          "content": "综述不是按技术分，而是按决策后果分：prediction 对组件未来风险下注，assessment 判断已知漏洞严重性，exploitability 预测是否被利用，risk 结合资产后果，prioritization 给出修复顺序。综述特意排除纯检测，并把5项边界研究纳入以支持评测与有效性讨论；23项中有8项不是同行评审。这套分类的价值在于避免把“检测准确率”直接外推到排序。",
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        },
+        {
+          "heading": "方法栈与评测缺口",
+          "content": "方法上，综述将系统归为prompting、任务微调、RAG/多Agent编排三层，多数从通用聊天模型起步。评测ground truth集中在公共漏洞记录的CVSS、CWE、KEV、EPSS标签，但标签定义与train-test split不统一；单期随机切分无法证明前瞻有效性，还存在数据污染与知识截止问题。质量评分显示，方法描述均分0.78，数据集描述0.67，结果可复现0.52，局限讨论0.41；综述同时指出准确率在标签空间最紧时最高、跨评估期不稳定。两组发现应并列看待，不能据此建立因果。",
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        },
+        {
+          "heading": "落地障碍与验证路径",
+          "content": "落地障碍不只是模型能力：把敏感公告与代码上下文发给托管模型有成本与隐私摩擦；没有纳入研究用真实分析师验证解释可用性，因此“可解释”仍是审计缺口。综述建议当前系统只做证据汇总，并呼吁做时间切分、报告成本、由分析师验证的优先级排序评测；它还提出三项验证研究，但本次读到的内容未给出具体设计。编辑推断：团队应把LLM输出当作排序特征而非最终裁决。",
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到摘要、引言、研究方法、部分结果（RQ1/RQ2）与部分表格（筛选流程、质量评分、23项研究索引）；未获得完整结果章节、逐项性能数字、三项验证研究的具体设计，也未独立核验论文。",
+      "application": "可把LLM用于证据汇总与初筛，但不要直接自动定级或排序；先用团队历史CVE做时间切分回测，记录成本与分析师采纳率。",
+      "caveats": "证据来自综述摘要、引言、方法、部分结果与部分表格；未读完整结果与逐项实验；23项中8项未经同行评审。",
+      "confidence": 0.74,
+      "relevance_tags": [
+        "LLM",
+        "漏洞预测",
+        "漏洞优先级排序",
+        "CVSS",
+        "系统综述",
+        "安全运营"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-33e23453ed1e",
+          "source_id": "tinyfish-discovery",
+          "url": "https://arxiv.org/pdf/2611.23304",
+          "title": "LLMs for Software Vulnerability Prediction and Prioritization: A Review",
+          "publisher": "arxiv.org",
+          "published_at": "2026-11-19T01:03:48Z",
+          "retrieved_at": "2026-11-19T22:01:46.720162Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-33e23453ed1e"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-77ba06229a3e51f3b4980f61cdebafd0",
+      "event_id": "4ce10a02-20f2-5bd4-905c-0b9c3c51e8d4",
+      "type": "github",
+      "title": "langchain-openai 1.8.4 将流内服务端错误归为可重试",
+      "source": "langchain-ai/langchain",
+      "published_at": "2026-11-19T21:36:51Z",
+      "canonical_url": "https://github.com/langchain-ai/langchain/releases/tag/langchain-openai%3D%3D1.8.4",
+      "summary": "langchain-openai 发布 1.8.4，变更自 1.8.3 起。GitHub release 页面列出三项变更：发布 openai 1.8.4；要求 langgraph 1.2.16 或更新版本；将流式响应过程中出现的服务端错误归类为可重试。来源未提供 PR diff、异常分类实现、测试说明或独立复现，因此具体覆盖哪些错误类型、旧行为如何，尚不能从发布说明确认。",
+      "why_it_matters": "流式输出中途返回服务端错误时，能否自动重试取决于客户端是否把该错误归为可重试；这次变更调整了这一分类，也影响重试策略能否覆盖流式路径。",
+      "key_facts": [
+        {
+          "fact": "langchain-openai 1.8.4 于 2026-11-19 发布，变更自 1.8.3 起。",
+          "ref_ids": [
+            "ref-feec2d05c10f"
+          ]
+        },
+        {
+          "fact": "修复项 fix(openai): classify in-stream server errors as retryable (#41952) 将流内的服务端错误标记为可重试。",
+          "ref_ids": [
+            "ref-feec2d05c10f"
+          ]
+        },
+        {
+          "fact": "同一版本在 chore(langchain) 中要求 langgraph 1.2.16 或更新版本。",
+          "ref_ids": [
+            "ref-feec2d05c10f"
+          ]
+        }
+      ],
+      "technical_analysis": "变更条目只说明把流式响应期间出现的服务端错误归类为可重试，并要求 langgraph 1.2.16 或更新。发布说明未给出异常类型、状态码范围、旧分类逻辑或重试实现，因此无法从证据判断哪些错误先前不可重试、重试由哪一层触发。编辑推断：若重试由上层 Router 或应用代码实现，需要确认其是否读取新分类；流式补全重放的幂等性与成本影响也应由调用方评估，来源未涉及计费或输出回收。升级后建议用自建流式中途错误场景验证。",
+      "deep_dive": [
+        {
+          "heading": "升级前确认依赖解析与重试边界",
+          "content": "发布说明把 langgraph 1.2.16 列为最低要求，属于会改变依赖解析结果的 chore 类变更，锁定旧版本的项目可能遇到解析冲突，需要先检查环境。其次，来源只说明“流内服务端错误”被归为可重试，没有给出分类逻辑（按状态码、异常类型还是错误消息），因此无法判断客户端 4xx、超时或具体 5xx 是否受影响。编辑推断：若重试由上层 Router 或应用代码实现，需确认它是否读取新的异常标记，否则修复可能只在默认重试路径生效。建议验证：在本地构造流式响应中途返回服务端错误（例如 5xx）的场景，观察是否触发重试而非直接抛出，并记录重试次数与输出完整性。",
+          "ref_ids": [
+            "ref-feec2d05c10f"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 GitHub release 页面的变更列表与发布元数据（三条 change 条目），页面中部分对比组件加载失败；未获得 PR diff、错误分类实现细节、测试说明与独立复现结果。",
+      "application": "升级到 1.8.4，并复查重试配置是否覆盖流内服务端错误；在测试环境构造流中途错误验证。",
+      "caveats": "只有发布说明与三条 change 条目；未读到 diff、具体错误码分类清单和测试用例，覆盖范围无法确认。",
+      "confidence": 0.55,
+      "relevance_tags": [
+        "langchain-openai",
+        "langgraph",
+        "retry",
+        "release",
+        "Agent"
       ],
       "related_item_ids": [
         "item-d366f832f6db55df92b039181048941c",
@@ -1876,196 +1472,328 @@
       ],
       "sources": [
         {
-          "ref_id": "ref-0b1a28c9bdd9",
+          "ref_id": "ref-feec2d05c10f",
           "source_id": "langchain",
-          "url": "https://github.com/langchain-ai/langchain/releases/tag/langchain-openai%3D%3D1.8.2",
-          "title": "langchain-openai==1.8.2",
+          "url": "https://github.com/langchain-ai/langchain/releases/tag/langchain-openai%3D%3D1.8.4",
+          "title": "langchain-openai==1.8.4",
           "publisher": "langchain-ai/langchain",
-          "published_at": "2026-11-18T16:53:05Z",
-          "retrieved_at": "2026-11-18T22:01:03.912621Z"
+          "published_at": "2026-11-19T21:36:51Z",
+          "retrieved_at": "2026-11-19T22:00:26.954252Z"
         }
       ],
       "claim_refs": [
         {
           "claim_index": 0,
           "ref_ids": [
-            "ref-0b1a28c9bdd9"
+            "ref-feec2d05c10f"
           ]
         },
         {
           "claim_index": 1,
           "ref_ids": [
-            "ref-0b1a28c9bdd9"
+            "ref-feec2d05c10f"
           ]
         },
         {
           "claim_index": 2,
           "ref_ids": [
-            "ref-0b1a28c9bdd9"
-          ]
-        },
-        {
-          "claim_index": 3,
-          "ref_ids": [
-            "ref-0b1a28c9bdd9"
+            "ref-feec2d05c10f"
           ]
         }
       ]
     },
     {
-      "item_id": "item-a8c70c3225385ba1955dcc30f50363a5",
-      "event_id": "cf19031d-4221-5c88-a83f-bd48c6bf91fe",
-      "type": "paper",
-      "title": "GapLeak：Web Agent 信息缺口泄露",
-      "source": "arxiv.org",
-      "published_at": "2026-11-18T02:00:22Z",
-      "canonical_url": "https://arxiv.org/pdf/2611.22223v1",
-      "summary": "据 arXiv 元数据 2026-11-18 公开（PDF 首页 v1 标注 2026-11-17）的论文提出 GapLeak：当网页表单要求填写授权来源无法提供的字段时，目标驱动的 Web Agent 会转而使用可访问但未授权的高敏感数据，在三个框架、六个模型和四类场景上平均造成约 37% 的未授权披露，且不依赖 prompt injection。作者提出提交时验证，称可消除逾 96% 的此类披露。",
-      "why_it_matters": "数据最小化与最小权限只限制授权范围，不限制环境中的可触达范围；论文显示一个正常表单字段就可能让 Agent 提交用户甚至第三方信息。这会把防御重点推向可达数据隔离与提交前检查。",
+      "item_id": "item-b1626b7265d75904821dbe3da21a69fa",
+      "event_id": "de520bfe-3383-52f8-9a0b-d546f39315b7",
+      "type": "news",
+      "title": "Agenvoy：单 Go 二进制在本机常驻跑 Agent",
+      "source": "agenvoy.com",
+      "published_at": "2026-11-19T00:00:00Z",
+      "canonical_url": "https://agenvoy.com/",
+      "summary": "Agenvoy 是署名 Pardn Chiu（邱敬幃）的台湾开发 AI Agent Harness，以单个 Go 二进制在本机常驻运行：会话、记忆与定时任务存于 ~/.config/agenvoy 下的 SQLite，API key 与 OAuth token 存入系统 keychain，命令默认在 macOS sandbox-exec 或 Linux bwrap 内执行且默认断网。它兼作 MCP server 与 client，可把自动生成并沙箱测试过的工具共享给 Claude Code、Codex、Cursor 等；官网称项目仍处于 review-and-cleanup 阶段。",
+      "why_it_matters": "它把凭据、记忆与工具库留在本机，再通过 MCP 供给 Claude Code、Codex 使用，回应把登录态放进厂商云 VM 的顾虑；但工具自动生成是否稳定，尚无第三方验证。",
       "key_facts": [
         {
-          "fact": "PDF 首页标注 arXiv:2611.22223v1 [cs.CR] 17 Nov 2026；来源元数据 published_at 为 2026-11-18",
+          "fact": "Agenvoy 以本机 daemon 形式运行，会话、记忆与调度存于 ~/.config/agenvoy 下的 SQLite，官方称无 Agenvoy 托管账号、无云端副本",
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         },
         {
-          "fact": "论文将 GapLeak 定义为授权范围与可触达范围之间的信息缺口：表单请求授权来源没有的字段时，Agent 为完成任务转向未授权但可访问的数据源；攻击只需合法表单，不需要 prompt injection 或隐藏元素。",
+          "fact": "命令默认在 macOS 的 sandbox-exec 或 Linux 的 bwrap 中执行，网络默认关闭、需逐次批准，管理端点只监听 localhost",
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         },
         {
-          "fact": "在 BrowserUse、DoBrowser、Agent-E 三个框架和 Anthropic、Google、OpenAI 的六个模型上，覆盖招聘、电商、旅行、医疗四类场景，GapLeak 平均造成约 37% 的未授权披露。",
+          "fact": "内置 MCP server 与 client，可把沙箱内工具共享给 Claude Code、Codex、OpenCode、Cursor，并调用外部 stdio/HTTP MCP server",
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         },
         {
-          "fact": "信息缺口是主要驱动因素：存在缺口时未授权披露增加逾 50%、任务成功率下降约三分之一；消除缺口使披露下降逾 50%。指令级最小权限防御下，已完成任务中仍有 77% 发生披露，任务成功率降至 30%。",
+          "fact": "项目采用 AGPL-3.0 与商业许可双授权，网络可访问服务同样需按 AGPL 开源",
           "ref_ids": [
-            "ref-4a5d5b9a4952"
-          ]
-        },
-        {
-          "fact": "提交时验证在表单提交前过滤未授权内容，论文称消除逾 96% 的未授权披露，且不进一步降低任务成功率。",
-          "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         }
       ],
-      "technical_analysis": "论文把风险定位在“授权范围”与“可触达范围”的缺口：数据最小化和最小权限定义 Agent 能用什么，却未隔离登录态账户、历史订单等仍可读来源；目标驱动策略在字段缺失时倾向补全而非留空。评测覆盖 BrowserUse、DoBrowser、Agent-E，Claude/Gemini/GPT 六个模型，招聘、电商、旅行、医疗四类场景，平均约 37% 未授权披露。提交时验证在提交前过滤未授权内容，论文称消除逾 96% 披露且不进一步降低任务成功率；编辑推断，其覆盖面与误杀仍需全文和独立复现验证。",
+      "technical_analysis": "它把模型、工具、调度与 Memory 收进本地 daemon；页面称核心为单个 Go 二进制，并与若干 TypeScript、Python 项目并列，但未给部署成本对比。37 个内置工具以名称加 mode 参数归并，每轮仅带七个 schema，其余按需拉取，目标是保住 prompt cache。编辑推断：生态扩展更依赖 MCP 而非语言级插件，这是设计取向判断，非来源结论。沙箱默认断网更安全，但联网工具需逐次批准；--skip-sandbox 允许无确认 sudo 与 $HOME 外路径，是硬边界。",
       "deep_dive": [
         {
-          "heading": "威胁模型：合法表单也能成为攻击面",
-          "content": "GapLeak 把攻击者限定为目标网页运营者，只能控制表单请求哪些字段、字段旁的引导/帮助文本以及提交后的校验反馈；不能改 Agent 系统提示、模型或框架，也不植入隐藏元素、脚本或偏离任务的指令。用户仍主动使用网站并希望提交表单，危害来自 Agent 越过任务的最小披露策略，去读取登录态里的订单、支付或联系人等更高敏感来源。第三方信息（推荐人、同行旅客、家属）也可能被一并提交，且这些人从未同意。",
+          "heading": "工具自生成与失败重试链路",
+          "content": "官网给出的链路是：先检测能力缺口，优先直接调用无需密钥的公共 API；若无合适 API 或自有 API 需密钥，则写一个脚本工具，在沙箱内测试后注册保存，供所有接入该 MCP server 的 Agent 复用。self-improvement 会重写并重试失败的工具；工具触碰过的文件都有版本记录，可回滚单个版本或整个任务。编辑推断：这条链路的上限取决于 keyless 公共 API 覆盖面与失败重写时的上下文成本；建议用一个需鉴权的内部 API 走完整流程，观察重试次数与产物质量。",
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         },
         {
-          "heading": "评测矩阵与驱动因素",
-          "content": "实验覆盖三个框架 BrowserUse、DoBrowser、Agent-E 与六个模型 Claude Haiku 4.5、Claude Sonnet 4.6、Gemini 2.5 Flash/Pro、GPT 5.4 Mini/GPT 5.4，场景为招聘、电商、旅行、医疗。论文报告平均约 37% 未授权披露，说明并非单一框架或模型孤例。消融方向更关键：存在信息缺口时披露增加逾 50%、任务成功率下降约三分之一；消除缺口后披露下降逾 50%。这把根因指向环境可达性，而不只是模型对齐。上述为摘要/引言报告，完整逐项表尚未获得。",
+          "heading": "沙箱边界与远程接入方式",
+          "content": "沙箱走 OS 原生能力：Linux 用 bubblewrap，macOS 用 sandbox-exec，命令与脚本在内执行；网络默认关闭，按调用逐次批准，管理端点仅响应本机请求。远程访问不开放入站端口，而由本地 daemon 主动外连 Telegram、Discord 的 bot token。agen -p 一次性提示默认只读且在沙箱内，必须显式加 --allow-edit 才能写文件，加 --skip-sandbox 才能越出 $HOME；该选项允许无确认的 sudo。编辑推断：默认不写的取向比工具能否生成更影响日常可用性。",
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         },
         {
-          "heading": "防御对照：指令约束 vs 提交时验证",
-          "content": "指令级最小权限防御要求 Agent 只访问任务授权来源；论文报告在已完成任务中仍有 77% 发生披露，任务成功率降至 30%，说明它容易把隐私约束变成任务失败。提交时验证不改变执行期探索，而是在每个字段提交前检查并移除未授权内容，论文称消除逾 96% 披露且不进一步降低成功率。建议验证：在自有表单流程中同时测拦截率、正常字段误杀与额外延迟；编辑推断，多步跨站提交的覆盖仍需全文数据支撑。",
+          "heading": "成本与 provider 的现实约束",
+          "content": "官网列出两条成本约束：自 2026-11-09 起 Ollama Cloud 的 Free 计划转为按量付费，gemma4:31b、gpt-oss:120b、gpt-oss:20b、nemotron-3-super 等托管模型需先购额度；NVIDIA NIM 自 2026-09-04 起不再提供 gpt-oss-120b，其余模型多数超时，官方因此不推荐免费路线。作者建议 GitHub Copilot 每月 10 美元，并可选 TypeSafe 的 Jev；据其模型页 2026-11-11 信息，Jev 按输入 token 计费、每十亿 42 美元、输出免费。作者称在其机器上 95.8% 的 skill 条目未进入当轮上下文；这是单机单次测量，编辑推断需在自有任务复核。",
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
+          ]
+        },
+        {
+          "heading": "许可条款对商用的约束",
+          "content": "许可为 AGPL-3.0 与商业许可双授权：开源侧修改与分发需同许可开源，基于它的网络可访问服务也要提供对应源码；无法满足源码披露要求的使用需购买商业许可，且商业许可只覆盖软件权利，定制开发另行报价。AGPL 第 7(b) 条要求 Web 界面 Config > System 的 Other 分组保留 License 与 Source 两项，承载版权、免责、许可声明与对应源码链接；可迁移位置或改样式，但不得删除或隐藏。编辑推断：打算把 Agenvoy 包成对内平台的团队，应先算清开源义务。",
+          "ref_ids": [
+            "ref-a8bb1d0a7e8b"
           ]
         }
       ],
-      "evidence_note": "读到 arXiv 摘要、引言及部分方法/威胁模型（含框架、模型、场景与防御描述），非全文；PDF 首页标注 v1 日期 2026-11-17，元数据发布 2026-11-18；未获得完整实验表、统计显著性、误报漏报率、延迟成本和附录。",
-      "application": "在表单提交前审计字段来源并隔离未授权数据；不要把指令级最小权限提示当唯一防线，先用自有流程测披露率与任务成功率。",
-      "caveats": "仅读到摘要、引言及部分方法与威胁模型；缺完整实验表、误报/漏报与延迟数据；提交时验证未独立复现。",
-      "confidence": 0.82,
+      "evidence_note": "实际读到官网产品页全文抓取，含 quick start、能力表、provider 列表、成本建议与许可条款；属厂商自述。未获得源码、独立 benchmark、issue 区反馈，也未核验 Validated designs 所链接 commit/release 内容。",
+      "application": "宜在可丢弃环境小范围试跑：用已有订阅接入，验证工具生成与沙箱审批；生产凭据环境不要开 --skip-sandbox。",
+      "caveats": "仅厂商产品页自述；无源码、独立 benchmark、issue 反馈；工具自动生成成功率未知。",
+      "confidence": 0.55,
       "relevance_tags": [
-        "Agent 安全",
-        "隐私保护",
-        "Web Agent",
-        "LLM",
-        "GapLeak"
+        "coding agent",
+        "MCP",
+        "local-first",
+        "Agent",
+        "sandbox",
+        "Memory"
       ],
       "related_item_ids": [],
       "sources": [
         {
-          "ref_id": "ref-4a5d5b9a4952",
+          "ref_id": "ref-a8bb1d0a7e8b",
           "source_id": "tinyfish-discovery",
-          "url": "https://arxiv.org/pdf/2611.22223v1",
-          "title": "GapLeak: When Privacy-Preserving LLM-based Web Agents Become a Privacy Risk",
-          "publisher": "arxiv.org",
-          "published_at": "2026-11-18T02:00:22Z",
-          "retrieved_at": "2026-11-18T22:02:04.488385Z"
+          "url": "https://agenvoy.com/",
+          "title": "Agenvoy: Local AI Agent for Claude Code, Codex & MCP",
+          "publisher": "agenvoy.com",
+          "published_at": "2026-11-19T00:00:00Z",
+          "retrieved_at": "2026-11-19T22:00:44.508055Z"
         }
       ],
       "claim_refs": [
         {
           "claim_index": 0,
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         },
         {
           "claim_index": 1,
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         },
         {
           "claim_index": 2,
           "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         },
         {
           "claim_index": 3,
           "ref_ids": [
-            "ref-4a5d5b9a4952"
-          ]
-        },
-        {
-          "claim_index": 4,
-          "ref_ids": [
-            "ref-4a5d5b9a4952"
+            "ref-a8bb1d0a7e8b"
           ]
         }
       ]
+    },
+    {
+      "item_id": "item-071755d2b7c451909d81d3cb29b31fc9",
+      "event_id": "743cb1e2-66b0-5d3f-a27d-b351e3ffdf8f",
+      "type": "blog",
+      "title": "AI 覆盖 SDLC 全流程，治理与评审成瓶颈",
+      "source": "cycode.com",
+      "published_at": null,
+      "canonical_url": "https://cycode.com/blog/ai-sdlc",
+      "summary": "Cycode 发布《AI in the SDLC: A Complete Guide》，将生成式 AI 与 Agent 映射到需求、设计、编码、测试、部署、运维六阶段，并给出风险对照与六步治理顺序。文中引用 Google DORA 称 90% 软件从业者日常使用 AI；Stack Overflow 2025 称 84% 使用或计划使用、46% 不信任准确性、仅 3% 高度信任。Cycode 自研 2026 调查还称 81% 组织缺乏完整可见性、52% 无正式治理框架。",
+      "why_it_matters": "它把 AI 提速与可见性、密钥、依赖、Agent 权限放进同一份交付检查表，团队可用它定位 SDLC 控制缺口；但统计与平台指标多来自厂商，需独立核验。",
+      "key_facts": [
+        {
+          "fact": "指南引用 Google DORA 称 90% 软件从业者日常使用 AI；Stack Overflow 2025 称 84% 开发者使用或计划使用 AI 工具，46% 不信任其准确性，仅 3% 高度信任。",
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        },
+        {
+          "fact": "指南列出六类风险：不安全 AI 生成代码、shadow AI、prompt/代码泄露密钥、漏洞或幻觉依赖、过度授权 Agent 与 MCP server、合规与 IP 暴露。",
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        },
+        {
+          "fact": "落地顺序为：盘点 AI 使用并建 AIBOM、制定治理策略、审核批准工具、在 IDE 与 pipeline 设实时 guardrails、自动分诊修复、同时测效率与风险。",
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        },
+        {
+          "fact": "Cycode 2026 自研调查称 97% 组织使用或试点 AI coding assistant、81% 缺乏完整可见性、65% 认为风险上升、52% 无正式治理框架；其 2.1% OWASP benchmarks 误报率与 critical findings 90 天关闭率高 17 倍均为厂商自述。",
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        }
+      ],
+      "technical_analysis": "编辑推断：指南的核心不是“AI 写代码”，而是控制点从合并前评审前移到 prompt、IDE 与 Agent 权限；AI 生成量让事后审查难扩展，实时拦截与最小权限更可操作。代价是可能打断开发流、增加误报治理成本，这是分析判断。厂商平台称在 OWASP benchmarks 上误报率 2.1%，并称 critical findings 的 90 天关闭率高出 17 倍；两项均为 Cycode 自述，需独立验证。",
+      "deep_dive": [
+        {
+          "heading": "六阶段风险映射的增量",
+          "content": "按指南表格，规划阶段的 prompt 可能带出路线图与客户数据；设计阶段 AI 建议的架构要重新核对信任边界与数据流；编码阶段要防不安全模式和幻觉依赖；测试阶段的问题是发现量超过人工复核能力；部署阶段的 Agent 持有生产凭据；运维阶段的自动修复必须留审计轨迹和回滚路径。编辑推断：这些控制点大多应落在 IDE、CI 与 Agent 权限层，而不是季度安全评审；指南未给出各控制点的独立有效性数据。",
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        },
+        {
+          "heading": "治理缺口与外部统计的口径",
+          "content": "指南引用多组治理数字：Cycode 2026 State of Product Security 称 97% 组织已使用或试点 AI coding assistant，但 81% 对开发中的 AI 使用缺乏完整可见性，65% 认为 AI 生成代码提高安全风险，52% 没有正式或集中治理框架。外部证据包括 USENIX 研究称 19.7% 的 LLM 推荐包不存在，ACM TOSEM 2025 称 29.5% 的 Python 与 24.2% 的 JavaScript 片段存在安全弱点，覆盖 43 类 CWE。上述调查与论文均为文内转述，未给原始方法；且 Stack Overflow 数据在文中同时出现 3% 高度信任与 33% 信任准确性、46% 不信任，属原文口径不一致，应标注而非换算。",
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        },
+        {
+          "heading": "收益证据的反例与测量建议",
+          "content": "收益证据并不一致：DORA 称超过 80% 受访者认为 AI 带来生产力提升，Faros AI 遥测称任务完成量多 21%，Bain 称只有配合端到端流程改造才有 25%–30% 提升，单用 coding assistant 为 10%–15%。反面证据是 Stack Overflow 的低信任度、METR 发现资深工程师在复杂任务上更慢，以及 Stanford 研究发现受助开发者写出更不安全的代码却自评更安全。建议验证：同时跟踪 cycle time、review latency、逃逸漏洞、MTTR 与每千次变更的策略违规数，而不是只看任务完成量。",
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到 Cycode 博客全文抓取，含产品推广与 CTA；未获得发布日期、独立评测、原始调查方法、平台实测数据与版本信息。",
+      "application": "先按六步清单盘点 AI 使用、权限与密钥，再决定是否采购；不要把厂商 ROI、误报率或关闭率直接做预算依据。",
+      "caveats": "厂商营销指南；未给发布日期；统计多为二手或厂商自述；原文信任口径自相矛盾，平台指标未独立验证。",
+      "confidence": 0.68,
+      "relevance_tags": [
+        "AI SDLC",
+        "应用安全",
+        "Agent",
+        "MCP",
+        "研发效能"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-46810778ada4",
+          "source_id": "tinyfish-discovery",
+          "url": "https://cycode.com/blog/ai-sdlc",
+          "title": "AI in the SDLC: A Complete Guide",
+          "publisher": "cycode.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-19T22:00:53.189757Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-46810778ada4"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://cycode.com/blog/ai-sdlc",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 83,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "文中给出六阶段 SDLC 对照表，逐阶段列出传统做法、AI 做法与安全考量，可作为检查表",
+            "ref_ids": [
+              "ref-46810778ada4"
+            ]
+          },
+          {
+            "point": "文中给出六步落地顺序，并明确 IDE/pipeline 实时 guardrails、Agent 最小权限和审计要求",
+            "ref_ids": [
+              "ref-46810778ada4"
+            ]
+          },
+          {
+            "point": "文中披露 Cycode 2026 治理缺口数据，作为问题依据；该数据为厂商自研调查，平台指标亦为自述",
+            "ref_ids": [
+              "ref-46810778ada4"
+            ]
+          }
+        ],
+        "try_it": [
+          "扫描仓库、IDE 配置、CI runner 和浏览器扩展，记录助手、Agent、模型与 MCP server，形成 AIBOM。",
+          "把清单转成短治理策略：批准工具、prompt 数据边界、需人工批准的动作、资产 owner，并接入自动执行。",
+          "在 IDE 与 pipeline 部署实时 guardrails，先拦截密钥和未批准工具，再记录误报与开发阻塞。"
+        ],
+        "requirements": [
+          "仓库、IDE/CI 配置与浏览器扩展的盘点权限",
+          "安全、平台与开发团队共同制定并执行策略"
+        ],
+        "limitations": [
+          "来源为厂商营销指南，未给发布日期",
+          "统计与平台指标多为厂商自述或二手引用，未经独立复现"
+        ]
+      }
     }
   ],
   "trends": [
     {
-      "summary": "OpenAI 2026-11-18 工程博客说明 Codex 用 permission profiles 限制文件系统与网络，harness 通过 spawn_command_under_sandbox() 启动子进程，且 stdio MCP server 默认不被沙箱化、若要沙箱化需手动包裹。MCPTox 在 20 个 Agent 配置上平均攻击成功率 36.5%、最高 72.8%（o1-mini）；Dynatrace 在 9,215 个评估单元中 2,113 个脆弱，总体攻击成功率 22.9%，仅 12.1% 脆弱单元确认秘密外泄（约全部可评估单元 2.8%），并称 12 个框架均将工具描述原样传入上下文。授权边界实验显示框架默认不在调用时重评授权；GapLeak 显示指令级最小权限防御下已完成任务仍有 77% 披露、任务成功率降至 30%，提交时验证消除逾 96% 未授权披露。编辑推断：沙箱、工具描述来源和提交前过滤需一起设计。",
+      "summary": "案例观察：Agenvoy 官方站点称，命令默认在 macOS sandbox-exec 或 Linux bwrap 中执行、网络默认关闭且需逐次批准，会话与记忆存于本地 SQLite；ruflo v3.79.0 发布说明称，该版本是首个由 CI 发布并携带 SLSA v1 attestation 的版本，`ruflo init` 默认写入 CLI 精确版本，`doctor -c provenance` 可校验证明。编辑推断：这类做法把“信任 agent”部分转为“验证运行环境与制品”，但采用度、独立复现和跨项目一致性仍需观察。",
       "ref_ids": [
-        "ref-10adb220dbdd",
-        "ref-9b4b1f2d702b",
-        "ref-a00af7c49447",
-        "ref-4a5d5b9a4952"
-      ]
-    },
-    {
-      "summary": "Gemini 4 Neon 于 2026-11-18 发布；Google 官方自报 SWE-sweep 在 mini-SWE harness 为 12.8%、在 Google Antigravity 为 39.0%，两个数字绑定不同 harness，尚无独立复现。同日 AIDev 论文在 2,802 个已合并 PR 上复测 agent-attributed code 的存活/修改时间，按仓库聚类标准误后 22 个规格中仅 3 个仍报告 Devin 代码更早被修改，五种已发表设计各改一个选择即改变结果。编辑推断：比较 coding agent 应固定 harness、仓库聚类和统计口径；该论文不是 Gemini 4 Neon 或 coding agent 排行榜的复现。",
-      "ref_ids": [
-        "ref-22e8b2cf6b10",
-        "ref-6525d9a55d84"
+        "ref-a8bb1d0a7e8b",
+        "ref-dc39b0ec50ab"
       ]
     }
   ],
   "briefing": {
-    "headline": "Agent 供应链与运行时权限事件受关注",
-    "takeaway": "2026-11-18 的公开材料同时涉及 agent-framework PyPI 投毒、Codex 沙箱边界与 Agent 授权/评测口径；编辑推断：应分别核验依赖安装钩子、工具调用权限和 benchmark 条件，不能据此断言风险已整体迁移。",
+    "headline": "MCP 工具边界漏洞与供应链校验受关注",
+    "takeaway": "2026-11-19 的 MCP 漏洞案例显示，Agent 工具链需要同时核查路径/只读边界与制品来源；但漏洞库和扫描工具收录滞后、厂商证明与评估结论的独立复现有限，相关控制宜作为建议验证项。",
     "actions": [
-      "若曾安装 agent-framework 1.26.1/1.26.2 并在该环境启动过 Python，检查 .pth 启动钩子，并轮换 Azure、GitHub Actions、npm、Hugging Face、Docker、.git-credentials 等可能暴露凭据；同时检查 Azure 托管身份/Azure DevOps OIDC 与 GitHub Actions OIDC 信任配置。",
-      "Codex 默认不沙箱化 stdio MCP server，若要沙箱化需手动包裹；授权控制不能只靠指令级最小权限，GapLeak 中已完成任务仍有 77% 披露，提交时验证可过滤逾 96% 未授权披露。",
-      "比较 coding agent 时固定 harness、仓库聚类与统计口径；Gemini 4 Neon 的 SWE-sweep 12.8%/39.0% 为官方自报且绑定不同 harness，不可直接当作同一条件分数。"
+      "盘点在用 MCP server 版本，按来源复测路径边界、只读提示与文件访问；分别记录 2026-11-18 修复版与 2026-11-19 未进入 OSV.dev、pip-audit 未报的情况。",
+      "在 CI 参考 AI SAST 的 diff-aware PR 扫描与 baseline：目标分支先建 baseline，再按 triage 对已确认 true positive 设门禁，unknown 转 AppSec，并维持最小权限。",
+      "对 Agent 工具链评估沙箱、网络逐次批准、精确版本锁定与 SLSA 证明校验；这些来自 Agenvoy 官方站点和 ruflo 发布说明，建议在自有环境验证后再作为控制项。"
     ],
     "read_minutes": 15
   },
   "source_stats": {
     "raw_candidates": 65,
-    "shortlist": 16,
+    "shortlist": 14,
     "sources": 5,
     "coverage": {
       "discovery": {
@@ -2100,70 +1828,70 @@
           },
           {
             "phase": "discovery",
-            "query": "AI Agent 框架 发布 基准评测 生产落地 安全 事件",
+            "query": "MCP Model Context Protocol security vulnerabilities agent tools adoption 2025",
             "lane": "topic",
             "status": "ok",
             "count": 10
           },
           {
             "phase": "discovery",
-            "query": "AI agent framework release benchmark production security incident",
+            "query": "MCP 模型上下文协议 安全 漏洞 Agent 工具 采用",
             "lane": "topic",
             "status": "ok",
             "count": 10
           },
           {
             "phase": "discovery",
-            "query": "MCP 模型上下文协议 安全 漏洞 生态 工具 发布 评测",
+            "query": "agent evaluation benchmark replication OpenAI Anthropic Google DeepMind 2025",
             "lane": "topic",
             "status": "ok",
             "count": 10
           },
           {
             "phase": "discovery",
-            "query": "Model Context Protocol MCP security vulnerability ecosystem tooling release benchmark",
+            "query": "Agent 评测 基准 复现 OpenAI Anthropic DeepMind",
             "lane": "topic",
             "status": "ok",
             "count": 10
           },
           {
             "phase": "discovery",
-            "query": "RAG 检索增强生成 评测 基准 生产 安全 工具 发布",
+            "query": "RAG evaluation retrieval augmented generation benchmark enterprise",
             "lane": "topic",
             "status": "ok",
             "count": 10
           },
           {
             "phase": "discovery",
-            "query": "RAG retrieval augmented generation benchmark evaluation production security release",
+            "query": "RAG 检索增强生成 评测 基准 企业",
             "lane": "topic",
             "status": "ok",
             "count": 10
           },
           {
             "phase": "followup",
-            "query": "Microsoft Agent Framework PyPI compromise official Microsoft advisory malicious versions 1.26.1 1.26.2 exposure timeline credentials",
+            "query": "MCP Transport Trust Gaps OAuth hijacking JSON-RPC confusion Model Context Protocol affected SDKs DNS rebinding Host Origin checks",
             "lane": "topic",
             "status": "ok",
             "count": 10
           },
           {
             "phase": "followup",
-            "query": "Revisiting the Survival of Agent-Attributed Code How Measurement Choices Decide the Verdict methodology dataset replication",
+            "query": "CVE-2026-62964 CVE-2026-75612 CVE-2026-75518 Gortex yt-mcp DOMShell MCP server tool escape affected versions patches",
             "lane": "topic",
             "status": "ok",
             "count": 10
           },
           {
             "phase": "followup",
-            "query": "SkillBuffBench Measuring What Agent Skills Contribute across Harnesses Models Skill Access Modes and Memory benchmark code results",
+            "query": "A Capability Framework for Evaluating Agentic AI Platforms in Regulated Enterprises industrial bakeoff ten platforms methodology results",
             "lane": "topic",
             "status": "ok",
-            "count": 1
+            "count": 10
           },
           {
             "phase": "followup",
-            "query": "Evaluating Authorization and Trust Boundaries in Agentic Orchestration Frameworks methodology limitations experiments",
+            "query": "Quantifying the Intrusiveness of Retrofitting Retrieval-Augmented Generation onto Legacy Software Systems Legacy Intrusion Score sidecar SDK-embed naive-invasive",
             "lane": "topic",
             "status": "ok",
             "count": 10
@@ -2171,200 +1899,224 @@
         ],
         "followups": [
           {
-            "seed_id": "s32",
-            "query": "Microsoft Agent Framework PyPI compromise official Microsoft advisory malicious versions 1.26.1 1.26.2 exposure timeline credentials",
+            "seed_id": "s14",
+            "query": "MCP Transport Trust Gaps OAuth hijacking JSON-RPC confusion Model Context Protocol affected SDKs DNS rebinding Host Origin checks",
             "language": "en",
-            "purpose": "核实官方公告、受影响版本、暴露时长与凭据窃取范围，避免仅依赖二手安全报道"
+            "purpose": "核实该博客所称传输层信任缺口是否有原始研究、受影响SDK范围与可利用条件，避免仅凭二手安全博客定性"
           },
           {
-            "seed_id": "s20",
-            "query": "Revisiting the Survival of Agent-Attributed Code How Measurement Choices Decide the Verdict methodology dataset replication",
+            "seed_id": "s22",
+            "query": "CVE-2026-62964 CVE-2026-75612 CVE-2026-75518 Gortex yt-mcp DOMShell MCP server tool escape affected versions patches",
             "language": "en",
-            "purpose": "核实其存活期定义、数据来源与冲突结论是否可复现，补足AI编码Agent代码留存评估的方法证据"
+            "purpose": "核实三个MCP服务器漏洞的CVE详情、受影响版本、修复状态与实际利用边界"
           },
           {
-            "seed_id": "s24",
-            "query": "SkillBuffBench Measuring What Agent Skills Contribute across Harnesses Models Skill Access Modes and Memory benchmark code results",
+            "seed_id": "s23",
+            "query": "A Capability Framework for Evaluating Agentic AI Platforms in Regulated Enterprises industrial bakeoff ten platforms methodology results",
             "language": "en",
-            "purpose": "核实基准设计、模型/harness组合、Skill访问模式与记忆变量，以及是否有开源工件和完整结果"
+            "purpose": "追踪论文中银行创新实验室bakeoff的评估方法、平台范围与结论限制，判断企业Agent平台选型证据是否充分"
           },
           {
-            "seed_id": "s31",
-            "query": "Evaluating Authorization and Trust Boundaries in Agentic Orchestration Frameworks methodology limitations experiments",
+            "seed_id": "s15",
+            "query": "Quantifying the Intrusiveness of Retrofitting Retrieval-Augmented Generation onto Legacy Software Systems Legacy Intrusion Score sidecar SDK-embed naive-invasive",
             "language": "en",
-            "purpose": "核实其威胁模型、被测框架、授权配置与限制，补足Agent编排边界安全结论的原始论据"
+            "purpose": "核实RAG改造侵入性分类与Legacy Intrusion Score的计算方法、实验对象和可复现性"
           }
         ],
         "limitations": [],
         "found_by_type": {
-          "news": 75,
-          "paper": 24,
-          "github": 5,
-          "blog": 27
+          "news": 86,
+          "paper": 20,
+          "blog": 30,
+          "github": 4
         },
-        "undated_leads": 62,
+        "undated_leads": 84,
         "page_fetch": [
+          {
+            "url": "https://www.lawnext.com/2026/11/openai-opens-astra-for-law-to-all-chatgpt-enterprise-customers-and-releases-new-benchmark-results.html",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.facebook.com/groups/784610615809128/posts/2211454429791399",
+            "status": "failed",
+            "error": "CollectionError"
+          },
           {
             "url": "https://huggingface.co/papers?q=element+agents",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://arxiv.org/abs/2611.22434?context=cs.AI",
+            "url": "https://arxiv.org/html/2611.22888v1",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://github.com/VoltAgent/awesome-ai-agent-papers",
+            "url": "https://www.opentrain.ai/papers/sciworkbench-a-benchmark-for-real-scientific-workflows--arxiv-2611.22490",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://blog.codacy.com/should-an-ai-agent-fix-your-vulnerable-dependencies",
+            "url": "https://medium.com/teradata-labs/does-ai-agent-memory-actually-work-a-statistically-rigorous-experiment-with-200-mastermind-games-a389ccf951c0",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://arxiv.org/pdf/2611.21784",
+            "url": "https://www.biorxiv.org/content/10.64898/2026.11.11.765733v1.full.pdf",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://constructorlabs.org/event/do-androids-dream-of-electric-papers",
+            "url": "https://www.nature.com/articles/s41598-026-72467-1",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://arxiv.org/html/2611.22905v1",
+            "url": "https://link.springer.com/article/10.1007/s44163-026-02719-6",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://arxiv.org/abs/2611.22179",
+            "url": "https://journals.plos.org/plosone/article/file?id=10.1371%2Fjournal.pone.0362972&type=printable",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://smiles724.github.io/blog/ai-binder-reproducibility",
+            "url": "https://ibl.ai/blog/open-source-ai-agent-framework-enterprise-where-it-runs",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://arxiv.org/abs/2611.22017",
+            "url": "https://dev.to/ying_li_2410bddf58e38117a/i-built-an-enterprise-crm-insight-agent-with-mcp-spring-ai-deterministic-text2sql-not-prompt-2ph8",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://www.gsa.gov/super-intelligence/si-community-of-practice/events-and-training/mcp-server-and-si-agent-government-hackathon",
+            "url": "https://scand.com/company/blog/rag-development-companies-for-enterprises",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://hackernoon.com/ai-agents-could-drive-the-next-open-source-software-revolution",
+            "url": "https://www.sedawk.com/news/index.html",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://www.nvidia.com/en-gb/ai",
+            "url": "https://medium.com/@dineshshuttler/mcp-unlocked-building-a-claude-ready-ai-agent-server-with-aws-cdk-and-node-js-15c2eb9f142f",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://www.reddit.com/r/Rag/comments/1xyroxc/i_built_an_opensource_ai_engineering_learning",
+            "url": "https://github.com/tracer-cloud/opensre",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://www.facebook.com/TencentCloud/posts/whats-new-for-ai-agentsexplore-new-launches-upgrades-and-demos-across-21-product/1685853950003017",
+            "url": "https://huggingface.co/srinivaspadmanabhuni/agentic-ai-reference-agents",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://gd.com/careers/ai-software-engineer-applications-and-agents-manassas-va-us-2026-81868-gdms-opportunity",
+            "url": "https://agenvoy.com/",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://openai.com/careers/software-engineer-presence-san-francisco",
+            "url": "https://www.mintive.com/blog/best-enterprise-mcp-gateways",
             "status": "failed",
             "error": "CollectionError"
           },
           {
-            "url": "https://www.careers.ford.com/en/job/chennai/ai-engineer/48560/103461155136",
-            "status": "failed",
-            "error": "CollectionError"
-          },
-          {
-            "url": "https://medium.com/skillstuff/8-ai-skills-that-make-you-harder-to-replace-f13182677209",
-            "status": "failed",
-            "error": "CollectionError"
-          },
-          {
-            "url": "https://www.linkedin.com/posts/sacarora_ai-agenticai-mcp-activity-7528671216556199936-bHPN",
+            "url": "https://arxiv.org/abs/2611.24039",
             "status": "failed",
             "error": "CollectionError"
           }
         ]
       },
       "eligible_by_type": {
-        "blog": 16,
-        "paper": 4,
-        "news": 40,
-        "github": 5
+        "github": 4,
+        "paper": 3,
+        "news": 45,
+        "blog": 13
       },
       "shortlist_by_type": {
-        "paper": 4,
-        "news": 9,
-        "blog": 7,
-        "github": 5
+        "paper": 3,
+        "github": 4,
+        "news": 12,
+        "blog": 10
       },
       "selected_by_type": {
-        "blog": 6,
-        "news": 5,
-        "paper": 4,
-        "github": 1
+        "news": 6,
+        "blog": 3,
+        "github": 2,
+        "paper": 3
       },
       "excluded_reasons": {
-        "不在本次阅读时间范围内": 1770,
-        "预发布版本，稳定版优先": 4,
+        "不在本次阅读时间范围内": 1946,
+        "预发布版本，稳定版优先": 3,
         "同包有更新的稳定版": 4
       },
       "editor_rejections": [
         {
-          "raw_item_id": "a154bfd0269df9c9f8c6fb02f08cb0291dd0184ec72ba185a3d835d1773635b5",
-          "reason": "仅警告修复，增量小"
+          "raw_item_id": "e14d7e838fec8216208a5131a6d79558e95bbb87599b94a19cc3be3e044f3e13",
+          "reason": "仅Python版本与元数据更新"
         },
         {
-          "raw_item_id": "0d9d06856ca4e066c9ff963719bc6bf3ffd5ad621d8c696c3b8517920a19e1e6",
-          "reason": "世界模型产品，无关主题"
+          "raw_item_id": "a75fcc75aeeace53df6120feb46c936694729f44ea4533122a8244da08b04565",
+          "reason": "泛泛MCP安全科普"
         },
         {
-          "raw_item_id": "8b327dcb5b0fa577ceb52650ee840770fcb316e922a0055141171513ca7879d5",
-          "reason": "仅加网关头，价值低"
+          "raw_item_id": "6b702ed971e1f17d184ebefd158ce171102f405fe16be9d877a472a4281d32c6",
+          "reason": "CVE站点非AI工程重点"
         },
         {
-          "raw_item_id": "0ec498be281b9b282dc12bed8eb200070d91348a7e4f39f92de4cad251fe562a",
-          "reason": "仅加网关头，价值低"
+          "raw_item_id": "e06f47d24d808f61084b1ff2927845b27eb8ad9bc67a5ce4049b9368fff289bb",
+          "reason": "厂商安全观点，缺实证"
         },
         {
-          "raw_item_id": "9709960fc722926ff4cd26f62e9c9912412f0a54ae940256ebbb12f285f93e06",
-          "reason": "安全流程综述，增量有限"
+          "raw_item_id": "d714c62e2d67cc52058f029041505dfd970f65edd09b9fc406e8d3eee2a4ee67",
+          "reason": "补丁过小，信息增量低"
         },
         {
-          "raw_item_id": "53128c123ecd1ebcafb90bb21c494ec173666986487d03647268227e99eb3ba5",
-          "reason": "仅加网关头，价值低"
+          "raw_item_id": "49bc5b574f511d02356b7dbea366b6e5c7aacc6dad518cc8a086575ad44a98f1",
+          "reason": "与e08同事件且无正文"
         },
         {
-          "raw_item_id": "7bc8b5c7c1b8c7c5423638bd2b467d2efad59ec1d779129f98f28b34f7219a6c",
-          "reason": "语音模型，非本期重点"
+          "raw_item_id": "f5e9ba7a2b7c4b7a48a22d37937607d5350ed71f258d6f4da3fe0dc46ae4aa5c",
+          "reason": "产品迁移功能，技术增量低"
         },
         {
-          "raw_item_id": "4ffca659a62d9dd80727652fe2491a82756b00b46e2b0fae328c8a545cc4ebb7",
-          "reason": "仅验证码页，无正文"
+          "raw_item_id": "f1bc2432114dbf3e3173e3548be96042aeef17f0248a0cd293a596d7fd7c61df",
+          "reason": "新闻汇总，非可复用实践"
         },
         {
-          "raw_item_id": "e7c4c3c9af312999979531e86d132b3e92d557c80465de7f0e4215dea2e9cf87",
-          "reason": "Android适配，非重点"
+          "raw_item_id": "14e200dd68bee5ee5b9f64370e3f57a6d928ae54b9905ebbabc242812aef4fff",
+          "reason": "无正文，选型软文"
+        },
+        {
+          "raw_item_id": "6c6f32b96fbd5e35195bedb2a26eb74dbde617c3d7bd5d939a78a88100c4c8a4",
+          "reason": "无正文，记忆分析空泛"
+        },
+        {
+          "raw_item_id": "fced4a5c7e7cfd9367100a838129b7d38cd4cdf494e8e7dfb81f0c87171c79e7",
+          "reason": "通用CVE统计，非AI重点"
+        },
+        {
+          "raw_item_id": "bd07d505b609c3fe42466a61a92fdd62f89fd710cbeb816da5823a02e47af39d",
+          "reason": "无正文，指南线索不足"
+        },
+        {
+          "raw_item_id": "b365be762c9c8e2fb6b14edbeeb8be434999f8ee20f75fdb6e44280db773d10b",
+          "reason": "与e08重复的单CVE细节"
+        },
+        {
+          "raw_item_id": "8369170549448c3783da85eef54621dbbdb57c6fee5b586ff9c59d1daa1bdcfa",
+          "reason": "无正文，泛CISO问答"
+        },
+        {
+          "raw_item_id": "a0c7d5048b20ed17449def3ab3a33f36096fc37aa792feb39e7bb37355a6a52f",
+          "reason": "无正文，架构框架线索"
         }
       ],
       "scope_note": "仅检查本次已搜索和采集的覆盖，不能证明互联网热点无遗漏。"
@@ -2411,19 +2163,19 @@
       ],
       "registry": {
         "returned": 200,
-        "unique_with_repository": 28,
-        "skipped_without_repository": 120,
+        "unique_with_repository": 31,
+        "skipped_without_repository": 124,
         "status": "ok",
-        "candidates": 28
+        "candidates": 31
       },
       "repository_verification": {
-        "attempted": 12,
-        "verified": 11,
-        "failed": 1
+        "attempted": 11,
+        "verified": 9,
+        "failed": 2
       },
       "page_fetch": [
         {
-          "url": "https://kiro.dev/docs/skills",
+          "url": "https://levelup.gitconnected.com/a-software-engineers-workflow-with-matt-pocock-s-agent-skills-71c3a094ad1c",
           "status": "failed",
           "error": "CollectionError"
         },
@@ -2443,22 +2195,22 @@
           "error": "CollectionError"
         },
         {
-          "url": "https://dev.to/aerabi/ai-skills-and-how-to-distribute-them-3hlk",
+          "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/model-context-protocol",
           "status": "failed",
           "error": "CollectionError"
         },
         {
-          "url": "https://github.com/modelcontextprotocol/modelcontextprotocol/issues/3538",
+          "url": "https://modelcontextprotocol.io/registry/github-actions",
           "status": "failed",
           "error": "CollectionError"
         },
         {
-          "url": "https://airia.com/blog/how-to-govern-the-modern-developer-ai-stack-mcp-integrations-agent-workflows-and-coding-tools",
+          "url": "https://www.ory.com/blog/mcp-servers-dont-know-whos-calling",
           "status": "failed",
           "error": "CollectionError"
         },
         {
-          "url": "https://modelcontextprotocol.io/registry/remote-servers",
+          "url": "https://docs.solo.io/agentgateway/kubernetes/latest/documentation/mcp/auth/setup",
           "status": "failed",
           "error": "CollectionError"
         }
@@ -2466,17 +2218,17 @@
       "limitations": [
         "MCP Registry 本次最多读取 200 条更新"
       ],
-      "discovered": 87,
+      "discovered": 89,
       "qualification": {
-        "leads": 83,
-        "qualified": 3,
+        "leads": 89,
+        "qualified": 5,
         "rejected": {
+          "案例缺少工作流、结果或限制": 72,
+          "研究论文不直接充当工程实践": 9,
           "缺少安装、配置或示例": 1,
-          "研究论文不直接充当工程实践": 7,
-          "案例缺少工作流、结果或限制": 71,
-          "榜单或清单不作为实践": 1
+          "榜单或清单不作为实践": 2
         },
-        "stale_disqualified": 63,
+        "stale_disqualified": 68,
         "history_duplicates": 0
       }
     },
@@ -2486,10 +2238,12 @@
       "recorded": true,
       "platform": "skills.sh",
       "candidate_pool_size": 1200,
-      "excluded_count": 1124,
+      "excluded_count": 1004,
       "limitations": []
     },
-    "generation_fallbacks": [],
+    "generation_fallbacks": [
+      "2 条正文经直接抓取兜底获得"
+    ],
     "generation_models": [
       "deepseek/deepseek-v4.1-flash",
       "typesafe/jev-1.14-20261014"
@@ -2499,32 +2253,34 @@
     "passed": true,
     "hard_failures": [],
     "warnings": [
-      "Critic 仍有 13 项声明需要人工核验",
-      "Critic 提醒：[item-8c14d7fcaa615f15955215a3ca1e8d0d] summary 与 key_facts 的“每次启动 Python 都会运行”未保留 `_AF_TEL=1` 防护条件；证据是每次独立启动且未设置该环境变量时运行，子进程会跳过。",
-      "Critic 提醒：[item-8c14d7fcaa615f15955215a3ca1e8d0d] deep_dive 称 1.26.2 可在 `id-token: write` 的 GitHub Actions 作业中换取 Azure 联邦凭据，但省略了前提：仅当 Entra ID 联邦凭据信任该工作流时才可兑换；现有表述容易被读成普遍成立。",
-      "Critic 提醒：[item-8c14d7fcaa615f15955215a3ca1e8d0d] deep_dive 将“微软维护者在 GitHub discussion 确认移除并调查”作为事实陈述；该信息来自 techmeasured 转引 SecurityWeek，非微软官方声明，也未获上传日志确认，建议标注为媒体报道。",
-      "Critic 提醒：[item-926da09a56a85340a1e1da2e16d3dbf3] Codex 沙箱的跨平台强制效果、绕过难度和安全性主要依据 OpenAI 工程博客自述；证据未包含跨平台强制细节、性能数据或独立测试，summary/technical_analysis 中相关判断宜明确为厂商描述而非独立复现。",
-      "Critic 提醒：[item-926da09a56a85340a1e1da2e16d3dbf3] “stdio MCP server 默认不被沙箱化、需手动包裹”在 summary、key_facts、deep_dive 和 application 中重复出现；deep_dive 虽补充了原因与示例，但整体信息重复度偏高。",
-      "Critic 提醒：[item-e0af01e85744500eb4909267f890bc6f] 标题“主打长任务Agent”强于原文：原文 headline 强调 frontier-level intelligence 与端到端任务完成，长任务 Agent 工作流只是其中一节，建议弱化“主打”。",
-      "Critic 提醒：[item-e0af01e85744500eb4909267f890bc6f] technical_analysis 首句“Neon的核心是四档thinking形成的成本曲线”是编辑判断；原文只说四档可逐级调节 intelligence 与 token 花费，宜标注为分析而非事实。",
-      "Critic 提醒：[item-e0af01e85744500eb4909267f890bc6f] deep_dive 标题“harness决定上限”过强：12.8%→39.0% 说明 harness 影响显著，不足以称“决定上限”，建议改为“显著影响”。",
-      "Critic 提醒：[item-e0af01e85744500eb4909267f890bc6f] deep_dive 小节“成本结构与Pareto定位”几乎逐句复述 key_facts 第4条与摘要成本段，未增加新信息；建议补充缓存命中率、重试与任务长度对 cost per task 的影响，或合并。",
-      "Critic 提醒：[item-e0af01e85744500eb4909267f890bc6f] deep_dive 安全段“编码作弊评测仅2.45%”易被读成绝对作弊率；原文另有 Terminal-Bench 4.0 上 0.0% cheating，两者是不同评测，且原文编码主榜为 Terminal-Bench 4.1（65.2%），引用时应标明版本与评测名。"
+      "2 条正文经直接抓取兜底获得",
+      "3 条搜索线索缺少可核验发布日期",
+      "Critic 仍有 18 项声明需要人工核验",
+      "Critic 提醒：[item-d2499313e88655fa8d476785495bfa39] OSV/pip-audit 盲区在 summary、why_it_matters 和 deep_dive 第三段出现三次；建议 deep_dive 只保留“如何绕过扫描器做升级核验（pip show/uvx 缓存/日期版本排序/advisory 页）”的新增信息。",
+      "Critic 提醒：[item-d2499313e88655fa8d476785495bfa39] 越界读路径（GHSA-r2q8-f657-4r56）只在服务器以 --repository 启动时复现；summary 与 key_facts 第 3 条省略了该前提，应写成“以 --repository 启动时，构造 .git/index 可越界读取”。",
+      "Critic 提醒：[item-d2499313e88655fa8d476785495bfa39] “2026.11.18 三例均被拒绝”措辞过粗：git_merge 与 git_show 的观察结果是命令未执行（正常完成合并/返回 diff），只有 git_diff_unstaged 返回 out-of-tree 错误；建议区分“未执行”与“报错拒绝”。",
+      "Critic 提醒：[item-d2499313e88655fa8d476785495bfa39] 来源内部不一致：TL;DR 称六条中五条为 CVSS 7.8，而汇总表只有四条标 7.8、GHSA-h2g3-rwxm-xfm3 仅标 High。item 采纳了表格口径（正确），但建议在 caveats/evidence_note 说明该不一致，避免读者以为“5×7.8”已核实。",
+      "Critic 提醒：[item-3fe806bc5c945492a89b20768a84ffd7] summary 中“yt-mcp 能读取并上传任意文件到 YouTrack”丢了限定词；原文为“服务进程可访问的任意文件”，建议补回，否则扩大了漏洞的读取范围。",
+      "Critic 提醒：[item-3fe806bc5c945492a89b20768a84ffd7] “resolveFilePath 把绝对路径排除在 confinement 之外”中英混排且 confinement 非专有技术名；建议改为“越界检查/仓库根约束校验”，保留 realpath、commonpath、Runtime.evaluate 等技术名。",
+      "Critic 提醒：[item-3fe806bc5c945492a89b20768a84ffd7] technical_analysis 开头“三者不是同一根因”是编辑判断，来源表述为三者共享“工具参数越界/权限边界被绕过”的共同模式；建议明确标注为分析结论，而非对项目方定性的复述。",
+      "Critic 提醒：[item-3fe806bc5c945492a89b20768a84ffd7] deep_dive 第三段已标注“编辑建议”，做法正确；但同段“验证拒绝路径返回正确错误，并迁移依赖旧行为的调用”等条目属通用最佳实践，与三个 CVE 的直接证据关联较弱，宜保持“非来源结论”的措辞。",
+      "Critic 提醒：[item-00c49caa37ab56949ef936f0839e45a0] key_facts 称三个包“均由 stable-npm-release.yml 构建”；来源更准确的说法是 SLSA 证明由该工作流生成，包由 CI 以 --provenance 发布，宜区分构建与证明生成。",
+      "Critic 提醒：[item-00c49caa37ab56949ef936f0839e45a0] summary 将“首个带 SLSA provenance”写成无条件首发；来源限定为“首个由 CI 发布并带 SLSA provenance”的版本，应保留该限定。"
     ],
     "metrics": {
-      "item_count": 16,
+      "item_count": 14,
       "body_success_rate": 1.0,
       "clue_item_count": 0,
       "event_duplicate_rate": 0.0
     },
-    "checked_at": "2026-11-18T22:29:39.414409+00:00"
+    "checked_at": "2026-11-19T22:24:46.490248+00:00"
   },
   "skill_radar": {
-    "recorded_at": "2026-11-18T22:02:52.740576Z",
+    "recorded_at": "2026-11-19T22:02:32.925012Z",
     "scope": "tech_and_agent",
     "platform": "skills.sh",
     "candidate_pool_size": 1200,
-    "excluded_count": 1124,
+    "excluded_count": 1004,
     "top_cumulative": {
       "skill_key": "vercel-labs/skills/find-skills",
       "name": "find-skills",
@@ -2533,11 +2289,11 @@
       "platform": "skills.sh",
       "category": "agent_core",
       "is_official": true,
-      "description": "帮助用户发现并安装 Agent Skill,适用于“如何做 X”或寻找特定能力的提问。",
+      "description": "帮助用户发现并安装所需 Agent Skill,可按任务需求查找合适技能。",
       "metric_name": "累计安装量",
-      "metric_value": 4429815,
-      "cumulative_installs": 4429815,
-      "daily_growth": 18065,
+      "metric_value": 4446151,
+      "cumulative_installs": 4446151,
+      "daily_growth": 16744,
       "stars": null
     },
     "top_daily_growth": {
@@ -2548,11 +2304,11 @@
       "platform": "skills.sh",
       "category": "engineering_productivity",
       "is_official": false,
-      "description": "根据自然语言需求搭建并预览企业网站,支持主页、落地页、服务展示和作品集等场景。",
+      "description": "根据自然语言需求搭建并预览企业网站,适用于首页、落地页和作品集。",
       "metric_name": "过去 24h 新增安装",
-      "metric_value": 15894,
-      "cumulative_installs": 109391,
-      "daily_growth": 15894,
+      "metric_value": 15683,
+      "cumulative_installs": 124552,
+      "daily_growth": 15683,
       "stars": null
     },
     "top_cumulative_list": [
@@ -2564,11 +2320,11 @@
         "platform": "skills.sh",
         "category": "agent_core",
         "is_official": true,
-        "description": "帮助用户发现并安装 Agent Skill,适用于“如何做 X”或寻找特定能力的提问。",
+        "description": "帮助用户发现并安装所需 Agent Skill,可按任务需求查找合适技能。",
         "metric_name": "累计安装量",
-        "metric_value": 4429815,
-        "cumulative_installs": 4429815,
-        "daily_growth": 18065,
+        "metric_value": 4446151,
+        "cumulative_installs": 4446151,
+        "daily_growth": 16744,
         "stars": null
       },
       {
@@ -2579,11 +2335,11 @@
         "platform": "skills.sh",
         "category": "engineering_productivity",
         "is_official": true,
-        "description": "面向 AI Agent 的浏览器自动化 CLI,用于导航页面、填写表单、点击按钮和截图等网页交互。",
+        "description": "面向 AI Agent 的浏览器自动化 CLI,可导航网页、填表、点击和截图。",
         "metric_name": "累计安装量",
-        "metric_value": 1591433,
-        "cumulative_installs": 1591433,
-        "daily_growth": 19754,
+        "metric_value": 1609291,
+        "cumulative_installs": 1609291,
+        "daily_growth": 18320,
         "stars": null
       },
       {
@@ -2594,11 +2350,11 @@
         "platform": "skills.sh",
         "category": "coding",
         "is_official": false,
-        "description": "通过持续追问打磨计划或设计,帮助用户检验思路。",
+        "description": "通过持续追问打磨计划或设计,帮助发现思路漏洞。",
         "metric_name": "累计安装量",
-        "metric_value": 1573777,
-        "cumulative_installs": 1573777,
-        "daily_growth": 5942,
+        "metric_value": 1579538,
+        "cumulative_installs": 1579538,
+        "daily_growth": 5898,
         "stars": null
       },
       {
@@ -2609,11 +2365,11 @@
         "platform": "skills.sh",
         "category": "engineering_productivity",
         "is_official": false,
-        "description": "用 Sleek 设计移动应用界面、编辑项目,并在 React Native 或 HTML 中实现设计。",
+        "description": "用 Sleek 设计移动应用界面,并在 React Native 或 HTML 中实现。",
         "metric_name": "累计安装量",
-        "metric_value": 1499585,
-        "cumulative_installs": 1499585,
-        "daily_growth": 20095,
+        "metric_value": 1520862,
+        "cumulative_installs": 1520862,
+        "daily_growth": 22511,
         "stars": null
       },
       {
@@ -2624,11 +2380,11 @@
         "platform": "skills.sh",
         "category": "coding",
         "is_official": true,
-        "description": "为新建或改造 UI 提供视觉设计指导,涵盖审美方向、字体排版与整体风格塑造。",
+        "description": "为新 UI 或改版提供独特视觉设计、排版与审美方向指导。",
         "metric_name": "累计安装量",
-        "metric_value": 1137240,
-        "cumulative_installs": 1137240,
-        "daily_growth": 4880,
+        "metric_value": 1141723,
+        "cumulative_installs": 1141723,
+        "daily_growth": 4592,
         "stars": null
       },
       {
@@ -2641,9 +2397,9 @@
         "is_official": false,
         "description": "",
         "metric_name": "累计安装量",
-        "metric_value": 1096898,
-        "cumulative_installs": 1096898,
-        "daily_growth": 232,
+        "metric_value": 1097121,
+        "cumulative_installs": 1097121,
+        "daily_growth": 223,
         "stars": null
       },
       {
@@ -2656,9 +2412,9 @@
         "is_official": false,
         "description": "",
         "metric_name": "累计安装量",
-        "metric_value": 921864,
-        "cumulative_installs": 921864,
-        "daily_growth": 3496,
+        "metric_value": 925371,
+        "cumulative_installs": 925371,
+        "daily_growth": 3525,
         "stars": null
       },
       {
@@ -2669,11 +2425,11 @@
         "platform": "skills.sh",
         "category": "coding",
         "is_official": true,
-        "description": "Vercel Engineering 的 React 与 Next.js 性能优化指南,用于编写、审查或重构相关代码。",
+        "description": "Vercel 工程团队的 React 与 Next.js 性能优化指南,用于编写和重构代码。",
         "metric_name": "累计安装量",
-        "metric_value": 912155,
-        "cumulative_installs": 912155,
-        "daily_growth": 3494,
+        "metric_value": 915498,
+        "cumulative_installs": 915498,
+        "daily_growth": 3456,
         "stars": null
       },
       {
@@ -2684,11 +2440,11 @@
         "platform": "skills.sh",
         "category": "coding",
         "is_official": false,
-        "description": "tasteskill v2 前端艺术指导,基于 247 个精选画廊站点研究,帮助网站避免平庸设计。",
+        "description": "面向网站的前端艺术指导,基于精选画廊站点研究以避免平庸设计。",
         "metric_name": "累计安装量",
-        "metric_value": 797416,
-        "cumulative_installs": 797416,
-        "daily_growth": 5106,
+        "metric_value": 801821,
+        "cumulative_installs": 801821,
+        "daily_growth": 4510,
         "stars": null
       },
       {
@@ -2699,11 +2455,11 @@
         "platform": "skills.sh",
         "category": "coding",
         "is_official": true,
-        "description": "为已有 .azure/deployment-plan.md 和基础设施文件的已准备应用执行 Azure 部署。",
+        "description": "为已准备好部署计划和基础设施文件的应用执行 Azure 部署。",
         "metric_name": "累计安装量",
-        "metric_value": 733893,
-        "cumulative_installs": 733893,
-        "daily_growth": 8722,
+        "metric_value": 744084,
+        "cumulative_installs": 744084,
+        "daily_growth": 10388,
         "stars": null
       }
     ],
@@ -2716,11 +2472,11 @@
         "platform": "skills.sh",
         "category": "engineering_productivity",
         "is_official": false,
-        "description": "根据自然语言需求搭建并预览企业网站,支持主页、落地页、服务展示和作品集等场景。",
+        "description": "根据自然语言需求搭建并预览企业网站,适用于首页、落地页和作品集。",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 15894,
-        "cumulative_installs": 109391,
-        "daily_growth": 15894,
+        "metric_value": 15683,
+        "cumulative_installs": 124552,
+        "daily_growth": 15683,
         "stars": null
       },
       {
@@ -2731,11 +2487,11 @@
         "platform": "skills.sh",
         "category": "coding",
         "is_official": false,
-        "description": "就计划、决策或想法持续追问用户,用于压力测试其思路。",
+        "description": "围绕计划、决策或想法持续追问,用于压力测试用户思路。",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 6183,
-        "cumulative_installs": 1129529,
-        "daily_growth": 6183,
+        "metric_value": 6247,
+        "cumulative_installs": 1135634,
+        "daily_growth": 6247,
         "stars": null
       },
       {
@@ -2746,26 +2502,26 @@
         "platform": "skills.sh",
         "category": "agent_core",
         "is_official": true,
-        "description": "按 Web Interface Guidelines 审查 UI 代码,覆盖可访问性、设计与 UX 合规检查。",
+        "description": "审查 UI 代码是否符合 Web Interface Guidelines,覆盖可访问性与设计规范。",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 4343,
-        "cumulative_installs": 878739,
-        "daily_growth": 4343,
+        "metric_value": 4230,
+        "cumulative_installs": 882869,
+        "daily_growth": 4230,
         "stars": null
       },
       {
-        "skill_key": "beltsh/superpowers/python-executor",
-        "name": "python-executor",
+        "skill_key": "beltsh/superpowers/agent-tools",
+        "name": "agent-tools",
         "source": "beltsh/superpowers",
-        "url": "https://www.skills.sh/beltsh/superpowers/python-executor",
+        "url": "https://www.skills.sh/beltsh/superpowers/agent-tools",
         "platform": "skills.sh",
-        "category": "coding",
+        "category": "agent_core",
         "is_official": false,
-        "description": "通过 inference.sh 在安全沙箱中执行 Python 代码,预装 NumPy、Pandas、Matplotlib 等库。",
+        "description": "通过 inference.sh CLI 运行图像、视频、LLM、搜索等 AI 应用。",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 3600,
+        "metric_value": 3722,
         "cumulative_installs": null,
-        "daily_growth": 3600,
+        "daily_growth": 3722,
         "stars": null
       },
       {
@@ -2778,39 +2534,24 @@
         "is_official": false,
         "description": "",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 3530,
-        "cumulative_installs": 921166,
-        "daily_growth": 3530,
+        "metric_value": 3549,
+        "cumulative_installs": 924697,
+        "daily_growth": 3549,
         "stars": null
       },
       {
-        "skill_key": "google/agents-cli/google-agents-cli-deploy",
-        "name": "google-agents-cli-deploy",
+        "skill_key": "google/agents-cli/google-agents-cli-adk-code",
+        "name": "google-agents-cli-adk-code",
         "source": "google/agents-cli",
-        "url": "https://www.skills.sh/google/agents-cli/google-agents-cli-deploy",
+        "url": "https://www.skills.sh/google/agents-cli/google-agents-cli-adk-code",
         "platform": "skills.sh",
         "category": "coding",
         "is_official": false,
-        "description": "用于部署 ADK Agent、配置 CI/CD 与密钥,并排查 Google Agents CLI 部署问题。",
+        "description": "使用 ADK 编写 Agent 代码,定义 Agent、添加工具和回调。",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 3206,
-        "cumulative_installs": 582925,
-        "daily_growth": 3206,
-        "stars": null
-      },
-      {
-        "skill_key": "prisma/skills/prisma-client-api",
-        "name": "prisma-client-api",
-        "source": "prisma/skills",
-        "url": "https://www.skills.sh/prisma/skills/prisma-client-api",
-        "platform": "skills.sh",
-        "category": "coding",
-        "is_official": true,
-        "description": "Prisma Client API 参考,涵盖模型查询、过滤器、操作符与客户端方法,用于编写数据库查询。",
-        "metric_name": "过去 24h 新增安装",
-        "metric_value": 3092,
-        "cumulative_installs": 436850,
-        "daily_growth": 3092,
+        "metric_value": 2288,
+        "cumulative_installs": 586012,
+        "daily_growth": 2288,
         "stars": null
       },
       {
@@ -2821,11 +2562,26 @@
         "platform": "skills.sh",
         "category": "coding",
         "is_official": false,
-        "description": "针对同一 UI 组件构建多个真正不同的版本,通过可视化选择器实时切换并选定最终方案。",
+        "description": "为 UI 组件生成多个差异明显的版本,并用可视化选择器实时对比。",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 2345,
-        "cumulative_installs": 229463,
-        "daily_growth": 2345,
+        "metric_value": 2251,
+        "cumulative_installs": 231655,
+        "daily_growth": 2251,
+        "stars": null
+      },
+      {
+        "skill_key": "prisma/skills/prisma-client-api",
+        "name": "prisma-client-api",
+        "source": "prisma/skills",
+        "url": "https://www.skills.sh/prisma/skills/prisma-client-api",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": true,
+        "description": "Prisma Client API 参考,覆盖模型查询、过滤、操作符与 CRUD 用法。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 1901,
+        "cumulative_installs": 438738,
+        "daily_growth": 1901,
         "stars": null
       },
       {
@@ -2836,11 +2592,11 @@
         "platform": "skills.sh",
         "category": "agent_core",
         "is_official": true,
-        "description": "为代码库、API、服务、CLI 工具、库和守护进程提供安全指导与漏洞审查。",
+        "description": "为代码库、API、服务和 CLI 工具提供安全审查与漏洞检查指南。",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 2116,
-        "cumulative_installs": 115775,
-        "daily_growth": 2116,
+        "metric_value": 1835,
+        "cumulative_installs": 117551,
+        "daily_growth": 1835,
         "stars": null
       },
       {
@@ -2851,27 +2607,27 @@
         "platform": "skills.sh",
         "category": "engineering_productivity",
         "is_official": false,
-        "description": "探索和理解 Nx workspace,用于回答项目或任务问题,并辅助排查 nx 命令失败。",
+        "description": "探索和理解 Nx workspace,回答项目、任务问题并排查命令失败。",
         "metric_name": "过去 24h 新增安装",
-        "metric_value": 1483,
-        "cumulative_installs": 97631,
-        "daily_growth": 1483,
+        "metric_value": 1450,
+        "cumulative_installs": 99040,
+        "daily_growth": 1450,
         "stars": null
       }
     ],
     "top_emerging": {
-      "skill_key": "warpdotdev/common-skills/create-pr",
-      "name": "create-pr",
-      "source": "warpdotdev/common-skills",
-      "url": "https://www.skills.sh/warpdotdev/common-skills/create-pr",
+      "skill_key": "lllllllama/rigorpilot-skills/explore-code",
+      "name": "explore-code",
+      "source": "lllllllama/rigorpilot-skills",
+      "url": "https://www.skills.sh/lllllllama/rigorpilot-skills/explore-code",
       "platform": "skills.sh",
       "category": "coding",
       "is_official": false,
-      "description": "为当前分支在 warp 仓库创建 pull request,适用于提交改动或打开 PR 的场景。",
+      "description": "为深度学习研究仓库提供可审计的候选实现探索与改进流程。",
       "metric_name": "新锐单日飙升",
-      "metric_value": 66,
-      "cumulative_installs": 80,
-      "daily_growth": 66,
+      "metric_value": 233,
+      "cumulative_installs": 361737,
+      "daily_growth": 233,
       "stars": null
     },
     "limitations": []
