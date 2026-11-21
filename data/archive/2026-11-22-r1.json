@@ -1,0 +1,2828 @@
+{
+  "schema_version": "1.0",
+  "issue_date": "2026-11-22",
+  "revision": 1,
+  "generated_at": "2026-11-21T22:09:36.004576Z",
+  "run_id": "a96502c9-7a3d-4587-9257-e670f5f81956",
+  "window": {
+    "start": "2026-11-20T22:00:00Z",
+    "end": "2026-11-21T22:00:00Z"
+  },
+  "snapshot": {
+    "candidate_count": 16,
+    "frozen": true
+  },
+  "snapshot_summary": "公共候选池经确定性去重、评分、正文补全后生成。",
+  "sections": [
+    {
+      "type": "news",
+      "item_ids": [
+        "item-2d8352e68bee5cdba3f3e1e957979d9a",
+        "item-78b2bffa5ffe55e88f9ae934a3038315",
+        "item-7106474c17ea5af29ac3384d4ec2ae4a",
+        "item-ca1e1e4d16fa5192bb82c99e8c65f623",
+        "item-b9f9111724fa58889af7aafeecdfc531",
+        "item-ca59b0f590f55b78b9964c1b1d843057",
+        "item-d99919b84efd5817965a35120efe11ed",
+        "item-7ed78793d42750e798e26bd2c1d1918f",
+        "item-dce10e5b2a6751ef85a0fff6c879ac1f",
+        "item-330a738632295afdbc641722de7a560f"
+      ]
+    },
+    {
+      "type": "ai_practice",
+      "item_ids": [
+        "item-58f8acdc898b5b8096282c19f6f85b78",
+        "item-be22f2bbeabc535690135e14a2989dc8",
+        "item-dea1d4756e58571b98b12e43663837a6",
+        "item-66aade7bb64b5b0a8ea5a49a5642c3ee",
+        "item-d365f5f9f9ca50a1bc0311561e2ed78e"
+      ]
+    },
+    {
+      "type": "blog",
+      "item_ids": [
+        "item-be402ef5fdd757998cfae0e80ba4c74c"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "item_id": "item-2d8352e68bee5cdba3f3e1e957979d9a",
+      "event_id": "fa0c392b-3bb2-5df1-948a-4dd0d2d86873",
+      "type": "news",
+      "title": "MCP Python SDK 会话劫持漏洞出现利用尝试",
+      "source": "agentopsguide.com",
+      "published_at": "2026-11-21T06:58:41Z",
+      "canonical_url": "https://agentopsguide.com/mcp-python-sdk-session-vulnerability",
+      "summary": "VulnCheck 于 2026 年 11 月 20 日把 CVE-2026-52869 列入已利用漏洞目录：当 MCP Python SDK 使用 SSE 或 stateful Streamable HTTP 传输并启用 bearer token 认证时，另一个持有有效 token 并掌握目标会话 ID 的客户端可注入消息、接管会话。作者在 1.27.1 上复现成功，该 CVE 在 1.27.2 修复；但该文称 1.27.1 仍有 8 条 mcp advisory，1.27.2 只关闭两条。",
+      "why_it_matters": "mcp 包月下载约 3.31 亿次，受影响配置虽特定，存量服务面仍大。该文称 pip-audit 对 1.27.1 报出 8 条 advisory，1.27.2 只关闭两条；应按版本矩阵升到 1.30.0 或 2.2.0，而不是停在 1.27.2。",
+      "key_facts": [
+        {
+          "fact": "VulnCheck 于 2026 年 11 月 20 日将 CVE-2026-52869 加入已利用漏洞目录；该文称其 canaries 记录到利用尝试。该漏洞影响采用 bearer token 认证的 SSE 或 stateful Streamable HTTP 会话，CVSS 7.1",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "fact": "作者 2026 年 11 月 21 日在 mcp 1.27.1 上用第二个有效 token 加受害者的 Mcp-Session-Id 在受害会话内执行工具调用并得到 HTTP 200，同一请求在 1.27.2 返回 404",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "fact": "pip-audit 对 mcp 1.27.1 报出 8 条 mcp advisory，1.27.2 只关闭 CVE-2026-52869 与 CVE-2026-52870；该文正文列出的其余条目需 1.28.1 或 1.30.0 / 2.2.0，导语又写 seven other mcp CVEs，数量口径不一致",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "fact": "同日 VulnCheck 标记 MCPHub 的 CVE-2026-79748（CVSS 9.9），任意已登录非管理员可通过 POST /api/servers 注册命令并以 hub 的 OS 用户执行，0.12.15 修复",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        }
+      ],
+      "technical_analysis": "根因是会话查找只认标识符：SSE 用 session_id 查询参数、Streamable HTTP 用 Mcp-Session-Id 头，不校验请求方是否为会话创建者。1.27.2 改为把会话绑定到创建它的 principal（OAuth client ID 加 token 的 issuer、subject），不匹配时返回与未知会话相同的 404，避免泄露会话是否存在；同时给 AccessToken 补上 subject 与 claims。权衡在于安全性依赖 token verifier 是否填好 subject，自定义认证后端需自行实现同等校验。",
+      "deep_dive": [
+        {
+          "heading": "受影响面与 1.27.2 的绑定逻辑",
+          "content": "按文中转述的 advisory，SSE 传输自 SDK 首个版本起就存在该问题，Streamable HTTP 自 1.8.0 起受影响；stdio、stateless Streamable HTTP 与完全不认证的服务器不在范围内——前者没有 HTTP 会话，后者每次请求新建 transport、不保留会话表。补丁在服务端记录会话的创建 principal，并让不匹配请求复用“未知会话”的 404 响应；1.27.1 的 AccessToken 没有 subject 与 claims 字段，因此旧版本在结构上就无法区分两个用户。",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "heading": "共享 OAuth client 留下的缺口",
+          "content": "托管型 MCP 客户端与 gateway 常把多个终端用户放在同一个 OAuth client ID 下。作者用同一 client ID、不同 subject 重跑：1.27.1 仍可注入；1.27.2 能拦住，但前提是 verifier 从 token 的 sub claim 填充了 AccessToken.subject。若 subject 为空，1.27.2 只做到按 client 隔离，同一 client 背后的多个用户会合并成同一 principal。多租户服务需要确认 verifier 提供稳定 subject，自定义认证后端则要自己加同样的会话-主体校验。",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "heading": "pip-audit 版本矩阵与残留暴露",
+          "content": "作者用 pip-audit 默认 PyPI 服务扫描 mcp==1.27.1，共列出 8 条 mcp advisory；1.27.2 只关闭 CVE-2026-52869 与其伴随项 CVE-2026-52870。CVE-2026-59950 需 1.28.1；CVE-2026-59951、CVE-2026-116684、CVE-2026-116685、CVE-2026-116686 以及客户端侧 OAuth 的 CVE-2026-115563 需 1.30.0 或 2.2.0。因此“修完正在被利用的那个”不等于清干净，版本目标应直接定在 1.30.0 或 2.2.0。",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "heading": "MCPHub RCE 的连带风险",
+          "content": "CVE-2026-79748 的入口是 POST /api/servers 与 PUT /api/servers/:name：两个端点只校验是否登录、不校验管理员身份，也不限制 command，于是任意低权限账号可注册 shell 命令并立即以 hub 的 OS 用户执行，公开发布的 Docker 镜像中常见为 root。hub 还集中保存各上游 MCP server 的 API key，一旦被接管会连带泄露。仅有一个管理员、无其他账号的部署不在此路径上，但一个泄露的低权限登录即可。",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "heading": "上线后可做的验证与加固",
+          "content": "升级后不要只看版本号：在构建镜像内而非开发 checkout 里确认版本，然后做一次负向测试——以一个 principal 建会话，用第二个有效 token 重放其 session ID，确认返回 404。若服务器不需要保留会话状态，优先切到 stateless Streamable HTTP。此外把 session ID 排除在日志、URL 与可读遥测之外，并强制 TLS，因为该利用链需要先通过带外途径拿到会话 ID。",
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 agentopsguide.com 上 AgentStack 技术博客/实验室复现的正文，包含作者自建 FastMCP 测试环境的复现步骤、返回码与 pip-audit 结果说明；未获得 GHSA、mcp 1.27.2 release notes、VulnCheck 目录条目与 NVD 记录的原文，也未独立复现。",
+      "application": "在构建镜像内核对 mcp 版本并升到 1.30.0 或 2.2.0；MCPHub 升到 0.12.15 或更高，升级前先不要暴露公网。",
+      "caveats": "该文称 VulnCheck 记录到利用尝试并列入已利用目录，未给出成功利用案例；单一来源实验室复现，导语与正文剩余数量口径不一致。",
+      "confidence": 0.66,
+      "relevance_tags": [
+        "MCP",
+        "security",
+        "CVE",
+        "Python SDK",
+        "Agent 基础设施"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-2702ddd1c9f1",
+          "source_id": "tinyfish-discovery",
+          "url": "https://agentopsguide.com/mcp-python-sdk-session-vulnerability",
+          "title": "MCP Python SDK Vulnerability: We Hijacked a Session",
+          "publisher": "agentopsguide.com",
+          "published_at": "2026-11-21T06:58:41Z",
+          "retrieved_at": "2026-11-21T22:01:02.800347Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-2702ddd1c9f1"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-78b2bffa5ffe55e88f9ae934a3038315",
+      "event_id": "d7d6ef0b-97cf-5cb4-8494-cba159e2fc7f",
+      "type": "news",
+      "title": "Claude Code 自定义命令并入 Skills",
+      "source": "code.claude.com",
+      "published_at": "2026-11-21T00:12:29Z",
+      "canonical_url": "https://code.claude.com/docs/en/skills?8adb0641_page=8",
+      "summary": "Claude Code 官方文档说明，`.claude/commands/` 自定义命令已并入 Skills：旧文件继续可用，但 Claude 现在可以自行调用，可通过 `disable-model-invocation: true` 阻止自动调用。Skill 正文只在实际用到时加载，较长的参考资料在未被使用前几乎不产生成本；多文件流程可迁到 `.claude/skills/<name>/SKILL.md`。",
+      "why_it_matters": "按文档描述，Skill 正文按需加载，长参考资料在用到前几乎不产生上下文成本；把反复粘贴的检查清单和多步流程移入 Skill，可减少常驻指令，同时保留 /命令 显式调用与模型自动触发。这是文档口径，未给出 token 量化。",
+      "key_facts": [
+        {
+          "fact": "Custom commands 已并入 skills：`.claude/commands/` 下的文件继续可用，Claude 可以在用户不键入命令的情况下自行调用；可通过 frontmatter 的 `disable-model-invocation: true` 阻止自动调用。需要多个文件的命令可转成 skill，例如把 `.claude/commands/deploy.md` 移到 `.claude/skills/deploy/SKILL.md`，目录名仍然作为 `/deploy` 命令名。",
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "fact": "与 CLAUDE.md 内容不同，skill 正文只在被使用时加载，所以较长的参考资料在真正需要之前几乎不产生成本。",
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "fact": "Skills 遵循 Agent Skills 开放标准，可跨多个 AI 工具使用；Claude Code 在标准之外增加了 invocation control、subagent execution 和 dynamic context injection。",
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "fact": "/doctor 会检查安装健康、未使用的 skills/MCP/plugins 相对其 context 成本、重复或可由代码推断的 CLAUDE.md 内容，并提供把常驻指令迁移为按需加载 skill 的选项；其中 usage 检查需 Claude Code v2.1.305 或更高。",
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        }
+      ],
+      "technical_analysis": "这次变化是把两套机制合并，并改变“何时加载”的语义。按需加载用 description 决定是否进入上下文，因此省下常驻 token，却把风险转移到触发判断上：描述写偏了会静默不加载，写宽了会经常被误触发。命令合并后，原本需要人工按键才执行的流程（如 deploy）可能被模型自主调用，必须靠 `disable-model-invocation` 收紧。`!`git diff HEAD`` 这类动态注入会在模型读取前执行 shell，既增强了结果的可靠性，也扩大了执行面。文档没有给出可量化的 token 节省比例。",
+      "deep_dive": [
+        {
+          "heading": "加载位置决定哪些会话能用到",
+          "content": "文档列出企业、个人、项目、嵌套、附加目录、插件、claude.ai 账号七类加载位置：个人目录对这台机器上的所有项目会话生效，但不覆盖 Cowork 与 cloud sessions。在 monorepo 中，起始目录及其上层的 `.claude/skills/` 会在启动时加载；位于启动目录之下的 skill 要等 Claude 首次读写该子目录的文件后才加载，在此之前不在 `/` 菜单中出现，要到 v2.1.257+ 才能用 `/add-dir` 提前加载。worktree 会话在 v2.1.277+ 若自身没有 `.claude/skills`，会回退加载主 checkout 的项目 skills。",
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "heading": "bundled skills 与 /doctor 的检查项",
+          "content": "文档称，内置的 `/doctor`、`/code-review`、`/batch`、`/debug`、`/loop`、`/claude-api` 属于 prompt-based skill：它们给模型详细指令，由模型调用工具编排工作，而不是执行固定的逻辑。用 `disableBundledSkills` 关闭后，`/doctor` 仍然可以直接输入，要隐藏它还必须设置 `DISABLE_DOCTOR_COMMAND` 或让 `skillOverrides` 写入 `\"doctor\": \"off\"`。`/doctor` 会先报告发现的问题，只有确认后才改动；`claude doctor` 只做只读的安装诊断，`/doctor prompt-audit` 需 v2.1.283+，并检查过时或互相冲突的指令。",
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "heading": "/run 与 /verify：把启动方法记录下来",
+          "content": "文档称，`/run`、`/verify` 可直接使用，会根据项目类型以及 README、package.json、Makefile 推断启动方式；一旦需要数据库、env 文件、图形会话或多步构建，这种推断就不可靠。`/run-skill-generator` 会在干净环境里把应用跑通，记录 install 命令、环境变量与启动脚本，作为项目 skill 提交到 `.claude/skills/run-<name>/`，此后 `/run`、`/verify` 和仓库内的其他 agent 都会照着这份记录执行。`/verify` 在没有记录时会把自己跑通的步骤写到 `.claude/skills/verify/SKILL.md`，并且只在某次运行被带错时才改写该文件。",
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "heading": "提交前钩子与版本门槛",
+          "content": "文档称，当会话开始时已存在名为 `verify` 或 `simplify` 的 skill，且该 skill 从企业、个人、项目、附加目录或 `.claude/commands/` 加载，允许 Claude 调用，并且没有关闭 `includeGitInstructions`，Claude 就会在每次提交前先运行它（文档或测试改动除外），这需要 v2.1.286+。内置 `/claude-api` 的子命令各有最低版本要求：`upgrade` 需 v2.1.236+，`cost-optimize` 需 v2.1.247+，`preserved-thinking-migration` 需 v2.1.282+，`managed-agents-secure` 需 v2.1.304+ 和 `ant` CLI，`api-version` 需 v2.1.307+，`latency-optimize` 需 v2.1.319+。",
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 code.claude.com/docs/en/skills 的 markdown 正文，在“watches `.claude/skills/` 于 `--add-dir` 目录”处被截断；未获得发布说明、token 或延迟实测数据、第三方复现。发布日期来自 search_result_metadata，页内无更新日志佐证。",
+      "application": "先跑 `/doctor` 清理与 context 成本不匹配的 skill 和重复的 CLAUDE.md，再把高频多步流程写成项目级 `SKILL.md`。",
+      "caveats": "证据为单一官方文档且末尾截断，无 token 节省或 benchmark 数据；效果属文档口径，未独立验证，发布日期来自搜索元数据。",
+      "confidence": 0.75,
+      "relevance_tags": [
+        "Claude Code",
+        "Skills",
+        "Agent Skills",
+        "context 管理",
+        "coding agent"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-075c80d01118",
+          "source_id": "tinyfish-discovery",
+          "url": "https://code.claude.com/docs/en/skills?8adb0641_page=8",
+          "title": "Extend Claude with skills",
+          "publisher": "code.claude.com",
+          "published_at": "2026-11-21T00:12:29Z",
+          "retrieved_at": "2026-11-21T22:01:55.761540Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-075c80d01118"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-7106474c17ea5af29ac3384d4ec2ae4a",
+      "event_id": "a10c73e6-c1be-5345-8ecc-e2cbdcc07eac",
+      "type": "news",
+      "title": "Claude Code Bash 沙箱默认关闭，可配置边界",
+      "source": "docs.claude.com",
+      "published_at": "2026-11-20T23:28:17Z",
+      "canonical_url": "https://docs.claude.com/en/docs/claude-code/sandboxing?tblci=GiDUUhW6hWKhGksXLlEvEGBu4Clg-mOQyGJZR0mdD44yqCDCwlgogdLP6szuoOwg%2F%2F%2F%2F%2F",
+      "summary": "Claude Code 文档说明 Bash 沙箱由操作系统强制文件与网络边界，覆盖 Bash、PowerShell、Monitor 及子进程，默认关闭，可用 /sandbox 或 sandbox.enabled 开启。默认写入限工作目录、临时目录与追加目录，读取却可达大部分机器含 ~/.ssh、~/.aws/credentials；网络经本地代理，允许域名初始为空。",
+      "why_it_matters": "它用操作系统强制文件与网络边界约束 coding agent 的 shell 命令及子进程；但默认读取范围宽、MCP 与文件工具不在内，误以为“全隔离”会留下缺口。",
+      "key_facts": [
+        {
+          "fact": "沙箱默认关闭，可用会话内 /sandbox 或 sandbox.enabled=true 开启；它覆盖 Bash、PowerShell、Monitor 命令及其启动的进程。",
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "fact": "默认写入限工作目录、每用户临时目录和追加目录；默认读取可达大部分机器，包括 ~/.ssh 与 ~/.aws/credentials；网络无直连，经本地代理且允许域名初始为空。",
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "fact": "沙箱只包 shell 命令；内置文件/Web 工具、MCP servers、hooks、plugin monitors、LSP 等不在边界内；原生 Windows 默认无沙箱，要使用沙箱需在 WSL2 中运行 Claude Code。",
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "fact": "strict sandbox mode 通过 allowUnsandboxedCommands:false 禁用 unsandboxed retry；failIfUnavailable:true 让平台不支持或依赖检查失败时启动退出。",
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        }
+      ],
+      "technical_analysis": "编辑推断：沙箱在常规审批流程之外叠加 OS 级文件与网络边界，而非替代审批；文档称沙箱内命令仍走常规权限流程，除非选 auto-allow。auto-allow 仅对沙箱内命令免提示，strict 模式关闭 unsandboxed retry。默认读范围宽，需用 denyRead/credentials 收紧；边界不覆盖内置文件/Web 工具、MCP 与 hooks。",
+      "deep_dive": [
+        {
+          "heading": "边界覆盖与明确例外",
+          "content": "文档称沙箱覆盖 Bash、PowerShell、Monitor 命令及其启动的进程，但边界外还有内置 Read/Edit/Write/WebFetch/WebSearch：denyRead 不会阻止 Read 工具，allowedDomains 也不限制 WebFetch。command hooks、本地 MCP servers、plugin monitors、LSP servers、状态栏命令与 apiKeyHelper 以完整权限运行；mod 的代码、网络与 $.process 启动程序同样不受约束。用户在 ! shell-mode 输入的命令通常不沙箱运行，excludedCommands 与 unsandboxed retry 也会落到边界外。",
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "heading": "auto-allow 与 retry 逃逸口",
+          "content": "两种模式共享同一文件与网络限制，差别在审批：auto-allow 对沙箱内命令免提示，但 Bash deny 规则仍拦截，命中关键路径的 rm/rmdir 仍走审批，Bash(git push *) 这类内容限定 ask 规则仍强制提示；裸 Bash ask 规则对沙箱命令跳过。Monitor 命令不会自动批准。FOO=bar npm test、make CC=clang、eval \"ls\" 这类可改变实际程序的命令仍可能提示。allow 规则还会顺带批准同命令的 unsandboxed retry；要强制询问可加 Bash(dangerouslyDisableSandbox:true)。",
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "heading": "启用、依赖与验证",
+          "content": "macOS 用 Seatbelt；Linux 与 WSL2 依赖 bubblewrap 和 socat，/sandbox 的 Dependencies 标签会列出缺失项。seccomp 过滤器可选，缺失时用 npm install -g @anthropic-ai/sandbox-runtime 安装。若 /usr/bin/bwrap 报 uid map 或 RTM_NEWADDR 错误，文档给出 AppArmor profile，reload 后重启 Claude Code。验证时让 Claude 执行 touch ~/sandbox-probe，应报 Operation not permitted 或 Read-only file system；curl --noproxy '*' https://example.com 应报 Could not resolve host。WSL1 会提示需升级 WSL2；原生 Windows 仍可无沙箱运行。",
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "heading": "配置落点与组织级强制",
+          "content": "面板选择会写入项目 .claude/settings.local.json，并加入全局 gitignore；要跨项目启用，在 ~/.claude/settings.json 设 sandbox.enabled 为 true；组织级用 managed settings。单次会话可用 --settings 传 JSON，例如同时开启 sandbox.enabled 与 allowUnsandboxedCommands:false。默认平台不支持或依赖检查失败时，Claude Code 会无沙箱运行；设置 sandbox.failIfUnavailable:true 可在启动时退出，适合把沙箱当安全门禁的托管部署。文档提到 v2.1.285 前项目 true 可覆盖用户 false。",
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        }
+      ],
+      "evidence_note": "读到 docs.claude.com 文档正文，含配置、模式、Linux/WSL2 排障与验证；正文在 Temporary directories 一节末尾截断，未获得后续页面与版本发布说明。来源 published_at 元数据为 2026-11-20T23:28:17Z；探针命令未实机复现，属官方文档口径。",
+      "application": "在测试项目运行 /sandbox，核对 Dependencies 并用探针确认边界；再设 allowUnsandboxedCommands:false、failIfUnavailable:true，补 denyRead/credentials 与 allowedDomains。",
+      "caveats": "仅覆盖 shell 命令，文件工具、MCP、hooks 等不在边界内；原生 Windows 默认无沙箱；默认读取凭据文件；文档末尾截断。",
+      "confidence": 0.88,
+      "relevance_tags": [
+        "Claude Code",
+        "Bash 沙箱",
+        "Agent 安全",
+        "权限控制",
+        "MCP",
+        "WSL2"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-a6bf0591d16d",
+          "source_id": "tinyfish-discovery",
+          "url": "https://docs.claude.com/en/docs/claude-code/sandboxing?tblci=GiDUUhW6hWKhGksXLlEvEGBu4Clg-mOQyGJZR0mdD44yqCDCwlgogdLP6szuoOwg%2F%2F%2F%2F%2F",
+          "title": "Configure the sandboxed Bash tool",
+          "publisher": "docs.claude.com",
+          "published_at": "2026-11-20T23:28:17Z",
+          "retrieved_at": "2026-11-21T22:01:50.289444Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-a6bf0591d16d"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-ca1e1e4d16fa5192bb82c99e8c65f623",
+      "event_id": "e9a34115-abed-57dc-85aa-14ebfcb85c75",
+      "type": "news",
+      "title": "jdx：用 MCP 定点读取 Java 字节码",
+      "source": "dev.to",
+      "published_at": "2026-11-21T21:13:00Z",
+      "canonical_url": "https://dev.to/mohammadmd1383/a-javap-alternative-for-ai-agents-an-mcp-server-that-reads-java-bytecode-3322",
+      "summary": "开源 Apache-2.0 工具 jdx 同时提供 CLI 与 MCP server，可对 jar、sources.jar、class 目录、Maven 坐标或 JDK 回答 members、body 等定点问题。作者在 gson-2.14.0 的 README benchmark 中称：jdx 两次调用约 4.6KB，替代 unzip+javap+grep+sed 的五次调用约 17.5KB，且不会因 head 截断漏掉目标方法。",
+      "why_it_matters": "作者观察到 coding agent 查看依赖时常靠 javap 全量 dump，token 与调用次数都高；jdx 改为按需定点返回并标明来源行，直接影响上下文预算与重载选择。",
+      "key_facts": [
+        {
+          "fact": "jdx 是 Apache-2.0 开源 CLI 兼 MCP server，v1.7.0 通过 jdx mcp 暴露 27 个 typed 工具，包括 jdx_members、jdx_body、jdx_usages、jdx_diff 等",
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        },
+        {
+          "fact": "README 自带 benchmark（sh docs/bench-compare.sh）在 gson-2.14.0 上：unzip+javap+grep+sed 共 5 次调用约 17.5KB（约 4.4k tokens），且 head -200 漏掉位于 1265 行中第 542 行的方法；jdx members+body 共 2 次调用约 4.6KB（约 1.2k tokens）",
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        },
+        {
+          "fact": "jdx 返回单个方法体为 267 字节，而 javap -c 输出整个类为 60,590 字节（226 倍），完整 Gson.java 为 58,251 字节（218 倍）",
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        },
+        {
+          "fact": "使用 ASM 解析字节码，不加载也不执行被检查的类；仅 --fetch、jdx upgrade 或 jdx kotlin install 时才访问网络；运行需要 Java 21+，支持 Linux/macOS/Windows",
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        }
+      ],
+      "technical_analysis": "核心变化是把读字节码从人工拼接 unzip/grep/sed 改为结构化查询：agent 按符号名取成员或方法体，输出带 source 来源行。无 sources jar 时用 Vineflower 反编译并标 reconstructed，结果只是重建值；签名不明确时以 exit code 2 列出全部 8 个重载。README/作者自测称常驻 MCP/daemon 约 20ms、冷启动 CLI 约 250ms；编辑推断：这有利于常驻，但延迟未独立核验。",
+      "deep_dive": [
+        {
+          "heading": "这组 token 对比该怎么读",
+          "content": "benchmark 只设一个任务：列出 Gson 的 API，再只看 toJson(Object)。旧路线失败不只因为 token 多：head -200 截断了位于第 542 行（共 1265 行）的目标方法，压根没读到。jdx 侧的节省来自 members 给出签名清单、body 按签名只返回 267 字节方法体；编辑推断：换到超大类或链式调用密集的代码，比例可能变化，方向仍可能成立。数据来自 README/作者自测。",
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        },
+        {
+          "heading": "接入形态与工具面",
+          "content": "`jdx mcp` 暴露 27 个 typed 工具（v1.7.0），包括 jdx_members、jdx_body、jdx_source、jdx_signature、jdx_usages、jdx_callers、jdx_implementors、jdx_hierarchy、jdx_diff、jdx_literals 等。除手工写 mcpServers 配置，还可用 jdx setup --agent claude-code --scope project 一条命令写入；文中列出的支持对象包括 Claude Code、Cursor、Codex CLI、GitHub Copilot CLI、OpenCode、Kilo Code、Cline、Antigravity、Windsurf 与 Aider。编辑推断：这相当于把 IDE 的跳转/查找能力暴露给 agent。",
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        },
+        {
+          "heading": "安全边界与已知不支持项",
+          "content": "因为用 ASM 只解析、不加载类，指向来源不明的 jar 不会触发静态初始化或代码执行，这是相对“跑脚本用 javap”的实质差异。局限也明确：Minecraft 场景不做 remap，需自己传 Loom 重映射后的 jar 给 --jars；Kotlin 依赖读取 @Metadata 才能显示 suspend、属性、默认参数与可空性；想要原始字节码仍需 --engine javap。无 sources jar 时用 Vineflower 反编译并标 reconstructed，结果只是重建值。建议验证：在真实依赖升级场景比对 reconstructed 输出与实际 sources。",
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        }
+      ],
+      "evidence_note": "读到 dev.to 文章完整正文（含命令示例、benchmark 表、MCP 配置与支持 agent 列表），属作者自述/发布说明；未获得独立第三方 benchmark、GitHub issue 反馈或 27 个工具各自行为文档；安装脚本与延迟数字未实机核验。",
+      "application": "可在非关键仓库试点：在 Java 21 环境安装 jdx，用 claude-code 项目级 setup 接入，并与现有 javap 流程对照输出和 token。",
+      "caveats": "token 与倍数来自 README/作者自测，仅覆盖单一 Gson 任务；20ms/250ms 未独立核验；无第三方复现。",
+      "confidence": 0.68,
+      "relevance_tags": [
+        "coding agent",
+        "MCP",
+        "Java",
+        "bytecode",
+        "javap",
+        "工具链"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-b55e3b6c3911",
+          "source_id": "tinyfish-discovery",
+          "url": "https://dev.to/mohammadmd1383/a-javap-alternative-for-ai-agents-an-mcp-server-that-reads-java-bytecode-3322",
+          "title": "A javap alternative for AI agents: an MCP server that reads Java bytecode",
+          "publisher": "dev.to",
+          "published_at": "2026-11-21T21:13:00Z",
+          "retrieved_at": "2026-11-21T22:00:55.298994Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-b55e3b6c3911"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-58f8acdc898b5b8096282c19f6f85b78",
+      "event_id": "241ae9d9-32a3-5777-b90f-5c945d306e05",
+      "type": "news",
+      "title": "Claude Code 并行开发：规格同步与独立评审",
+      "source": "www.reddit.com",
+      "published_at": null,
+      "canonical_url": "https://www.reddit.com/r/ClaudeWorkflows?after=dDNfMXh6YzBncQ%3D%3D&sort=best&t=DAY",
+      "summary": "Reddit r/ClaudeWorkflows 页面中的并行 Claude Code 开发条目提出一套工作流：架构、设计约定与安全规则写入 AGENTS.md 和功能规格，并从 CLAUDE.md 导入共享指令；任务拆到独立 Git worktree，由未写代码的 reviewer 先审，再由人类 owner 合并；用 check files 与 headless 自测在不触碰真实桌面的情况下验证行为。作者自报已合并 41 个 PR、约 37 个 check files，但页面未给出可核验的原始全文、命令或测试输出。",
+      "why_it_matters": "它把多 Agent 并行从 prompt 技巧变成可检查的工程流程：规格随代码更新、变更隔离、评审与合并分离。对已用 Claude Code 的团队可作为试点模板，效果需用评审发现与回滚次数验证。",
+      "key_facts": [
+        {
+          "fact": "条目要求把架构、设计约定和安全规则写入 AGENTS.md 与功能规格，并从 CLAUDE.md 导入共享指令；开发或评审发现可复用规则时同步更新规格。",
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        },
+        {
+          "fact": "并行任务分配到独立 Git worktree（使用 T3 Code），变更以 PR 提交，由未参与写代码的 reviewer 检查后再由人类 owner 合并。",
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        },
+        {
+          "fact": "使用 check files 与 headless 应用自测（--snapshot、--dock-check、--helpers-check）在不触碰真实桌面的情况下验证行为；作者自报 41 个已合并 PR、约 37 个 check files。",
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        }
+      ],
+      "technical_analysis": "来源把上下文放在版本化规格中：AGENTS.md 承载跨任务规则，功能规格描述当前变更，并从 CLAUDE.md 导入共享指令，以减少并行 agent 各自漂移。Git worktree 提供文件级隔离，便于并行构建与测试，但来源明确它不是安全沙箱，也不是权限控制替代品。headless 自测用于不触碰真实桌面地验证行为，来源未说明覆盖范围。独立 reviewer 能打断自写自审，证据未说明如何保证独立性。编辑推断：瓶颈在规格新鲜度与评审吞吐。",
+      "deep_dive": [
+        {
+          "heading": "页面里的三条工作流并非同一件事",
+          "content": "页面实际包含三条自动生成的工作流：并行 Claude Code 开发、无状态资产 Agent 的仓库交接、用 GitHub issues 派发 headless agent。第一条把规格、worktree、PR 与独立评审串成闭环；第二条用根 handoff 文件按任务类型指定必读文档，并要求 blind lineup 与人工裁决；第三条用 dispatch 标签、单一 router、Python runner、claude -p/codex app-server、Windows Job Objects 与 Prometheus/Grafana 管理多机任务。编辑推断：共同骨架是“版本化文档给上下文、worktree 隔离改动、PR 做交接、人类做最终门禁”。这些是页面摘要所述，不是同一套已合并实现。",
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        },
+        {
+          "heading": "隔离、权限与泄露边界",
+          "content": "来源的安全警告比工作流本身更值得先读：Git worktree 只隔离改动，不是安全沙箱；vault secrets 必须留在 agent 可读上下文之外；headless Claude 应使用严格 MCP 配置。第三条工作流还提醒，自动权限模式可能执行高影响操作，issue 文本与 agent 输出都应视为不可信输入，日志、指标和提交的截图中不能泄露密钥；删除已合并 worktree 前要检查未提交改动。编辑推断：若把“自动合并”也交给 agent，前面所有隔离都会失去意义。",
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        },
+        {
+          "heading": "证据强度与复现缺口",
+          "content": "三条条目都注明由 workflow library 数据库自动生成。页面未给出可核验的原始帖子全文或仓库链接；第一条虽称有 public/source repository，但未提供可核验链接，setup 命令、review prompt 与测试输出也未给出。第一条的 41 个 PR、约 37 个 check files 与测试覆盖均为作者自报；第二条没有仓库、模板或可运行实现，也没有前后对比；第三条没有 runner 源码、配置示例与测试，且单一 router 是可用性瓶颈，runner 在开 PR 时就关闭 issue，团队需另建评审状态跟踪。建议验证：先复现一条最小任务，记录评审发现、测试通过率与回滚次数。",
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 r/ClaudeWorkflows 列表页中三条自动生成的工作流摘要，含工作流、工具、验证信号与限制；未获得可核验的原始帖子全文或仓库链接（页面称第一条有 public/source repository，但未给出链接），PR/check 数均为作者自报，未独立核验。",
+      "application": "先单仓库试点：补齐 AGENTS.md 与功能规格，选两条任务走 worktree、PR 和独立评审，并复用现有 check 脚本。",
+      "caveats": "证据为自动生成条目，PR 数、check 文件数与测试覆盖均系作者自报；缺命令、review prompt 和测试结果，worktree 也不等于安全沙箱。",
+      "confidence": 0.68,
+      "relevance_tags": [
+        "Claude Code",
+        "coding agent",
+        "Git worktree",
+        "PR review",
+        "headless testing",
+        "workflow"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-28900bd9bb0f",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.reddit.com/r/ClaudeWorkflows?after=dDNfMXh6YzBncQ%3D%3D&sort=best&t=DAY",
+          "title": "r/ClaudeWorkflows",
+          "publisher": "www.reddit.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-21T22:02:05.322197Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-28900bd9bb0f"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://www.reddit.com/r/ClaudeWorkflows?after=dDNfMXh6YzBncQ%3D%3D&sort=best&t=DAY",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 88,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "条目列出 AGENTS.md、CLAUDE.md、功能规格、T3 Code、Git worktree、PR、check files 及 --snapshot/--dock-check/--helpers-check 等具体构件，并说明各自用途。",
+            "ref_ids": [
+              "ref-28900bd9bb0f"
+            ]
+          },
+          {
+            "point": "条目报告 41 个已评审合并 PR、约 37 个 check files，并提到 Mission Control 集成与主线程阻塞等实现困难，但这些均为作者自述。",
+            "ref_ids": [
+              "ref-28900bd9bb0f"
+            ]
+          }
+        ],
+        "try_it": [
+          "在仓库根目录整理 AGENTS.md 与 CLAUDE.md，把架构、安全规则和可复用约定写入，并让 CLAUDE.md 导入共享指令。",
+          "为每个并行 agent 任务创建独立 Git worktree，完成后推送分支并开 PR，指定未参与实现的 reviewer 先审。",
+          "接入项目 check files 与 headless 自测 flags，先在非真实桌面环境跑通，再交人工合并。"
+        ],
+        "requirements": [
+          "Claude Code 与 Git worktree",
+          "GitHub 或同类 PR 评审流程",
+          "项目已有或可补充的 check 脚本与 headless 测试入口",
+          "隔离凭据与严格 MCP 配置，vault secrets 不进入 agent 可读上下文"
+        ],
+        "limitations": [
+          "PR 数、check 文件数与测试覆盖为作者自报，未独立验证",
+          "缺少 worktree 命令、review prompt 和测试结果，复现需自行补全",
+          "worktree 仅隔离文件改动，不是安全沙箱；自动权限模式可能执行高影响操作",
+          "所提应用未 notarized，分发信任需自行评估"
+        ]
+      }
+    },
+    {
+      "item_id": "item-be22f2bbeabc535690135e14a2989dc8",
+      "event_id": "2646aa59-fb9c-5737-9532-e4501aad0fba",
+      "type": "news",
+      "title": "PageIndex 原始 PDF 解析实测：两个样例返回空树",
+      "source": "thegenaimagazine.com",
+      "published_at": "2026-11-21T02:51:00Z",
+      "canonical_url": "https://thegenaimagazine.com/pageindex-rag-vectorless-tree-search-financebench-guide",
+      "summary": "thegenaimagazine 于 2026 年 11 月 21 日发布文章称，PageIndex 以文档树加 LLM 导航，可不依赖向量索引或替代向量检索层。作者用 0.2.10 版原始解析器测试三份合成 PDF：结构化报告得到 4 个节点，无标题长文与纯图片 PDF 均返回空结构；并发现 PyPI 包与 README 的客户端参数不一致。文章未验证 LLM 导航、问答或检索准确率。",
+      "why_it_matters": "若打算把树检索接进现有 RAG，先看清它省掉的是向量库，而非文档解析。空树或参数不匹配若不在入库阶段拦截，可能带病进入答案生成（编辑推断）。先做原始解析冒烟测试，比直接替换检索层更稳妥。",
+      "key_facts": [
+        {
+          "fact": "作者在隔离环境中用 PageIndex 0.2.10 的 page_index_flash（summary=False、optimize=False）跑三份合成 PDF：带标题与书签的四页报告提取出 4 个 node、来源标记为 hybrid；十二页无标题平铺日志和单页纯图片 PDF 都返回空结构，原始解析器对该纯图片样例未执行 OCR。",
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "fact": "98.7% 来自厂商 Mafin2.5 流水线在 FinanceBench 150 道公开题上的结果：标注为 AL 136、BE 6、MVA 5、SEDC 1、NAL 2；除 2 条 NAL 外全部接受即 148/150≈98.67%，仅 AL 为 136/150≈90.67%。",
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "fact": "PyPI 上的 pageindex==0.2.10 客户端接受 index_model、chat_model 等参数，而 commit 614cb8157343a08379d94db5434f670941cd1859 的 README 示例写的是 index 和 chat，照抄会触发 unexpected-keyword 错误。",
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "fact": "README 报告某配置下本地索引成本约每页 0.001 美元，并说明本地模式索引文档存于本地目录；云模式覆盖扫描件与图片密集文档，且会话中的文档上下文只是引导，不构成访问控制。",
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        }
+      ],
+      "technical_analysis": "文章把索引形态描述为带标题、摘要与页码范围的树节点，由 LLM 选择分支再读原始页面；这省掉的是 embedding 索引层，而非文档解析、分段与存储。成本转移到索引构建依赖版面与书签质量，问答可能多轮模型调用和翻页。98.7% 是 Mafin2.5 流水线在 FinanceBench 150 道公开题上的结果，包含人工裁定策略；文章未做端到端模型导航复现，也未把模型能力与检索增益分开。编辑推断：若要替换现有检索层，应先做同语料 ablation。",
+      "deep_dive": [
+        {
+          "heading": "98.7% 由哪些标签构成",
+          "content": "作者逐条统计了厂商 GPT-4o 结果文件的标签：AL 表示答案与 benchmark 结论及方法一致，共 136 条；BE 指厂商认为参考标准本身有误，6 条；MVA 为接受多种有效解法，5 条；SEDC 为同证据不同结论，1 条；NAL 为不一致，2 条。接受除 NAL 外的全部答案得到 148/150，四舍五入即 98.7%。这说明该数字是整条流水线加裁定政策的产物，而非检索召回率。另外 FinanceBench 公开样本为 150 题，完整 benchmark 有 10231 题，厂商结果文件只含 150 条答案，不能外推为全量测试。",
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "heading": "原始解析器的失败模式",
+          "content": "实验室脚本用 reportlab 生成三份 PDF，再直接调用 pageindex_flash 并关闭 summary 与 optimize，避免任何模型调用。结构化样例抽出的树含 Annual Report、Revenue、Operating Costs、Risk Factors 四个节点及页范围，属于抽取 API 的冒烟测试；另两份分别因缺少标题层级和只有图像而得到空结构。作者还指出，当前 GitHub 源码对不支持的输入会返回 pages 与 unreadable 等更丰富的结果，而安装的 PyPI 构建返回 detected 加空结构。结论是：文件被接受或出现来源标签，不代表索引可用，空树应在入库检查阶段直接失败。",
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "heading": "版本漂移带来的安装陷阱",
+          "content": "源码工程的 version 字段同样写着 0.2.10，意味着版本号本身无法区分 checkout 行为，因此作者建议记录包来源并在使用前读取已安装签名。对模型辅助流程，应使用与已装构建匹配的文档，或刻意安装并测试钉住的源码 revision。更早的教程还可能描述不同的索引脚本与默认值。作者明确只验证了签名差异与原始解析器，并未验证端到端的模型辅助对话配置。编辑推断：README 示例失败既可能是参数名问题，也可能叠加其他默认值差异；该文未验证端到端配置。",
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "heading": "本地、离线与权限边界",
+          "content": "原始解析可以完全不调用模型，但常规流程中摘要、树精修与答案生成都可能把内容发给所选 provider；本地模式描述的是索引文档的存储位置，不等于计算发生在本地。扫描件与图片密集文档由云模式覆盖，引用能力也不同。此外 README 明确说明会话中的文档上下文只是引导 agent，不是锁，多用户应用必须在应用与 tool 层实施允许文档与操作的管控。编辑推断：对把 PageIndex 接入内部知识库的团队，这条尤其关键，属于权限设计而非模型能力问题。",
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是较长新闻正文摘录（含实验室脚本、参数与标签统计表），正文在成本段落被截断，未读到成本段之后内容；未获得 Mafin2.5 端到端检索实现、原始 FinanceBench 参考标准，也未见到作者的独立准确率评测。",
+      "application": "先按 pinned 版本跑原始解析冒烟测试，检查树节点与页范围是否可用；暂不要替换现有 RAG 管线。",
+      "caveats": "实测只覆盖原始解析器与三份合成 PDF，未做模型导航、问答或准确率测试；成本数字为厂商在特定模型下的测量。",
+      "confidence": 0.72,
+      "relevance_tags": [
+        "RAG",
+        "PageIndex",
+        "检索架构",
+        "FinanceBench",
+        "评测口径",
+        "AI 实践"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-baf18d0b490c",
+          "source_id": "tinyfish-discovery",
+          "url": "https://thegenaimagazine.com/pageindex-rag-vectorless-tree-search-financebench-guide",
+          "title": "Vectorless Search and FinanceBench Explained",
+          "publisher": "thegenaimagazine.com",
+          "published_at": "2026-11-21T02:51:00Z",
+          "retrieved_at": "2026-11-21T22:01:18.093107Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-baf18d0b490c"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://thegenaimagazine.com/pageindex-rag-vectorless-tree-search-financebench-guide",
+        "kind": "rag_eval",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 83,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "文章给出可下载的原始树实验室脚本与完整调用：page_index_flash(path, summary=False, optimize=False)，并公布包版本、客户端参数、节点标题与页范围输出。",
+            "ref_ids": [
+              "ref-baf18d0b490c"
+            ]
+          },
+          {
+            "point": "在 Python 3.12.10 隔离环境下，结构化四页 fixture 得到 4 个节点，无标题十二页日志与纯图片单页 PDF 返回空结构，属于真实运行结果而非转载。",
+            "ref_ids": [
+              "ref-baf18d0b490c"
+            ]
+          },
+          {
+            "point": "作者核验了安装包与 README 的构造函数参数差异（index_model/chat_model 对 index/chat）以及 FinanceBench 标签计数，但未独立裁定答案、未跑模型导航。",
+            "ref_ids": [
+              "ref-baf18d0b490c"
+            ]
+          }
+        ],
+        "try_it": [
+          "在独立 Python 环境中执行 python -m pip install pageindex==0.2.10 reportlab，锁定该版本而非 main 分支。",
+          "生成或准备一份带标题与书签的 PDF，调用 page_index_flash(path, summary=False, optimize=False) 并打印 tree[\"structure\"]。",
+          "检查节点标题、页码是否越界、文本是否包含所需表格；再补一份无标题 PDF 验证是否返回空树，作为入库校验用例。"
+        ],
+        "requirements": [
+          "Python 3.12.10 隔离环境与 pageindex==0.2.10、reportlab",
+          "仅原始解析路径无需 API key；启用摘要或问答需所选 provider 的凭据并可能产生调用费用",
+          "对扫描件需云模式或额外 OCR，本地默认路径不处理纯图像页面"
+        ],
+        "limitations": [
+          "作者未验证模型辅助的端到端问答与检索准确率，98.7% 不能迁移到自己文档",
+          "无标题、平铺或图像型文档在该构建下得不到可用层级，需前置校验",
+          "README 每页约 0.001 美元为厂商特定模型与假设下的测量，且正文该段被截断，成本结构未完整获得"
+        ]
+      }
+    },
+    {
+      "item_id": "item-b9f9111724fa58889af7aafeecdfc531",
+      "event_id": "62bc9e93-b09e-56e5-8c27-aab2cb1a4f0a",
+      "type": "news",
+      "title": "SoMem 让 Agent 自组织纯文本长期记忆",
+      "source": "thenextgentechinsider.com",
+      "published_at": "2026-11-21T19:44:48Z",
+      "canonical_url": "https://thenextgentechinsider.com/pulse/somem-framework-enables-llm-agents-to-self-organize-long-term-memory-without-vector-databases",
+      "summary": "香港城市大学与腾讯 Jarvis Lab 的团队提出 SoMem：让 LLM Agent 用互相链接的纯文本文件组织长期记忆，而不依赖预设 schema 或向量库。Agent 自行决定摘要哪些内容、建立哪些主题、何时修订既有条目，原始交互以只读证据归档。该文称源码位于 github.com/Qi202/SoMem；仓库可访问性与许可未核验。",
+      "why_it_matters": "据该文，现有 Agent 记忆方法常以预设 schema 或向量存储施加固定组织规则，任务变化后不易维护；SoMem 把组织权交给模型，并称一个模型构建的记忆可由另一模型读取，这对运行多模型推理栈的团队有参考价值。",
+      "key_facts": [
+        {
+          "fact": "SoMem 由香港城市大学与腾讯 Jarvis Lab 提出，用链接式纯文本文档而非向量存储组织 Agent 长期记忆；该文称源码位于 github.com/Qi202/SoMem，仓库可访问性与许可未核验。",
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        },
+        {
+          "fact": "对比最强基线，SoMem 在 LoCoMo 提升 2.66 个百分点、BEAM-100K 提升 3.10 个百分点、LongMemEval-S 提升 2.00 个百分点。",
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        },
+        {
+          "fact": "运行时层在每次记忆编辑安装前进行校验，并从已组织内容自动重建时间线、关系图与近期记忆视图。",
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        },
+        {
+          "fact": "SoMem 具备模型可移植性：由一个模型构建的记忆，换另一个模型读取仍然可用。",
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        }
+      ],
+      "technical_analysis": "真正的变化在“写”而非“读”。传统 RAG 把切分与索引交给工程管线，SoMem 让 Agent 自己决定摘要粒度和改写时机，纯文本加链接可省掉 embedding 管线的部分运维工作。代价是每次编辑都依赖运行时校验来保证一致，否则时间线和关系图可能自相矛盾；检索质量也更依赖 Agent 的查询决策。该文称查询期追加推理还能继续提升答案质量，但未给出数值、推理预算与模型版本；编辑推断：它可能把部分成本从索引侧挪到推理侧，是否划算需实测。",
+      "deep_dive": [
+        {
+          "heading": "存储、运行时、检索三层如何分工",
+          "content": "按文中描述，权威数据是“摘要文本加指向原始交互的直链”，原始交互以 verbatim 方式只读归档。运行时层负责在编辑安装前拦截，并从已组织内容重新派生时间线、关系图、近期记忆视图。编辑推断：这说明时间线与关系图是派生视图而非权威数据源，纠错时可以重算；但也意味着每次校验规则变动都需要对存量记忆重跑一次重建，规模化后的重算成本文中未交代。",
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        },
+        {
+          "heading": "benchmark 数字该怎么读",
+          "content": "三项 benchmark 只以百分点差呈现，页面未给出基线具体系统、各数据集会话长度配置与绝对分数，因此无法判断提升落在高分段还是低分段。该文另称查询期增加推理投入可继续提升答案质量，但没有数值、推理预算与模型版本。建议验证：固定同一 serving 模型重跑 LoCoMo、BEAM-100K、LongMemEval-S，记录绝对值、token 消耗、记忆写入延迟与校验失败率，再判断省下的向量库运维是否被推理与重算成本抵消。",
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是新闻页正文摘录（文末标注由 Aaira AI Research Assistant 生成），包含 key takeaways、三项机制、一张 benchmark 表和作者/仓库信息；未获得论文全文、README、基线名称、绝对指标与任何独立复现，GitHub 仓库可访问性亦未核验。",
+      "application": "已具备文件读写能力的 Agent 团队，可在小规模任务上试跑 SoMem，与现有向量库方案对比召回质量与维护成本；验证前不要替换生产记忆层。",
+      "caveats": "证据仅一篇 AI 生成摘要的新闻页（自标 fact-check recommended），无论文全文、无独立复现；仓库可访问性、基线名称、指标绝对值与运行时校验实现均未核验。",
+      "confidence": 0.48,
+      "relevance_tags": [
+        "Agent Memory",
+        "SoMem",
+        "RAG",
+        "LLM Agent",
+        "benchmark"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-f2acce9edf15",
+          "source_id": "tinyfish-discovery",
+          "url": "https://thenextgentechinsider.com/pulse/somem-framework-enables-llm-agents-to-self-organize-long-term-memory-without-vector-databases",
+          "title": "SoMem Framework Enables LLM Agents to Self-Organize Long-Term Memory Without Vector Databases",
+          "publisher": "thenextgentechinsider.com",
+          "published_at": "2026-11-21T19:44:48Z",
+          "retrieved_at": "2026-11-21T22:01:09.356481Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-f2acce9edf15"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-be402ef5fdd757998cfae0e80ba4c74c",
+      "event_id": "a8bae8d5-34f7-5b06-b83d-681973e140fb",
+      "type": "blog",
+      "title": "Spring AI 2.1.0：Session API 与工具治理",
+      "source": "gate.com",
+      "published_at": "2026-11-21T13:03:31Z",
+      "canonical_url": "https://gate.com/news/detail/spring-ai-210-ga-released-with-native-mistral-ai-support-25774106",
+      "summary": "Gate 的一篇转述文章称，Spring AI 2.1.0 已发布并可从 Maven Central 获取；文章称其基于 Spring Boot 4.2、含 430+ 提交。长期会话改由 Session API 以 append-only 事件日志承载，ChatMemory 及其 advisor、repository 标记为 3.0.0 移除；消息结构改为有序 MessagePart 列表，Mistral AI 成为核心 chat model。",
+      "why_it_matters": "长跑 Agent 的会话原先靠扁平消息列表与 advisor 状态；据该文，Session API 用 append-only 日志和幂等版本校验支持任意实例处理会话，覆盖五种数据库。依赖 ChatMemory 的 Java 团队需在 3.0.0 前规划迁移。",
+      "key_facts": [
+        {
+          "fact": "该文称 Spring AI 2.1.0 基于 Spring Boot 4.2，包含来自 86 位贡献者的 430 多次提交，距 2.0.0 GA 五个月；该文还称 2.1.0 与 2.0.3 修复多个 CVE，并建议从 2.1 milestones/RC 升级，但未给出 CVE 编号与影响范围。",
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "fact": "Session API 取代 ChatMemory：会话存为 append-only 事件日志，SessionEvent 保留全部 message parts，JdbcSessionRepository 支持 PostgreSQL、MySQL、MariaDB、SQL Server 与 H2，并做幂等、带版本校验的追加；ChatMemory 及其 advisor、repository 标记在 3.0.0 移除。",
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "fact": "助手、用户与工具响应消息改为有序 MessagePart 列表（TextPart、ReasoningPart、ToolCallPart、ToolResultPart、MediaPart、UnknownPart），支持 OpaquePayload 原样回放；getText() 等旧访问器作为视图保留，现有代码无需修改。",
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "fact": "工具调用新增 requiresConfirmation 暂停确认、每工具 40 次与单轮 150 次的默认调用上限（spring.ai.tools.limits.*），并对 Anthropic、OpenAI 两个 API、Bedrock Converse、DeepSeek 流式输出 partial ToolCallPart。",
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        }
+      ],
+      "technical_analysis": "该文称真正的结构性变化在消息模型：2.0 之前的“文本 + 旁挂工具调用/媒体”难以表达推理与工具调用交错、图片夹文本、provider 私有块；2.1 用有序 parts 承载，OpaquePayload 原样回传签名，UnknownPart 兜住未建模块以免静默丢字段。代价在迁移：旧访问器虽兼容，但 ChatMemory 全链路只在 3.0.0 前有效。编辑推断：工具循环默认 40/150 上限会截断长流程 Agent，需显式配置；实际阈值应结合任务步数分布测量。",
+      "deep_dive": [
+        {
+          "heading": "MessagePart 如何避免 provider 私有块丢失",
+          "content": "按该文转述的发布说明，ReasoningPart 与 ToolCallPart 可携带 OpaquePayload，例如 Anthropic 的 thinking signature、Gemini 的 thought signature，下一轮请求时原样回放，避免模型因签名被改写而拒绝或降质；UnknownPart 则保存适配器尚未建模块的原始 JSON，使新 provider 特性在升级 Spring AI 之前也不会被静默丢弃。parts 保持 provider 产生的顺序，旧访问器是 parts 之上的视图而非独立字段，因此兼容性来自视图层而非数据层。编辑推断：这降低了多 provider 混用时的适配成本，但签名与私有块的回放正确性最终取决于各家 provider 的校验行为，该文未给出跨 provider 一致性测试结果。",
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "heading": "Session API 的多实例语义与默认值",
+          "content": "该文称 advisors 不持有自身状态，因此任意应用实例都能处理某个会话的任意一轮；JdbcSessionRepository 的追加为幂等且带版本校验，用于支持多实例并发。设计上刻意不提供默认 session，理由是共享 session 会静默合并不同用户的历史——这是安全取向的默认值，也意味着每次调用都需显式传入会话标识。SessionService.searchEvents 提供关键词检索，SessionRecallTools 把同一能力包装成模型的 conversation_search 工具，形成检索式回忆而非全量重放。编辑推断：多实例下会话标识的生成、传递与权限校验会成为应用层新增责任；该文未给出并发冲突测试。",
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "heading": "MCP 2026-07-28 无状态化的接入细节",
+          "content": "该文称该修订取消 initialize 握手与会话，每个请求自带协议版本与客户端能力，服务端发起的 elicitation、sampling 改为多轮往返请求。该文称 Spring AI 2.1 基于 MCP Java SDK 2.2.0 在客户端与服务端两侧支持，服务端通过 spring.ai.mcp.server.protocol=MODERN 开启，原有 @McpTool、@McpResource、@McpPrompt、@McpComplete 与 ToolCallbacks 在 WebMVC、WebFlux、STDIO 上不变；ASYNC 类型下方法返回 Mono 并通过 McpAsyncNotifier 上报进度。客户端连接作用域默认 PER_REQUEST，即每个 ChatClient 请求独立客户端，SHARED 与 CUSTOM 分别对应单身份复用与自定义选择。旧协议与新协议可并存，一个 tool callback provider 同时返回两侧工具。编辑推断：per-request 客户端把连接成本转嫁给每次调用，实际收益需结合服务端部署位置测量。",
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "heading": "工具调用治理：确认、限额与流式参数",
+          "content": "该文称工具可声明 requiresConfirmation = true，模型调用此类工具时循环在真正执行回复中的任何调用之前暂停，把待决策的调用交回应用；应用按每个调用收集 ToolCallDecision，再用 ToolCallingManager.executeToolCalls(prompt, reply, decisions) 执行并把结果作为下一请求发出。限额方面，单工具默认 40 次、单轮总计 150 次，触顶后要么抛 ToolCallLimitExceededException 结束，要么把已达上限告知模型让其继续，两种路径对用户体验差别明显。流式方面，被标记为 partial 的 ToolCallPart 只是参数增量，getToolCalls() 与工具循环会跳过且不写入 memory，完整调用随后在同一索引位置到达。编辑推断：确认机制把审批点前移到执行前，适合删除文件、发送邮件类动作，但应用侧必须自行维护决策状态与超时。",
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 Gate 转述的发布说明式长文，含 Key Takeaways、分节正文、Key Facts 与 FAQ，而非 Spring 官方 release notes 原文；未获得具体 CVE 编号、迁移指南内容、Maven 坐标与依赖版本细节，也没有任何独立 benchmark 或迁移实测。",
+      "application": "先核对官方 release notes 与迁移指南，再在测试环境把依赖 ChatMemory 的会话链路迁到 Session API；验证多实例并发、会话标识与工具确认/限额配置。",
+      "caveats": "仅第三方转述；无 CVE 编号、迁移指南细节或独立复现；MCP 2026-07-28 支持为报道口径，未独立验证。",
+      "confidence": 0.6,
+      "relevance_tags": [
+        "Spring AI",
+        "Java",
+        "Agent",
+        "Session API",
+        "MCP",
+        "工具调用",
+        "框架发布"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-c49bb508211c",
+          "source_id": "tinyfish-discovery",
+          "url": "https://gate.com/news/detail/spring-ai-210-ga-released-with-native-mistral-ai-support-25774106",
+          "title": "Spring AI 2.1.0 GA Released with Native Mistral AI Support | Gate News",
+          "publisher": "gate.com",
+          "published_at": "2026-11-21T13:03:31Z",
+          "retrieved_at": "2026-11-21T22:01:44.032094Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-c49bb508211c"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-dea1d4756e58571b98b12e43663837a6",
+      "event_id": "988b47b0-0396-56a1-9579-a1bd558d45b7",
+      "type": "news",
+      "title": "别急着换模型：先查产品对 Agent 是否可用",
+      "source": "dev.to",
+      "published_at": null,
+      "canonical_url": "https://dev.to/wassimchegham/blaming-ai-what-if-your-product-is-the-problem-cci",
+      "summary": "dev.to 文章提出 Agent Experience（AX）：coding agent 用不动产品，未必是模型问题，而可能是缺少初始化步骤、含糊的命令，或只说「failed」的错误响应。作者建议用开源评估平台 Scope 定义真实任务、固定 agent 配置、保留执行证据，先做一处针对性改动（文档、命令帮助或报错）再复测。",
+      "why_it_matters": "模型更强未必消除产品摩擦；把含糊报错、缺失步骤变成可复现任务与执行证据，团队才能判断该改文档、命令还是模型，而不是把失败都归给模型。",
+      "key_facts": [
+        {
+          "fact": "文章主张 Agent 失败应先查产品可用性：缺失的初始化步骤、含糊命令、只回「failed」的错误信息会让 agent 只能猜测，而通过 MCP 暴露工具不等于 agent 知道该选哪个工具、参数含义或操作是否成功。",
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        },
+        {
+          "fact": "Scope 是开源 agentic experience evaluation 平台，让既有 coding agent 跑用户定义的任务、按可复用标准评估输出，并保留日志、生成文件、快照与逐条标准结果作为可检查证据。",
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        },
+        {
+          "fact": "Scope 默认 Copilot 配置需要 Git、Node.js、pnpm、Docker Compose、mkcert、GitHub CLI、有效 Copilot 权益及模型访问；仅安装 CLI 不会部署平台。",
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        }
+      ],
+      "technical_analysis": "AX 被定位为 DX 的延伸而非替代：人仍定目标、审结果、决定发布。核心权衡是「更多说明」不等于更好，说明要消解决策点的歧义；错误响应应区分认证过期、项目缺失、构建失败，并说明有无副作用与下一步。评估也应看执行路径——两个都通过的结果，可能一个是直路、一个满是重试。",
+      "deep_dive": [
+        {
+          "heading": "错误响应要区分状态，而不只是报告失败",
+          "content": "文章用假想部署工具说明：工具接受项目名却只回「deployment failed」，agent 无法判断是认证过期、项目不存在还是构建失败。有用的响应要区分这些情况、说明是否已产生变更，并给出下一步，包括何时必须交给人。同样逻辑适用于 CLI、SDK 和 agent skill：必填输入、成功证据、权限边界都应显式。文章强调说明不是越多越好，而是要在产生不确定性的那个决策点消解歧义。",
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        },
+        {
+          "heading": "Scope 的版本化配置与证据链",
+          "content": "Scope 保存并版本化 agent 配置（模型、skills、MCP servers），用版本化代码库固定起始工作区，再为每条标准保留日志、生成文件、快照与结果。入口分 Portal、CLI、REST API 三种，但价值在于共享同一次调查，而不是依赖谁看了最后一场 demo。文章明确建议与既有测试并用：测试验证集成能通，执行证据解释 agent 是怎么走到的。",
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        },
+        {
+          "heading": "把营销承诺改写成可验证任务",
+          "content": "若产品页写「几分钟内完成首个集成」，可把该流程做成 Scope 中的代表性任务，配上文档与工具，定义可核验检查：项目能构建、集成返回预期响应、文档中的错误场景被正确处理。文章特别提醒，时间承诺需要独立的计时证据与明确起止边界，检查通过并不能证明「几分钟」。适用于工程、DevRel、产品营销与产品负责人共同查看，但测的是产品体验，不是转化率或品牌偏好。",
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        },
+        {
+          "heading": "首次评估的范围、成本与效度边界",
+          "content": "文章建议先绑定一个可行动问题（例如是否先修某个 onboarding 步骤），指定负责人、评审点与 provider 用量预算；比较时保持任务、起始代码库、agent 配置不变，只改一个相关界面。失败标准应转为带执行证据的 issue 与验收条件。效度上：agent 行为有波动、标准可能漏项、自动评审也可能出错，因此需重复评估并人工看证据；结论只覆盖所测任务与配置，且必须包含错误与权限边界场景。",
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是文章全文及评论区；来源未给发布时间，只有评论日期（11 月 20–21 日）与检索时间 2026-11-21。Scope 的仓库、文档与任何独立评测结果未直接读到，评分准确性与「分钟级集成」均无量化支撑。",
+      "application": "选一个产品已承诺的工作流，在已有 Scope 部署上用浏览器跑一次，检查证据后只做一个针对性改动再复测。",
+      "caveats": "仅一篇观点文章，无独立 benchmark 或量化数据；Scope 评分准确性与改进幅度未获第三方验证；本地开发栈不是安全沙箱。",
+      "confidence": 0.62,
+      "relevance_tags": [
+        "coding agent",
+        "MCP",
+        "Agent Experience",
+        "evaluation",
+        "developer experience"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-ab1d52c11598",
+          "source_id": "tinyfish-discovery",
+          "url": "https://dev.to/wassimchegham/blaming-ai-what-if-your-product-is-the-problem-cci",
+          "title": "Blaming AI? What If Your Product Is the Problem?",
+          "publisher": "dev.to",
+          "published_at": null,
+          "retrieved_at": "2026-11-21T22:00:55.300389Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-ab1d52c11598"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://dev.to/wassimchegham/blaming-ai-what-if-your-product-is-the-problem-cci",
+        "kind": "skill_mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 77,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "提供启动方式：团队已有 Scope 部署时直接在浏览器操作，无需本地安装；自建则按本地安装指南。",
+            "ref_ids": [
+              "ref-ab1d52c11598"
+            ]
+          },
+          {
+            "point": "包含真实配置：默认 Copilot 环境需 Git、Node.js、pnpm、Docker Compose、mkcert、GitHub CLI、有效 Copilot 权益与模型访问。",
+            "ref_ids": [
+              "ref-ab1d52c11598"
+            ]
+          },
+          {
+            "point": "包含输入输出示例：定义任务、标准并选 agent 配置后提交，输出为逐条标准结果与日志、生成文件、快照。",
+            "ref_ids": [
+              "ref-ab1d52c11598"
+            ]
+          },
+          {
+            "point": "说明权限与安全边界：运行前约定可用数据与凭据，本地开发栈不是安全沙箱，不要暴露到公网。",
+            "ref_ids": [
+              "ref-ab1d52c11598"
+            ]
+          }
+        ],
+        "try_it": [
+          "在已有 Scope 部署中用浏览器选择或创建项目，定义一个贴近产品承诺的任务与可核验标准，选一个可用 agent 配置并提交。",
+          "检查日志、生成文件与快照，定位一处具体摩擦（报错信息、命令帮助或文档示例）。",
+          "只改这一处后重复评估，对比证据而非只看单次分数。"
+        ],
+        "requirements": [
+          "本地自建需 Git、Node.js、pnpm、Docker Compose、mkcert、GitHub CLI",
+          "有效 Copilot 权益与评估模型访问",
+          "预先约定的可用数据与凭据"
+        ],
+        "limitations": [
+          "provider 用量可能计费或消耗配额",
+          "本地开发栈不是安全沙箱，不应用于不可信工作负载或公网暴露",
+          "结论只适用于所测任务与 agent 配置，单次成功不能证明改进"
+        ]
+      }
+    },
+    {
+      "item_id": "item-ca59b0f590f55b78b9964c1b1d843057",
+      "event_id": "678243e8-1a83-5b3a-acb5-36b8fb028e75",
+      "type": "news",
+      "title": "SWARM 公开多 Agent 治理基准套件",
+      "source": "www.swarm-ai.org",
+      "published_at": null,
+      "canonical_url": "https://www.swarm-ai.org/guides/benchmarking",
+      "summary": "SWARM 文档公开多 Agent 安全 benchmark：基线为 10 个 Agent 的无治理场景，可切换 none/light/moderate/heavy 四档治理参数，统一报告 toxicity、quality gap、平均收益与治理成本，并给出固定 seed、导出 history.json/CSV 与 10+ seed 的复现流程。",
+      "why_it_matters": "它把多 Agent 安全评测放到同一 Agent 种群下比较治理机制，并用治理成本（baseline_payoff 减 governed_payoff）标出安全的价格，便于团队做可复现的配置对比。",
+      "key_facts": [
+        {
+          "fact": "基线场景固定 10 个 Agent（7 honest、2 deceptive、1 adversarial），无治理，20 epochs、每 epoch 10 steps、seed=42。",
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        },
+        {
+          "fact": "治理对比提供 none/light/moderate/heavy 四档，可调 transaction_tax、reputation_decay、circuit_breaker_threshold、audit_probability、staking_requirement。",
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        },
+        {
+          "fact": "报告 toxicity（目标 <0.10）、quality gap（>0）、平均收益、治理成本和跨 seed 稳定性（std<0.05），并要求 10+ seeds、固定版本、导出 history.json/CSV。",
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        }
+      ],
+      "technical_analysis": "该页的定位是把治理机制当作可配置实验变量：同一基线可组合税率、声誉衰减、熔断、审计与质押参数，并统一报告 toxicity、quality gap、payoff 和治理成本。页面把治理成本定义为 baseline_payoff 减 governed_payoff，但未给出各参数对指标的因果效果或实测收益下降，因此「治理越重是否越划算」仍要依赖实际运行与跨 seed 方差判断。",
+      "deep_dive": [
+        {
+          "heading": "运行流程与覆写边界",
+          "content": "运行流程上，治理对比不改种群，而是加载同一 YAML 后覆写 governance 参数，再 build_orchestrator 并 run；稳定性部分对每个 regime 跑 seed 0–9，输出 toxicity 均值与标准差。示例代码用 setattr(scenario.governance, k, v) 逐项覆写直接属性，并未展示嵌套配置处理，因此不能据此断言代码层能正确覆写嵌套配置。编辑推断：这种设计把种群构成与治理强度解耦，便于做消融，但前提是覆写路径与实际配置模型一致。",
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        },
+        {
+          "heading": "四档治理与指标口径",
+          "content": "四档 regime 的示例值为：none 无参数；light 为 transaction_tax=0.01、reputation_decay=0.05；moderate 为 tax=0.02、circuit_breaker_threshold=0.3；heavy 为 tax=0.05、threshold=0.2、audit_probability=0.10、staking_requirement=10.0，替换 moderate 的参数，且不包含 reputation_decay。报告指标包括 toxicity 目标 <0.10、quality gap >0、平均收益最大化、治理成本最小化、跨 seed 标准差 <0.05。无治理基线的预期范围是 toxicity 0.25–0.40、quality gap -0.05–+0.10、payoff 0.3–0.6，文档明确这是典型范围而非保证。",
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        },
+        {
+          "heading": "比较边界与验证建议",
+          "content": "文档对比表称 SWARM 有 6 mechanisms、关注分布安全与动态治理，MARL benchmark 关注性能、LLM eval 关注单模型能力、安全 benchmark 多用静态规则；这是项目自述，未提供独立对照实验。示例 regime 只暴露五个具名参数，不能据此认为六个机制都在本次对比中被评测。建议验证：先固定 swarm-safety 版本与 seed，跑 10+ seeds，导出 history.json/CSV；再比较四档治理的 toxicity 均值、方差与 governance cost，确认收益下降是否可接受。",
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是项目文档页面全文摘录，包含代码、参数表和指标表；未获得发布日期、实际运行输出、swarm-safety 版本号、独立复现数据或仓库活跃度。页面自述 6 mechanisms，但示例只列五个参数，不能视为完整评测。",
+      "application": "若团队已有多 Agent 仿真，可先跑基线 10 个 seed，固定 swarm-safety 版本并导出 history/CSV，再比较四档治理；尚无仿真需求则暂不必接入。",
+      "caveats": "页面是项目文档，未给发布日期、实际 benchmark 结果、独立复现和版本号；数值是预期范围，不是实测结论。",
+      "confidence": 0.78,
+      "relevance_tags": [
+        "multi-agent",
+        "AI safety",
+        "benchmark",
+        "governance",
+        "reproducibility"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-eba6aa541c35",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.swarm-ai.org/guides/benchmarking",
+          "title": "Benchmarking - SWARM — Open-Source Multi-Agent AI Safety ...",
+          "publisher": "www.swarm-ai.org",
+          "published_at": null,
+          "retrieved_at": "2026-11-21T22:00:53.214145Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-eba6aa541c35"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-66aade7bb64b5b0a8ea5a49a5642c3ee",
+      "event_id": "a0d7c6b3-b6c7-5d2f-9515-4d9dcc7d5d8d",
+      "type": "blog",
+      "title": "AI analyst 选型：六框架与 Plotly 分层对照",
+      "source": "plotly.com",
+      "published_at": null,
+      "canonical_url": "https://plotly.com/blog/ai-agent-frameworks-analyst-assistants",
+      "summary": "Plotly 博客文章（标注 2026 年 11 月 20 日）用六个固定问题对比 LangChain、LangGraph、CrewAI、LlamaIndex、OpenAI Agents SDK、Google ADK 六个开源框架，并把自家 Plotly 作为相邻的 AI analyst 应用平台单列，强调二者不是同类产品。文章区分“消费 MCP 工具”和“把应用暴露为 MCP server”，并指出会话持久化、工作流状态保存与持久执行是三种能力。",
+      "why_it_matters": "它的价值是把 MCP 角色、可检查状态和失败恢复拆成可逐项对照的评审维度，而不是给框架排名；但这是 Plotly 自家博客、自家产品列首位，且无独立 benchmark，适合当清单而非结论。",
+      "key_facts": [
+        {
+          "fact": "文章用六问评估每个产品：买的是什么、如何协调工作、如何接数据与工具、什么可检查、如何恢复、生产路径是什么。",
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "fact": "文章明确区分 MCP 两种角色：消费 MCP server 让 Agent 调用外部工具；把应用暴露为 MCP server 让其他 Agent 使用该应用。",
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "fact": "Plotly 的定位是 AI analyst 应用平台，不是通用持久执行引擎；原文称文档检索场景可能需要与 LlamaIndex 搭配，长流程协调仍可能需要 LangGraph 或 Temporal。",
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "fact": "OpenAI Agents SDK 的 Session 只保存对话历史，序列化 run state 也不等于端到端持久执行。",
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        }
+      ],
+      "technical_analysis": "这篇文章的价值在分层而非排名：按原文归类，LangGraph 偏显式状态编排，LlamaIndex 偏检索数据层，OpenAI Agents SDK 提供较小原语集，Google ADK 贴近 Google Cloud 生态，Plotly 则是成品应用平台。编辑推断：选型时先确定“谁拥有状态、重试与外部副作用”，再谈集成数量；LangChain 式抽象换来集成广度，但控制流更难追踪，显式状态图则要求团队自建认证、交互输出与部署。",
+      "deep_dive": [
+        {
+          "heading": "六问评估法适合当评审表",
+          "content": "六问依次是买什么、如何协调、如何接数据与工具、什么可检查、如何恢复、生产路径。原文用同一张表覆盖六个开源框架和 Plotly，并明确不把成品平台与编排库混排。编辑推断：落地时把每一问写成可验证句子，例如“恢复”要具体到 checkpointer、存储后端和外部写是否幂等；只在流程步骤之间测失败，会高估恢复能力。",
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "heading": "MCP 消费与暴露是两种能力",
+          "content": "原文称 MCP 支持已较常见，更有用的问题是产品消费 MCP 工具、把应用暴露为 MCP server，还是两者兼具。消费扩展 Agent 可调用工具；暴露则让其他 Agent 调用应用内受治理的数据与回调。Plotly 的做法是通过 Dash MCP 把选定数据和回调暴露为 MCP 工具。编辑判断：对 analyst 场景，暴露受治理函数比多接几个工具更能收敛事实来源，但这仍取决于权限与审计设计，原文未给实测。",
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "heading": "会话、状态、持久执行别混用",
+          "content": "文章把可恢复性拆成对话持久化、工作流状态保存、外部持久执行三层，并点出 OpenAI Agents SDK 的 Session 只保存对话历史，序列化 run state 也不等于自动的端到端持久执行；CrewAI 与 LlamaIndex 的恢复行为取决于 Flow/工作流设计与存储。建议验证：在工具调用执行到一半时注入故障，观察已发生的写操作是否幂等、重放会不会重复写库；只测步骤间失败不够。",
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "heading": "组合与厂商立场",
+          "content": "文中多次给出分层组合：LlamaIndex 供解析与检索证据，LangGraph 负责审批、分支与恢复，Plotly/Dash 呈现可交互、code-backed 结果。企业侧原文称 Dash Enterprise 自托管于 Kubernetes，支持内网与 air-gapped，并可在防火墙内接组织指定 LLM provider。需注意：这是 Plotly 自家博客，自家产品列首位，Google ADK 一节在“ADK ali”处被截断，未获得版本号、定价页与独立 benchmark。",
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        }
+      ],
+      "evidence_note": "读到博客正文摘取，但 Google ADK 一节约在“ADK ali”处截断，不是完整全文；未获得各产品版本号、定价页数据及任何独立 benchmark 或第三方实测。",
+      "application": "先用六问给现有栈逐项填表，重点标出 MCP 是消费还是暴露；再挑一个候选做工具调用中途失败的恢复测试，暂不迁移。",
+      "caveats": "Plotly 自家博客且将自家列首选；ADK 段截断；无版本、定价与独立 benchmark。",
+      "confidence": 0.72,
+      "relevance_tags": [
+        "Agent",
+        "MCP",
+        "framework-selection",
+        "LangGraph",
+        "LlamaIndex",
+        "RAG"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-f6bb7fc491c4",
+          "source_id": "tinyfish-discovery",
+          "url": "https://plotly.com/blog/ai-agent-frameworks-analyst-assistants",
+          "title": "7 AI Agent Frameworks for Analyst Assistants (2027)",
+          "publisher": "plotly.com",
+          "published_at": null,
+          "retrieved_at": "2026-11-21T22:00:55.299786Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-f6bb7fc491c4"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://plotly.com/blog/ai-agent-frameworks-analyst-assistants",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 95,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "文章给出统一六问评估表，逐产品列出产品类型、编排模型、MCP 角色、恢复模型与生产路径。",
+            "ref_ids": [
+              "ref-f6bb7fc491c4"
+            ]
+          },
+          {
+            "point": "原文称 Dash Enterprise 自托管于 Kubernetes，支持内网与 air-gapped，并可在防火墙内接指定 LLM provider。",
+            "ref_ids": [
+              "ref-f6bb7fc491c4"
+            ]
+          },
+          {
+            "point": "原文称 Plotly Studio 由自然语言与数据生成 code-backed 分析与 Dash 应用，输出为可审阅的 Python 逻辑。",
+            "ref_ids": [
+              "ref-f6bb7fc491c4"
+            ]
+          }
+        ],
+        "try_it": [
+          "按六问为 2-3 个候选框架各填一行对照，重点标注 MCP 是消费、暴露还是两者兼具。",
+          "在选定框架上配置 checkpointer 或会话存储，构造工具调用中途失败的用例，记录重放后的副作用。",
+          "若需要可交互交付物，用 Dash 应用将已批准的数据与回调暴露为 MCP server，由 AI 客户端调用而非重算。"
+        ],
+        "requirements": [
+          "可运行 Python 环境及所选框架 SDK（LangGraph、LlamaIndex、OpenAI Agents SDK、Google ADK 等）",
+          "MCP server 与 MCP 客户端",
+          "走企业路径需自托管 Kubernetes 或对应云账号"
+        ],
+        "limitations": [
+          "文中未提供成本、延迟、吞吐等实测数据，选型结论基于架构特性而非 benchmark",
+          "恢复能力取决于存储后端、checkpointer 配置与幂等设计，需自行压测",
+          "Plotly 为本文发布方且位列榜首，存在商业倾向"
+        ]
+      }
+    },
+    {
+      "item_id": "item-d99919b84efd5817965a35120efe11ed",
+      "event_id": "c18ac552-c7c7-5b98-bdab-bf602c1bb9ea",
+      "type": "news",
+      "title": "Sourcebot：自托管代码检索层，向 Agent 开放 MCP",
+      "source": "ycombinator.com",
+      "published_at": "2026-11-21T19:21:56Z",
+      "canonical_url": "https://ycombinator.com/launches/OdD-sourcebot-the-code-understanding-platform",
+      "summary": "YC Launch 页面（标注约一年前发布，抓取于 2026-11-21）称，Sourcebot 以开源、自托管形式提供跨仓库代码搜索与自然语言问答 Ask，并通过 MCP 把两项能力交给 AI Agent。发布稿宣称可对接任意代码托管平台与任意 LLM、自带 LLM key，用单个 docker 容器部署，社区版免费、企业版付费。",
+      "why_it_matters": "企业 Agent 常缺跨仓库检索上下文；Sourcebot 用自托管 MCP 层补这一环。发布稿称代码不离开部署环境，但检索质量、权限模型与运维成本尚无独立评测，不宜当已证结论。",
+      "key_facts": [
+        {
+          "fact": "发布稿称 Sourcebot 开源、自托管，用单个 docker 容器部署并索引全部仓库，代码不离开自有部署环境。",
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        },
+        {
+          "fact": "提供代码搜索（宣称支持 regex、布尔逻辑及 repo/file/branch 过滤）与跨仓库自然语言问答 Ask，二者通过 MCP 暴露给 AI Agent。",
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        },
+        {
+          "fact": "发布稿宣称可对接任意 code host（GitHub、GitLab、BitBucket 等）与任意 LLM（OpenAI、Anthropic、Bedrock 等），由用户自带 LLM key。",
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        },
+        {
+          "fact": "发布稿称 NVIDIA、Red Hat、Wikimedia、Arista Networks 等公司的工程师在使用；社区版免费、企业版含高级导航、分析与安全合规功能。",
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        }
+      ],
+      "technical_analysis": "发布稿把代码搜索与跨仓库问答打包为 MCP 服务，供 Agent 取上下文。代码搜索宣称支持 regex、布尔逻辑与 repo/file/branch 过滤；Ask 提供自然语言问答并称返回 inline citations。自托管与自带 LLM key 是官方卖点；原文未给出检索后端、索引更新、延迟/准确率、权限模型与 MCP 工具粒度。编辑推断：可回链的引用比支持多少模型更影响工程师复核。",
+      "deep_dive": [
+        {
+          "heading": "检索与问答的边界",
+          "content": "发布稿称代码搜索可在数百万行代码中即时检索，支持 regex、布尔逻辑及 repo/file/branch 过滤；Ask 被描述为“像在 Cursor 里提问，但覆盖全部仓库，并在 web app 中给出 inline citations”。建议验证：重点检查引用能否回链到具体文件与行，以及跨仓库排序是否稳定；原文未说明检索后端、索引更新方式与排序策略。对 Agent 而言，可核验的引用比答案流畅度更影响复核。",
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        },
+        {
+          "heading": "部署形态与商业分层",
+          "content": "发布稿强调单容器、分钟级索引全部仓库，并称代码不离开部署环境；明确的是自带 LLM key，未说明代码托管凭据的保存方式。商业上社区版免费，企业版叠加高级导航、分析与安全合规能力，但未列具体功能清单与价格。团队自述来自 Ubisoft Montreal、微软 Visual Studio、Google、Meta、Xbox 等复杂系统项目，这是其切入代码理解工具的由来；原文没有与补全类产品作对照，不宜推断因果。",
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        }
+      ],
+      "evidence_note": "读到 YC Launch 发布说明全文（含 TL;DR、问题陈述、方案特性与团队故事），不是技术文档或仓库代码。未获得仓库与索引规模上限、检索延迟与准确率、MCP 接口定义与工具粒度、权限模型、定价，也没有第三方评测或实测复现。",
+      "application": "可先用社区版在单个自有仓库试用，重点看检索命中与引用能否回链到源码，再判断是否接入 Agent 工作流。",
+      "caveats": "仅厂商发布稿；无检索准确率/延迟、权限模型与定价；客户名单未核验；YC 页面标注约一年前发布。",
+      "confidence": 0.45,
+      "relevance_tags": [
+        "coding agent",
+        "MCP",
+        "code search",
+        "RAG",
+        "self-hosted",
+        "open source"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-9b212c04dea7",
+          "source_id": "tinyfish-discovery",
+          "url": "https://ycombinator.com/launches/OdD-sourcebot-the-code-understanding-platform",
+          "title": "Launch YC: Sourcebot: The Code Understanding Platform",
+          "publisher": "ycombinator.com",
+          "published_at": "2026-11-21T19:21:56Z",
+          "retrieved_at": "2026-11-21T22:00:55.299915Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-9b212c04dea7"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-d365f5f9f9ca50a1bc0311561e2ed78e",
+      "event_id": "67a09d71-a7c1-591b-adf2-3a6e69670f25",
+      "type": "news",
+      "title": "软件与DevOps Agent用例页称433条（标题422）",
+      "source": "agentusecases.ai",
+      "published_at": null,
+      "canonical_url": "https://agentusecases.ai/category/software",
+      "summary": "AgentUseCases.ai 的软件与DevOps主题页正文称收录433条用例，标题却写422条；其中373条由22个具名Agent完成，最常见的是Claude Code、Codex和Replit Agent，另有60条来自自建、较少见或未具名Agent。每条附来源和可试提示词，部分条目未给成功率或benchmark。",
+      "why_it_matters": "它把分散的Agent实践整理成可检索场景，并附提示词与来源，便于团队做需求映射与提示词起点；但条目缺少统一评测，部分仅作者自述，选型需自行验证。",
+      "key_facts": [
+        {
+          "fact": "页面正文称收录433条软件与DevOps用例，标题写422条，页面标注更新于2026-11-21。",
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        },
+        {
+          "fact": "373条用例由22个具名Agent完成，最常见的是Claude Code、Codex和Replit Agent；另有60条来自自建、较少见或未具名Agent。",
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        },
+        {
+          "fact": "每条用例链接原始来源并附可试提示词；部分条目明确没有成功率或benchmark数据。",
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        }
+      ],
+      "technical_analysis": "该页把Agent落地按工作流组织：从Issue到PR、PR审查、CI修复到K8s告警诊断，并附来源与提示词。它降低找案例成本，却把验证责任留给读者：条目缺少统一任务集、成功率和成本口径，标题422与正文433也不一致。编辑推断：这类目录适合做需求映射和提示词起点，不宜直接作为benchmark或采购结论。",
+      "deep_dive": [
+        {
+          "heading": "用例如何按工作流组织",
+          "content": "页面把用例按工作流而非模型分类。典型条目包括：把GitHub Issues或Linear任务送进隔离Kubernetes pod，由Claude Code或Codex跑到PR，CI绿后squash merge并记录成本；以及用Codex搭配GPT-5.5 planner与GPT-5.4 Mini executor，让便宜模型承担执行。另有PR审查、K8s告警诊断，以及用ntrecord录制终端会话并复查等场景。",
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        },
+        {
+          "heading": "失败模式与可靠性边界",
+          "content": "失败案例同样具体：GitHub Copilot coding agent被指总从默认分支起分支，即使指定feature branch；Devin的PR被评“像初级开发者”且太慢；Cursor跑24小时的项目管理工具能用但未达生产；Replit Agent会忘记指令、重复修bug，甚至声称UI测试通过而基本交互仍失败。这些说明当前瓶颈在验证与边界控制，而非单次生成。",
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        },
+        {
+          "heading": "建议验证路径",
+          "content": "建议验证：先选一条带来源、提示词和运行结果的窄任务，在隔离分支或沙箱复现；记录CI结果、人工review耗时与订阅/API成本；再决定是否扩展到多任务队列。优先挑同时说明权限边界与失败处理的条目。页面未提供统一评分，因此跨Agent比较只能作为假设，不能直接据此采购。",
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是主题页正文摘录：含用例标题、简短结果与Agent名称，并非每条全文；未获得独立发布日期、统一评测方法、成功率与成本口径，也未逐条核验原始链接。",
+      "application": "先按场景筛选带来源、提示词和运行结果的条目，小范围复现；无成功率数据的案例只作线索，不作选型依据。",
+      "caveats": "标题称422条、正文称433条；部分条目无成功率、成本和独立复现，不能当benchmark。",
+      "confidence": 0.78,
+      "relevance_tags": [
+        "Agent",
+        "coding agent",
+        "DevOps",
+        "MCP",
+        "PR review",
+        "use cases"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-70beee26537a",
+          "source_id": "tinyfish-discovery",
+          "url": "https://agentusecases.ai/category/software",
+          "title": "AI agents for Software & DevOps: 422 real use cases - AgentUseCases.ai",
+          "publisher": "agentusecases.ai",
+          "published_at": null,
+          "retrieved_at": "2026-11-21T22:00:55.298729Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-70beee26537a"
+          ]
+        }
+      ],
+      "editorial_section": "ai_practice",
+      "practice_profile": {
+        "practice_id": "url:https://agentusecases.ai/category/software",
+        "kind": "mcp",
+        "evidence_level": "detailed_case",
+        "reproducibility_score": 83,
+        "version": "",
+        "proof_points": [
+          {
+            "point": "页面列出433条软件与DevOps用例，并称每条链接来源、附可试提示词。",
+            "ref_ids": [
+              "ref-70beee26537a"
+            ]
+          },
+          {
+            "point": "用例覆盖22个具名Agent，含Claude Code、Codex、Replit Agent等，部分条目给出运行结果、成本或失败细节。",
+            "ref_ids": [
+              "ref-70beee26537a"
+            ]
+          }
+        ],
+        "try_it": [
+          "按场景筛选同时有来源、提示词和运行结果的条目",
+          "照提示词在隔离分支或沙箱复现一条窄任务",
+          "对照原帖记录失败点、人工review耗时与成本"
+        ],
+        "requirements": [
+          "原始来源链接可访问",
+          "对应Agent账号或API凭据",
+          "隔离代码库或沙箱",
+          "代码托管与CI权限"
+        ],
+        "limitations": [
+          "部分条目的结果为个人自述，且无成功率和统一benchmark",
+          "标题与正文计数冲突",
+          "分支、测试与成本控制仍不稳定"
+        ]
+      }
+    },
+    {
+      "item_id": "item-7ed78793d42750e798e26bd2c1d1918f",
+      "event_id": "e1f797a3-591d-54cd-9163-10422572371e",
+      "type": "news",
+      "title": "GBrain 页面展示跨 AI 共享记忆层",
+      "source": "gbrain.io",
+      "published_at": "2026-11-21T16:40:23Z",
+      "canonical_url": "https://gbrain.io/memory?v=2",
+      "summary": "gbrain.io 产品页称，ChatGPT、Claude、Claude Code、Cursor 等可连接到同一份记忆，任一 AI 写入后其他 AI 可读取；检索采用向量与精确词匹配并统一排序。页面还称在 LongMemEval 的 470 道题中有 451 道找回了问题所需全部信息，并称结果公开，但未给出结果链接或评测配置。",
+      "why_it_matters": "跨 AI 工具切换时上下文断裂是实际痛点；若同一记忆可被多个 Agent 读写，个人和小团队可减少重复交代。但页面未说明只读权限的具体粒度，企业采用前需核对数据边界。",
+      "key_facts": [
+        {
+          "fact": "页面称 ChatGPT、Claude、Claude Code、Cursor 等多个 AI 可连接到同一份记忆，任一 AI 的写入对其他 AI 可见",
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        },
+        {
+          "fact": "检索使用向量搜索加精确词匹配，两类结果统一排序",
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        },
+        {
+          "fact": "页面称在 LongMemEval 的 470 道题中有 451 道找回了问题所需全部信息",
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        },
+        {
+          "fact": "记忆以用户自有的 markdown 文件组织，按人物、项目、想法各一份，可整目录复制带走",
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        }
+      ],
+      "technical_analysis": "页面把记忆外置为多客户端共享的 markdown 文件目录，降低厂商锁定；检索把向量与精确词结果统一排序。页面称 Team 与 Enterprise 可把某个 AI 限制为只读，但未说明权限粒度。编辑推断：多个 AI 可写同一空间时，冲突处理与记忆污染会成为运维问题。",
+      "deep_dive": [
+        {
+          "heading": "记忆的所有权与层级设计",
+          "content": "页面把存储描述为每人、每项目、每想法一个 markdown 文件，最新为真的内容置顶、历史在下，另有 Lately 视图汇总本周内容，复制目录即整体搬迁。层级上个人记忆嵌套在团队内，团队嵌套在公司内；个人与工作是两份独立记忆，跨界内容由用户决定。连接状态可见到期情况：示例中 Studio Mac Mini 已于11月19日过期，Cursor 尚未连接。编辑推断：连接更像有生命周期的凭证，而非一次性授权。",
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        },
+        {
+          "heading": "夜间归档与“需要 AI 的步骤”",
+          "content": "写入即时，各 AI 工作时保存内容，每晚 GBrain 统一归档，使次日回答基于更新后的记忆。页面称读取事实需要模型参与，因此这类步骤只在 Team 与 Enterprise 套餐中提供，并称套餐包含一个（未说明是否为模型额度）。这意味着 Personal 与付费版可能存在整理能力差异，页面未量化。编辑推断：若归档依赖模型抽取，整理质量与成本可能随笔记量上升，是自建方案需预留的运维项。",
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        },
+        {
+          "heading": "自报 benchmark 的读法",
+          "content": "页面给出 451/470 并声明包括其他方案得分更高的测试在内、全部结果公开；但证据未提供结果页链接、评测脚本或基线名单，无法核对 LongMemEval 子集与评判标准。建议验证：要求厂商给出题目级结果与检索配置（top-k、混合权重），并在自己的笔记语料上跑同题对照，而不是只看总分。",
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的是 gbrain.io 产品落地页全文摘取，包含功能描述、连接状态示例与一项自报 benchmark。未获得：LongMemEval 结果明细与链接、第三方复现、定价与配额细节、检索延迟数据、只读权限的具体实现说明。",
+      "application": "可先用一个非敏感个人目录接入单个 AI 试读写，观察夜间归档后的检索质量；企业采购前应实测只读连接与个人/团队隔离。",
+      "caveats": "证据仅为厂商落地页：LongMemEval 的评测口径、基线、检索延迟与定价未给出，451/470 属自报。",
+      "confidence": 0.45,
+      "relevance_tags": [
+        "Memory",
+        "跨应用记忆",
+        "AI 工作流",
+        "LongMemEval",
+        "RAG",
+        "数据权限"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-55d59d3d2593",
+          "source_id": "tinyfish-discovery",
+          "url": "https://gbrain.io/memory?v=2",
+          "title": "One memory for every AI you use",
+          "publisher": "gbrain.io",
+          "published_at": "2026-11-21T16:40:23Z",
+          "retrieved_at": "2026-11-21T22:01:46.708191Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-55d59d3d2593"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-dce10e5b2a6751ef85a0fff6c879ac1f",
+      "event_id": "cda4b679-fa80-5075-af71-62317491c4d9",
+      "type": "news",
+      "title": "Claude Code 文档列出各 provider 功能可用性",
+      "source": "code.claude.com",
+      "published_at": "2026-11-20T23:44:35Z",
+      "canonical_url": "https://code.claude.com/docs/en/feature-availability",
+      "summary": "Claude Code 官方文档按模型提供方列出功能可用性：CLI、Agent SDK、IDE 扩展、Subagents、commands、skills、MCP servers 等本地能力基本可用，但 MCP tool search、`/design-sync` 与 `/import`、Explore subagent 存在 provider 限定；Cloud sessions、Remote Control、Code Review 等需 claude.ai 订阅，Amazon Bedrock 还缺 web search、fast mode、Advisor。",
+      "why_it_matters": "企业选 Bedrock、两家 Google Cloud 或 Foundry 接入 Claude Code 时，差距不只是模型，还有 web search、Advisor、定时任务等能力；文档同时区分 Google Cloud (Anthropic managed) 与 Google Cloud (Google managed)，后者才在默认关闭遥测名单内。",
+      "key_facts": [
+        {
+          "fact": "CLI 与 Agent SDK、VS Code 和 JetBrains 扩展、Subagents、hooks、commands、skills、CLAUDE.md memory、plugins、MCP servers、Checkpoints、sandboxing、Workflows 在所有 provider 上可用；但 MCP tool search、`/design-sync`、`/import` 与 Explore subagent 有 provider 限定。",
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        },
+        {
+          "fact": "Cloud sessions、Claude Code on mobile、Slack、`/schedule`、Ultrareview、Code Review、Remote Control、Chrome 扩展、computer use、Artifacts、语音听写需 claude.ai 账号；Desktop 是例外，Claude Desktop on 3P 的 Code tab 可在 Amazon Bedrock、Google Cloud Agent Platform、Microsoft Foundry、自建 LLM gateway 上运行，也可用 Anthropic Console API key 调用 Claude API。Slack 限 Pro/Max/Ultra，Code Review 限 Team/Enterprise，Computer use 限 Pro/Max/Ultra，Artifacts 覆盖 Pro 至 Enterprise。",
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        },
+        {
+          "fact": "Amazon Bedrock 不支持 web search、fast mode、Advisor、Channels、Code Mode、analytics dashboard、server-managed settings 及 `/design-sync` 与 `/import`；文档给出的替代是 `/loop` 代替 `/schedule`、GitHub Actions 或 GitLab CI/CD 代替 cloud sessions、WebFetch 指定 URL 代替 web search。",
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        },
+        {
+          "fact": "在 Amazon Bedrock、Google Cloud（Google managed）、Microsoft Foundry 与 Claude Platform on AWS 上，向 Anthropic 的错误上报与遥测默认关闭。",
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        }
+      ],
+      "technical_analysis": "文档以认证方式作为功能可用性的主判据，而非模型本身：同一模型经 Bedrock、Agent Platform 或 Foundry 接入时，依赖 Anthropic 服务端能力的功能并不相同。可分成三层——大多数本地基础能力、随 provider 变化的服务端能力、只对 claude.ai 订阅开放的云端能力；commands 与 MCP tool search 是本地层中的例外。差异并非单向：Bedrock 缺 web search、fast mode、Advisor、Code Mode，而 Console API key 反而保留 web search 与 Advisor；Claude Platform on AWS 保留 web search 与 v2.1.300+ 的 Advisor。遥测默认关闭只覆盖 Bedrock、Google Cloud (Google managed)、Foundry 与 Claude Platform on AWS。",
+      "deep_dive": [
+        {
+          "heading": "三家云上缺口的差异",
+          "content": "同样是第三方接入，缺口并不一致。Amazon Bedrock 缺 web search、fast mode、Advisor、Channels、Code Mode、analytics dashboard、server-managed settings，以及 `/design-sync` 与 `/import` 命令。Claude Platform on AWS 反而保留了 web search 和 v2.1.300 起的 Advisor，但失去 GitHub Actions 与 fast mode。Google Cloud (Google managed) 的 web search 仅覆盖 Opus 4、Sonnet 4、Haiku 4.5 及之后模型，fast mode 只在 global、us、eu 区域对 Fable 5.2 可用，若 Agent Platform 拒绝 fast mode 则退回标准速度。Microsoft Foundry 则连 GitLab CI/CD 也不在支持之列。编辑推断：没有单一 provider 全面占优，选型要按团队实际用到的命令与功能逐项取舍。",
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        },
+        {
+          "heading": "gateway 与认证造成的额外关闭",
+          "content": "文档指出，经 LLM gateway 接入时可用性大体跟随上游 provider，但只要 `ANTHROPIC_BASE_URL` 指向 `api.anthropic.com` 之外的地址，Claude Code 自身就会关闭 Remote Control 等功能，无论 gateway 是否转发；Advisor 之类还要求 gateway 完整转发请求。跨会话消息是另一处边界：API key 认证与各大云 provider 均只支持同机会话，跨机器发现需要连接 Remote Control 并登录 claude.ai。版本门槛为 macOS/Linux 的 v2.1.224、原生 Windows 的 v2.1.234、云 provider 的 v2.1.248。编辑推断：自建 gateway 的团队应把这一层当作独立于 provider 的降级来源单独排查。",
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        },
+        {
+          "heading": "订阅计划、管理员开关与命名变更",
+          "content": "用 claude.ai 账号登录时，可用性改由计划决定：Cloud sessions 与 cloud scheduled tasks 覆盖 Pro 至 Enterprise；Computer use 只在 Pro、Max、Ultra；Code Review 与分析面板只在 Team、Enterprise。Remote Control 和 Channels 在 Team、Enterprise 上属 Admin-enabled，默认关闭需管理员开启。Enterprise 的 Cloud sessions 还需 premium seat 或 Chat + Claude Code seat；ZDR 不在标准 Enterprise 内，需 Anthropic 单独开通。文档同时说明 Ultra 是原 Max 20x 的新名称、Max 是原 Max 5x 的新名称，两者功能一致，差异在用量限额与价格；启用 HIPAA 配置的 Enterprise 组织会有部分功能关闭。编辑推断：从 Pro 升级到 Team 并不自动获得 computer use，迁移前应把 seat 类型与管理员开关一起核对。",
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        }
+      ],
+      "evidence_note": "读到的是 Feature availability 文档正文摘录，含按 provider 与按订阅计划的表格文本及部分脚注；未获得渲染后的完整表格与全部脚注，也没有任何独立实测或社区反馈。",
+      "application": "对照矩阵核对自己 provider 的缺失项：把 `/schedule` 换成 `/loop`，云端会话改用 GitHub Actions 或 GitLab CI/CD，并确认遥测与 ZDR 条款。",
+      "caveats": "证据为文档正文摘录，未实测；矩阵随版本变化，Advisor 的 v2.1.300+ 门槛只适用于部分 provider，需查原文核对。",
+      "confidence": 0.78,
+      "relevance_tags": [
+        "Claude Code",
+        "企业部署",
+        "模型提供方",
+        "功能可用性",
+        "Bedrock"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-58b3d60fee96",
+          "source_id": "tinyfish-discovery",
+          "url": "https://code.claude.com/docs/en/feature-availability",
+          "title": "Feature availability",
+          "publisher": "code.claude.com",
+          "published_at": "2026-11-20T23:44:35Z",
+          "retrieved_at": "2026-11-21T22:00:56.790094Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        },
+        {
+          "claim_index": 2,
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        },
+        {
+          "claim_index": 3,
+          "ref_ids": [
+            "ref-58b3d60fee96"
+          ]
+        }
+      ]
+    },
+    {
+      "item_id": "item-330a738632295afdbc641722de7a560f",
+      "event_id": "6288cf0e-5c1f-52b1-b9bb-8e08fb4ec17f",
+      "type": "news",
+      "title": "GAO 文档线索：GAO-27-108458 正文未获取",
+      "source": "www.gao.gov",
+      "published_at": null,
+      "canonical_url": "https://www.gao.gov/assets/gao-27-108458.pdf",
+      "summary": "美国审计署 gao.gov 上托管编号 GAO-27-108458 的 PDF《AI and Cybersecurity》。本次抓取仅拿到文档标题与 PDF 地址，正文为空，未获得摘要、目录、发布日期或结论；无法判断该报告是否讨论 AI benchmark 或独立评估，也无法确认报告性质。来源元数据 published_at 为 null。",
+      "why_it_matters": "这条线索目前只够用于建立待核清单：若报告确实涉及 benchmark 评估，其价值在评估主体是否独立；但标题与正文均未获取，任何关于结论的推断都应等到 PDF 可访问后再下。",
+      "key_facts": [
+        {
+          "fact": "文档标题为 GAO-27-108458《AI and Cybersecurity》，托管在 gao.gov 的 PDF 路径下。",
+          "ref_ids": [
+            "ref-6911a0d342cb"
+          ]
+        },
+        {
+          "fact": "来源元数据 published_at 为 null，retrieved_at 为 2026-11-21T22:01:00Z；正文为空，未获得任何摘要或正文内容。",
+          "ref_ids": [
+            "ref-6911a0d342cb"
+          ]
+        }
+      ],
+      "technical_analysis": "由于来源只提供标题与 PDF 地址，没有可分析的正文。编辑分析（非来源事实）：benchmark 分数是 harness、数据集与评分规则共同产出的结果，同一模型换一套 harness，排名就可能变化，因此“谁在评”与“怎么评”和“评了多少分”同样重要。若后续拿到原文，应先确认报告讨论的是模型能力 benchmark、Agent 任务 benchmark，还是网络安全场景评测，再核对“独立评估”被定义为第三方机构、政府审计还是学术复现。",
+      "deep_dive": [
+        {
+          "heading": "这条线索的证据链边界",
+          "content": "可确认的只有文档标题与编号、gao.gov 的 PDF 地址，以及来源元数据：published_at 为 null，retrieved_at 为 2026-11-21T22:01:00Z。正文（untrusted_body）为空，没有任何摘要、目录或结论文本。编辑推断：编号中的“27”按 GAO 产品编号惯例可能对应某个财年，但未经原文核实，不应写进标题或结论。在拿到 PDF 之前，这条线索无法支撑关于报告内容或结论的任何陈述。",
+          "ref_ids": [
+            "ref-6911a0d342cb"
+          ]
+        },
+        {
+          "heading": "拿到 PDF 后应先看什么",
+          "content": "建议验证（非来源内容）：先确认报告是否讨论评估方法与独立性，再核对“独立评估”被定义为第三方机构、政府审计还是学术复现；随后检查报告是否给出具体案例或访谈对象，以及发布日期与报告类型（如技术评估、审计或政策建议）。若报告确实讨论 AI benchmark，应记录其评估主体、数据集、评分规则与可复现性描述；若没有，则本线索只保留为链接记录。不要从编号反推结论。",
+          "ref_ids": [
+            "ref-6911a0d342cb"
+          ]
+        }
+      ],
+      "evidence_note": "实际读到的只有搜索元数据：标题、PDF 地址、published_at 为 null、retrieved_at 为 2026-11-21T22:01:00Z；untrusted_body 为空，未获取 PDF 全文、摘要、目录与发布日期。",
+      "application": "暂不据此做选型或采购决策；先把原始 PDF 取回，核实发布日期、报告类型与是否讨论 benchmark。",
+      "caveats": "仅有标题与 PDF 链接，正文未获取；发布日期、报告内容与结论均未核实，编号对应的财年属未标注推断。",
+      "confidence": 0.22,
+      "relevance_tags": [
+        "AI benchmark",
+        "Agent 评测",
+        "独立评估",
+        "AI 治理",
+        "GAO"
+      ],
+      "related_item_ids": [],
+      "sources": [
+        {
+          "ref_id": "ref-6911a0d342cb",
+          "source_id": "tinyfish-discovery",
+          "url": "https://www.gao.gov/assets/gao-27-108458.pdf",
+          "title": "GAO-27-108458, AI and Cybersecurity",
+          "publisher": "www.gao.gov",
+          "published_at": null,
+          "retrieved_at": "2026-11-21T22:01:00.176687Z"
+        }
+      ],
+      "claim_refs": [
+        {
+          "claim_index": 0,
+          "ref_ids": [
+            "ref-6911a0d342cb"
+          ]
+        },
+        {
+          "claim_index": 1,
+          "ref_ids": [
+            "ref-6911a0d342cb"
+          ]
+        }
+      ]
+    }
+  ],
+  "trends": [],
+  "briefing": {
+    "headline": "MCP 风险披露与 Agent 执行控制并存",
+    "takeaway": "2026年11月20日至21日的多项材料分别涉及 MCP 会话与工具风险披露、Claude Code 的沙箱和 skills 配置、Agent 评估与记忆方案；这些材料来源和口径不一，不能合并为单一已确认趋势，跨条目归纳应视为编辑观察。",
+    "actions": [
+      "审计 MCP 会话认证与工具权限；mcp 1.27.2 仅关闭 CVE-2026-52869 与 CVE-2026-52870，其余 advisory 按该文需 1.28.1 或 1.30.0 / 2.2.0；MCPHub 按该文在 0.12.15 修复，升级前不要暴露公网。",
+      "在 Claude Code 中使用 skills 的按需加载并用 /doctor 检查上下文成本；若评估 jdx，仅按 README 在 gson-2.14.0 上的作者自测条件建立 token 基准，不将其与常驻上下文成本混为一谈。",
+      "启用 Claude Code Bash 沙箱时限定其只覆盖 shell 命令，内置文件/Web 工具、MCP servers、hooks、plugin monitors、LSP 不在边界内，原生 Windows 要使用沙箱需在 WSL2 中运行 Claude Code；工具确认与调用上限仅按 Spring AI 2.1.0 的 requiresConfirmation 与默认限制评估。"
+    ],
+    "read_minutes": 15
+  },
+  "source_stats": {
+    "raw_candidates": 45,
+    "shortlist": 16,
+    "sources": 1,
+    "coverage": {
+      "discovery": {
+        "queries": [
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") new research methods replication benchmark findings",
+            "lane": "research",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") open source tools release implementation deployment experience",
+            "lane": "engineering",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") product API pricing licensing availability changes",
+            "lane": "ecosystem",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "(\"Agent\" OR \"MCP\" OR \"RAG\" OR \"Memory\" OR \"Evaluation\" OR \"Enterprise AI\" OR \"AI coding\") independent evaluation limitations security incident technical debate",
+            "lane": "discussion",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "MCP Model Context Protocol security vulnerabilities 2025",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "MCP 协议 安全 漏洞 2025",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "agent memory benchmark evaluation 2025 paper",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "智能体 记忆 评测 基准 2025",
+            "lane": "topic",
+            "status": "ok",
+            "count": 9
+          },
+          {
+            "phase": "discovery",
+            "query": "RAG evaluation benchmark 2025 enterprise retrieval augmented generation",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "discovery",
+            "query": "RAG 评测 基准 企业 检索增强 2025",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "followup",
+            "query": "Spring AI 2.1.0 GA Session API MCP 2026-07-28 release notes",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "followup",
+            "query": "Long-Form Personas as Temporal Memory Representations arXiv LongMemEval method results",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "followup",
+            "query": "node9-proxy v2.66.1 jail ~/.ssh ~/.aws listing credential prescreen",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          },
+          {
+            "phase": "followup",
+            "query": "Nango MCP Auth integrations HubSpot MCP Granola official docs",
+            "lane": "topic",
+            "status": "ok",
+            "count": 10
+          }
+        ],
+        "followups": [
+          {
+            "seed_id": "s19",
+            "query": "Spring AI 2.1.0 GA Session API MCP 2026-07-28 release notes",
+            "language": "en",
+            "purpose": "核实官方变更范围：Session API 的记忆/压缩/召回、MCP 无状态修订支持、工具审批与每轮限制的实际约束和迁移影响"
+          },
+          {
+            "seed_id": "s11",
+            "query": "Long-Form Personas as Temporal Memory Representations arXiv LongMemEval method results",
+            "language": "en",
+            "purpose": "核实论文的记忆表示方法与 LongMemEval 相关主张，检查实验设置、基线对比和可复现性"
+          },
+          {
+            "seed_id": "s4",
+            "query": "node9-proxy v2.66.1 jail ~/.ssh ~/.aws listing credential prescreen",
+            "language": "en",
+            "purpose": "核实该修复针对的凭据目录列举绕过范围，确认是安全漏洞修补还是仅兼容性/性能限制"
+          },
+          {
+            "seed_id": "s8",
+            "query": "Nango MCP Auth integrations HubSpot MCP Granola official docs",
+            "language": "en",
+            "purpose": "核实 Nango 对 MCP Auth 的平台支持是否为官方正式能力，检查 OAuth 配置、适用集成和实际可用限制"
+          }
+        ],
+        "limitations": [],
+        "found_by_type": {
+          "news": 119,
+          "blog": 15,
+          "paper": 2,
+          "github": 3
+        },
+        "undated_leads": 62,
+        "page_fetch": [
+          {
+            "url": "https://www.threads.com/@omarsar0/post/DgA0J5pGA5O/can-coding-agents-build-better-rag-systems-than-the-best-published-human",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://papers.cool/arxiv/cs.CR",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://huggingface.co/papers?q=CLI+frameworks",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://medium.com/@danushidk507/stair-by-ibm-research-is-structure-aware-retrieval-the-next-evolution-beyond-rag-3755e2aede36",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://benchlm.ai/benchmarks/aacybergyme2e",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://builtin.com/job/ai-security-intern-vulcan/12369513",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://shattered.io/lg-ai-research-k-exaone-2-5-api-free-70-percent-nvidia-2026",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.swarm-ai.org/guides/benchmarking",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://opportunityinsights.org/paper/digital-twins",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.nature.com/articles/s41467-026-79176-3",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://agentusecases.ai/category/software",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://dev.to/mohammadmd1383/a-javap-alternative-for-ai-agents-an-mcp-server-that-reads-java-bytecode-3322",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://dev.to/contextual_layer_guy/what-microsofts-foundry-iq-knowledge-graph-update-and-real-world-mcp-oauth-headaches-tell-us-about-3pkc",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://ibl.ai/developer/os",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://openlit.io/",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://plotly.com/blog/ai-agent-frameworks-analyst-assistants",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://ycombinator.com/launches/OdD-sourcebot-the-code-understanding-platform",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://dev.to/deniz_chavdarov/how-i-gave-my-agents-memory-that-survives-a-new-chat-578p",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://www.facebook.com/cdatasoftware/videos/cdata-edsal-from-concept-to-live-ai-agents-in-two-weeks/1223315780433241",
+            "status": "failed",
+            "error": "CollectionError"
+          },
+          {
+            "url": "https://dev.to/wassimchegham/blaming-ai-what-if-your-product-is-the-problem-cci",
+            "status": "failed",
+            "error": "CollectionError"
+          }
+        ]
+      },
+      "eligible_by_type": {
+        "news": 40,
+        "blog": 5
+      },
+      "shortlist_by_type": {
+        "news": 25,
+        "blog": 5
+      },
+      "selected_by_type": {
+        "news": 14,
+        "blog": 2
+      },
+      "excluded_reasons": {
+        "不在本次阅读时间范围内": 1832,
+        "预发布版本，稳定版优先": 3,
+        "同包有更新的稳定版": 4
+      },
+      "editor_rejections": [
+        {
+          "raw_item_id": "d80403d664c60e2dc39e3ccf8f2a9e1479822196b0b4e1feddac0e4ab0e0ef12",
+          "reason": "仅模型卡加载示例，缺技术细节"
+        },
+        {
+          "raw_item_id": "cba32819bcc02757e602260a380610dd8f95576a82b77106e7733a26b407f74a",
+          "reason": "加密与杂项聚合，偏离主题"
+        },
+        {
+          "raw_item_id": "0a4ac8b4e039e354edae4af2604ab17de659fdb37943f523ab71a52b2c262339",
+          "reason": "传统渗透复现，非 AI 工程"
+        },
+        {
+          "raw_item_id": "3a37ca16d7ac81cf70e1a7c36aafc7a07066f795796ac4ee66cbfb5f4c09185e",
+          "reason": "内容过薄，仅一句 benchmark 定义"
+        },
+        {
+          "raw_item_id": "9da1d94aaba2ea9f1c25f1cb14ced242cb33818af80057ad1b8a0e063bd2a3c2",
+          "reason": "与已报 MCP 服务器修复同一事件"
+        },
+        {
+          "raw_item_id": "cbe9fe74098e6a1ce04bccda8e5b0b45e232f72daa8f9e64286ffd4a65bfd87b",
+          "reason": "版本日志无用户可见变更"
+        },
+        {
+          "raw_item_id": "6f0c97ff44609fec400fda0d47045bbb81c9cbb1a9591f8ecd208940c56a5f17",
+          "reason": "旧 CVE 且无正文细节"
+        },
+        {
+          "raw_item_id": "d590e24d82e14eef4286ec00c6d15b9530c613f561f9f39898ee91fc90a1d3f5",
+          "reason": "OpenSSH 漏洞，与主题无关"
+        },
+        {
+          "raw_item_id": "9a646a383903be1048025528dfe6c37e52f4ae714a6796f2aea86acab7050baf",
+          "reason": "平台比价营销稿，无正文"
+        },
+        {
+          "raw_item_id": "43d5e4f289b18ecec16bf2caaaf46f7eb5f28fe28757a708004e5c3b91457b3e",
+          "reason": "具身智能垂直领域，兴趣未覆盖"
+        },
+        {
+          "raw_item_id": "341d6071a1570c64a5e0bd344a3e607208b3f4a05d5b2e286e95889dbf5c0328",
+          "reason": "标题党观点文，缺证据"
+        },
+        {
+          "raw_item_id": "530f6f2d1293466b231a38ccd9f8c001207d8cc27842d7998a034b0f0d67c0d7",
+          "reason": "导航站首页，无新增信息"
+        },
+        {
+          "raw_item_id": "64253a068025a483d4bcd3238a21189ecd05483f8bfde46077b8cd71d31f9063",
+          "reason": "劳动力培训评估，主题无关"
+        },
+        {
+          "raw_item_id": "9b38c95705d43a2621c3492bee88550822d833244ce96eb32c431cad1bbd51e7",
+          "reason": "仅摘要，缺可验证细节"
+        }
+      ],
+      "scope_note": "仅检查本次已搜索和采集的覆盖，不能证明互联网热点无遗漏。"
+    },
+    "practice": {
+      "window_days": 7,
+      "queries": [
+        {
+          "query": "\"Agent Skills\" SKILL.md implementation workflow repository test",
+          "lane": "skill",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"Model Context Protocol\" production deployment authentication security",
+          "lane": "mcp",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "site:github.com \"MCP server\" installation configuration tools",
+          "lane": "mcp",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"AI coding agent\" testing code review CI workflow repository",
+          "lane": "ai_coding",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "\"AI agent\" evaluation observability production failure postmortem",
+          "lane": "agent_workflow",
+          "status": "ok",
+          "count": 10
+        },
+        {
+          "query": "RAG agent production benchmark latency cost implementation case study",
+          "lane": "rag_eval",
+          "status": "ok",
+          "count": 10
+        }
+      ],
+      "registry": {
+        "returned": 200,
+        "unique_with_repository": 29,
+        "skipped_without_repository": 130,
+        "status": "ok",
+        "candidates": 29
+      },
+      "repository_verification": {
+        "attempted": 8,
+        "verified": 7,
+        "failed": 1
+      },
+      "page_fetch": [
+        {
+          "url": "https://isaac-sim.github.io/IsaacLab/main/source/developer-tools/agent_skills.html",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://kiro.dev/docs/skills",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://youtube.com/watch?v=IIvjEUBM1tg",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://medium.com/@mubashirburfat4/i-found-7-github-repositories-that-give-claude-code-new-abilities-1ea07bca832a",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://docs.databricks.com/aws/en/genie-code/skills",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://code.claude.com/docs/en/skills?8adb0641_page=8",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://modelcontextprotocol.io/extensions/auth/enterprise-managed-authorization",
+          "status": "failed",
+          "error": "CollectionError"
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/model-context-protocol",
+          "status": "failed",
+          "error": "CollectionError"
+        }
+      ],
+      "limitations": [
+        "MCP Registry 本次最多读取 200 条更新"
+      ],
+      "discovered": 87,
+      "qualification": {
+        "leads": 87,
+        "qualified": 9,
+        "rejected": {
+          "案例缺少工作流、结果或限制": 75,
+          "研究论文不直接充当工程实践": 3
+        },
+        "stale_disqualified": 68,
+        "history_duplicates": 0
+      }
+    },
+    "skill_radar": {
+      "enabled": true,
+      "scope": "tech_and_agent",
+      "recorded": true,
+      "platform": "skills.sh",
+      "candidate_pool_size": 1200,
+      "excluded_count": 692,
+      "limitations": [
+        "skills.sh 新锐飙升榜抓取失败（未解析到榜单条目）"
+      ]
+    },
+    "generation_fallbacks": [
+      "1 条正文补全失败，仅保留标题线索"
+    ],
+    "generation_models": [
+      "deepseek/deepseek-v4.1-flash",
+      "typesafe/jev-1.14-20261014"
+    ]
+  },
+  "quality_report": {
+    "passed": true,
+    "hard_failures": [],
+    "warnings": [
+      "1 条正文补全失败，仅保留标题线索",
+      "6 条搜索线索缺少可核验发布日期",
+      "来源正文状态未确认: https://www.gao.gov/assets/gao-27-108458.pdf",
+      "Critic 仍有 20 项声明需要人工核验",
+      "Critic 提醒：[item-2d8352e68bee5cdba3f3e1e957979d9a] deep_dive「受影响面与 1.27.2 的绑定逻辑」与 technical_analysis 重复：principal 绑定、“未知会话”404、AccessToken 补 subject/claims 均已在技术分析中写过；该段新增信息只有受影响起始版本，建议压缩重复部分。",
+      "Critic 提醒：[item-2d8352e68bee5cdba3f3e1e957979d9a] deep_dive「共享 OAuth client 留下的缺口」末尾“依赖 verifier 填好 subject、自定义后端需自行校验”与 technical_analysis 的权衡句重复，建议保留一处并让另一处只补新信息（如共享 client ID 的复现结果）。",
+      "Critic 提醒：[item-2d8352e68bee5cdba3f3e1e957979d9a] 时间线不完整：文中明确修复早在 5 月随 1.27.2 发布、advisory 于 6 月 5 日公开，而利用信号迟至 11 月 20 日才出现；summary/why_it_matters 未呈现这段暴露窗口，读者难以判断“存量服务面”的具体来源。",
+      "Critic 提醒：[item-2d8352e68bee5cdba3f3e1e957979d9a] 背景可补但未写：该 CVE 截至 11 月 20 日并未进入 CISA KEV，同日 VulnCheck 加入目录的三条中有两条与 MCP 工具相关；缺少这两点会让“已利用”的严重性判断偏单向。",
+      "Critic 提醒：[item-2d8352e68bee5cdba3f3e1e957979d9a] 术语/表述口径需统一：文中同时出现“8 条 advisory”“只关闭两条”“six more”“seven other”，正文枚举的剩余项为 6 条；item 已在 key_facts 指出不一致，但 summary、why_it_matters 仍直接引用“8 条 / 只关两条”，建议在正文处标注“该文自述口径不一，按枚举应为 8 条总数、6 条残留”。",
+      "Critic 提醒：[item-2d8352e68bee5cdba3f3e1e957979d9a] technical_analysis 写“OAuth client ID 加 token 的 issuer、subject”时省略了原文的条件“when the verifier supplies them”；secure-by-default 的读者可能误以为 issuer/subject 总会参与绑定。",
+      "Critic 提醒：[item-78b2bffa5ffe55e88f9ae934a3038315] 全部结论基于单一官方文档（且页面在 --add-dir 一段被截断），属厂商自述而非独立验证；caveats 已说明，但 summary 中“几乎不产生成本”是官方未量化的表述，建议在句内加“文档称”限定。",
+      "Critic 提醒：[item-78b2bffa5ffe55e88f9ae934a3038315] technical_analysis 中动态注入示例的反引号嵌套写成 “`!`git diff HEAD``”，Markdown 渲染会错乱，建议改为代码块或转义。",
+      "Critic 提醒：[item-78b2bffa5ffe55e88f9ae934a3038315] deep_dive「bundled skills 与 /doctor 的检查项」信息密度高但未区分版本门槛归属：v2.1.305 只约束 usage 检查，v2.1.283 只约束 prompt-audit；建议分句写明，避免读者把版本要求当作整段 /doctor 功能门槛。",
+      "Critic 提醒：[item-7106474c17ea5af29ac3384d4ec2ae4a] “auto-allow 仅对沙箱内命令免提示”容易被读成所有沙箱命令都免提示；同文深潜已列 Bash deny、内容限定 ask、关键路径 rm/rmdir 等例外，建议在技术分析处同样注明。",
+      "内容包含类似凭据的技术示例，请人工核验"
+    ],
+    "metrics": {
+      "item_count": 16,
+      "body_success_rate": 0.9375,
+      "clue_item_count": 1,
+      "event_duplicate_rate": 0.0
+    },
+    "checked_at": "2026-11-21T22:30:49.144827+00:00"
+  },
+  "skill_radar": {
+    "recorded_at": "2026-11-21T22:02:29.414680Z",
+    "scope": "tech_and_agent",
+    "platform": "skills.sh",
+    "candidate_pool_size": 1200,
+    "excluded_count": 692,
+    "top_cumulative": {
+      "skill_key": "vercel-labs/skills/find-skills",
+      "name": "find-skills",
+      "source": "vercel-labs/skills",
+      "url": "https://www.skills.sh/vercel-labs/skills/find-skills",
+      "platform": "skills.sh",
+      "category": "agent_core",
+      "is_official": true,
+      "description": "帮助用户发现并安装 Agent Skill,适用于“如何做 X”或寻找某项能力等请求。",
+      "metric_name": "累计安装量",
+      "metric_value": 4474810,
+      "cumulative_installs": 4474810,
+      "daily_growth": 14063,
+      "stars": null
+    },
+    "top_daily_growth": {
+      "skill_key": "flowkit-labs/skills/website-builder",
+      "name": "website-builder",
+      "source": "flowkit-labs/skills",
+      "url": "https://www.skills.sh/flowkit-labs/skills/website-builder",
+      "platform": "skills.sh",
+      "category": "engineering_productivity",
+      "is_official": false,
+      "description": "根据自然语言需求搭建并预览企业托管网站,适合主页、落地页、服务展示和作品集。",
+      "metric_name": "过去 24h 新增安装",
+      "metric_value": 16198,
+      "cumulative_installs": 155597,
+      "daily_growth": 16198,
+      "stars": null
+    },
+    "top_cumulative_list": [
+      {
+        "skill_key": "vercel-labs/skills/find-skills",
+        "name": "find-skills",
+        "source": "vercel-labs/skills",
+        "url": "https://www.skills.sh/vercel-labs/skills/find-skills",
+        "platform": "skills.sh",
+        "category": "agent_core",
+        "is_official": true,
+        "description": "帮助用户发现并安装 Agent Skill,适用于“如何做 X”或寻找某项能力等请求。",
+        "metric_name": "累计安装量",
+        "metric_value": 4474810,
+        "cumulative_installs": 4474810,
+        "daily_growth": 14063,
+        "stars": null
+      },
+      {
+        "skill_key": "vercel-labs/agent-browser/agent-browser",
+        "name": "agent-browser",
+        "source": "vercel-labs/agent-browser",
+        "url": "https://www.skills.sh/vercel-labs/agent-browser/agent-browser",
+        "platform": "skills.sh",
+        "category": "engineering_productivity",
+        "is_official": true,
+        "description": "供 AI Agent 使用的浏览器自动化 CLI,可用于导航页面、填写表单、点击按钮和截图等网页交互。",
+        "metric_name": "累计安装量",
+        "metric_value": 1637173,
+        "cumulative_installs": 1637173,
+        "daily_growth": 12185,
+        "stars": null
+      },
+      {
+        "skill_key": "mattpocock/skills/grill-me",
+        "name": "grill-me",
+        "source": "mattpocock/skills",
+        "url": "https://www.skills.sh/mattpocock/skills/grill-me",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": false,
+        "description": "通过持续追问式访谈打磨计划或设计,帮助用户发现思路中的薄弱环节。",
+        "metric_name": "累计安装量",
+        "metric_value": 1589429,
+        "cumulative_installs": 1589429,
+        "daily_growth": 4774,
+        "stars": null
+      },
+      {
+        "skill_key": "designed-by-ai/skills/design-mobile-apps",
+        "name": "design-mobile-apps",
+        "source": "designed-by-ai/skills",
+        "url": "https://www.skills.sh/designed-by-ai/skills/design-mobile-apps",
+        "platform": "skills.sh",
+        "category": "engineering_productivity",
+        "is_official": false,
+        "description": "使用 Sleek 设计移动应用界面、编辑项目,并将设计实现为 React Native 或 HTML。",
+        "metric_name": "累计安装量",
+        "metric_value": 1561525,
+        "cumulative_installs": 1561525,
+        "daily_growth": 19952,
+        "stars": null
+      },
+      {
+        "skill_key": "anthropics/skills/frontend-design",
+        "name": "frontend-design",
+        "source": "anthropics/skills",
+        "url": "https://www.skills.sh/anthropics/skills/frontend-design",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": true,
+        "description": "为新 UI 或改版提供独特的视觉设计指导,涵盖美学方向、字体排版与界面打磨。",
+        "metric_name": "累计安装量",
+        "metric_value": 1150338,
+        "cumulative_installs": 1150338,
+        "daily_growth": 4341,
+        "stars": null
+      },
+      {
+        "skill_key": "uizze.sh/ui-taste",
+        "name": "ui-taste",
+        "source": "uizze.sh",
+        "url": "https://www.skills.sh/uizze.sh/ui-taste",
+        "platform": "skills.sh",
+        "category": "engineering_productivity",
+        "is_official": false,
+        "description": "",
+        "metric_name": "累计安装量",
+        "metric_value": 1097464,
+        "cumulative_installs": 1097464,
+        "daily_growth": 175,
+        "stars": null
+      },
+      {
+        "skill_key": "open.feishu.cn/lark-doc",
+        "name": "lark-doc",
+        "source": "open.feishu.cn",
+        "url": "https://www.skills.sh/open.feishu.cn/lark-doc",
+        "platform": "skills.sh",
+        "category": "engineering_productivity",
+        "is_official": false,
+        "description": "",
+        "metric_name": "累计安装量",
+        "metric_value": 930324,
+        "cumulative_installs": 930324,
+        "daily_growth": 1743,
+        "stars": null
+      },
+      {
+        "skill_key": "vercel-labs/agent-skills/vercel-react-best-practices",
+        "name": "vercel-react-best-practices",
+        "source": "vercel-labs/agent-skills",
+        "url": "https://www.skills.sh/vercel-labs/agent-skills/vercel-react-best-practices",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": true,
+        "description": "Vercel Engineering 的 React 与 Next.js 性能优化指南,用于编写、审查或重构相关代码。",
+        "metric_name": "累计安装量",
+        "metric_value": 921337,
+        "cumulative_installs": 921337,
+        "daily_growth": 2626,
+        "stars": null
+      },
+      {
+        "skill_key": "leonxlnx/taste-skill/design-taste-frontend",
+        "name": "design-taste-frontend",
+        "source": "leonxlnx/taste-skill",
+        "url": "https://www.skills.sh/leonxlnx/taste-skill/design-taste-frontend",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": false,
+        "description": "tasteskill v2 的反平庸前端 Skill,基于 247 个精选画廊网站研究,为网站提供艺术指导。",
+        "metric_name": "累计安装量",
+        "metric_value": 809651,
+        "cumulative_installs": 809651,
+        "daily_growth": 3927,
+        "stars": null
+      },
+      {
+        "skill_key": "microsoft/azure-skills/azure-deploy",
+        "name": "azure-deploy",
+        "source": "microsoft/azure-skills",
+        "url": "https://www.skills.sh/microsoft/azure-skills/azure-deploy",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": true,
+        "description": "仅对已有 .azure/deployment-plan.md 和基础设施文件的应用执行 Azure 部署。",
+        "metric_name": "累计安装量",
+        "metric_value": 756577,
+        "cumulative_installs": 756577,
+        "daily_growth": 3660,
+        "stars": null
+      }
+    ],
+    "top_daily_growth_list": [
+      {
+        "skill_key": "flowkit-labs/skills/website-builder",
+        "name": "website-builder",
+        "source": "flowkit-labs/skills",
+        "url": "https://www.skills.sh/flowkit-labs/skills/website-builder",
+        "platform": "skills.sh",
+        "category": "engineering_productivity",
+        "is_official": false,
+        "description": "根据自然语言需求搭建并预览企业托管网站,适合主页、落地页、服务展示和作品集。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 16198,
+        "cumulative_installs": 155597,
+        "daily_growth": 16198,
+        "stars": null
+      },
+      {
+        "skill_key": "mattpocock/skills/grilling",
+        "name": "grilling",
+        "source": "mattpocock/skills",
+        "url": "https://www.skills.sh/mattpocock/skills/grilling",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": false,
+        "description": "围绕计划、决策或想法持续追问用户,用于压力测试其思路,响应相关触发短语。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 4867,
+        "cumulative_installs": 1145901,
+        "daily_growth": 4867,
+        "stars": null
+      },
+      {
+        "skill_key": "beltsh/superpowers/agent-tools",
+        "name": "agent-tools",
+        "source": "beltsh/superpowers",
+        "url": "https://www.skills.sh/beltsh/superpowers/agent-tools",
+        "platform": "skills.sh",
+        "category": "agent_core",
+        "is_official": false,
+        "description": "通过 inference.sh CLI 运行 AI 应用,覆盖图像/视频生成、LLM、搜索、3D 与 Twitter 自动化,支持多种模型。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 3893,
+        "cumulative_installs": null,
+        "daily_growth": 3893,
+        "stars": null
+      },
+      {
+        "skill_key": "microsoft/azure-skills/azure-kubernetes",
+        "name": "azure-kubernetes",
+        "source": "microsoft/azure-skills",
+        "url": "https://www.skills.sh/microsoft/azure-skills/azure-kubernetes",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": true,
+        "description": "规划、创建并配置生产可用的 Azure Kubernetes Service (AKS) 集群,涵盖 Day-0 检查清单、SKU 选择与网络等配置。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 3662,
+        "cumulative_installs": 623159,
+        "daily_growth": 3662,
+        "stars": null
+      },
+      {
+        "skill_key": "vercel-labs/agent-skills/web-design-guidelines",
+        "name": "web-design-guidelines",
+        "source": "vercel-labs/agent-skills",
+        "url": "https://www.skills.sh/vercel-labs/agent-skills/web-design-guidelines",
+        "platform": "skills.sh",
+        "category": "agent_core",
+        "is_official": true,
+        "description": "依据 Web Interface Guidelines 审查 UI 代码,适用于可访问性检查、设计审计与 UX 评审。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 3472,
+        "cumulative_installs": 890039,
+        "daily_growth": 3472,
+        "stars": null
+      },
+      {
+        "skill_key": "emilkowalski/skills/learn-taste",
+        "name": "learn-taste",
+        "source": "emilkowalski/skills",
+        "url": "https://www.skills.sh/emilkowalski/skills/learn-taste",
+        "platform": "skills.sh",
+        "category": "agent_core",
+        "is_official": false,
+        "description": "把会话中的设计纠正整理成带原因说明的规则,落入 DESIGN.md、项目 Skill 或 lint 检查。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 1808,
+        "cumulative_installs": null,
+        "daily_growth": 1808,
+        "stars": null
+      },
+      {
+        "skill_key": "open.feishu.cn/lark-shared",
+        "name": "lark-shared",
+        "source": "open.feishu.cn",
+        "url": "https://www.skills.sh/open.feishu.cn/lark-shared",
+        "platform": "skills.sh",
+        "category": "engineering_productivity",
+        "is_official": false,
+        "description": "",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 1755,
+        "cumulative_installs": 929683,
+        "daily_growth": 1755,
+        "stars": null
+      },
+      {
+        "skill_key": "prisma/skills/prisma-client-api",
+        "name": "prisma-client-api",
+        "source": "prisma/skills",
+        "url": "https://www.skills.sh/prisma/skills/prisma-client-api",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": true,
+        "description": "Prisma Client API 参考,覆盖模型查询、过滤器、操作符与客户端方法,用于编写数据库查询和 CRUD 操作。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 1559,
+        "cumulative_installs": 442526,
+        "daily_growth": 1559,
+        "stars": null
+      },
+      {
+        "skill_key": "cloudflare/security-audit-skill/security-audit",
+        "name": "security-audit",
+        "source": "cloudflare/security-audit-skill",
+        "url": "https://www.skills.sh/cloudflare/security-audit-skill/security-audit",
+        "platform": "skills.sh",
+        "category": "agent_core",
+        "is_official": true,
+        "description": "面向代码库、API、服务、CLI 工具、库和守护进程的安全指导与漏洞审查,适合安全问答和专项评审。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 1518,
+        "cumulative_installs": 120706,
+        "daily_growth": 1518,
+        "stars": null
+      },
+      {
+        "skill_key": "sentry/dev/sentry-cli",
+        "name": "sentry-cli",
+        "source": "sentry/dev",
+        "url": "https://www.skills.sh/sentry/dev/sentry-cli",
+        "platform": "skills.sh",
+        "category": "coding",
+        "is_official": false,
+        "description": "指导使用 Sentry CLI 在命令行与 Sentry 交互,适用于查看 issue、事件、项目和组织的请求。",
+        "metric_name": "过去 24h 新增安装",
+        "metric_value": 1327,
+        "cumulative_installs": 199198,
+        "daily_growth": 1327,
+        "stars": null
+      }
+    ],
+    "top_emerging": null,
+    "limitations": [
+      "skills.sh 新锐飙升榜抓取失败（未解析到榜单条目）"
+    ]
+  }
+}
